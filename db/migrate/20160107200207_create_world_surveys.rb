@@ -1,3 +1,6 @@
+# Generated with:
+# rails g scaffold world_surveys system:string commander:string world:string world_type:string terraformable:boolean gravity:float terrain_difficulty:integer notes:text carbon:boolean iron:boolean nickel:boolean phosphorus:boolean sulphur:boolean arsenic:boolean chromium:boolean germanium:boolean manganese:boolean selenium:boolean vanadium:boolean zinc:boolean zirconium:boolean cadmium:boolean mercury:boolean molybdenum:boolean niobium:boolean tin:boolean tungsten:boolean antimony:boolean polonium:boolean ruthenium:boolean technetium:boolean tellurium:boolean yttrium:boolean
+
 class CreateWorldSurveys < ActiveRecord::Migration
   def change
     create_table :world_surveys do |t|
