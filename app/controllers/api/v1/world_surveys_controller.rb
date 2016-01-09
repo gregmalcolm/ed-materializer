@@ -46,7 +46,40 @@ module Api
       end
 
       def world_survey_params
-        params.require(:world_survey).permit(:system, :commander, :world, :world_type, :terraformable, :gravity, :terrain_difficulty, :notes, :carbon, :iron, :nickel, :phosphorus, :sulphur, :arsenic, :chromium, :germanium, :manganese, :selenium, :vanadium, :zinc, :zirconium, :cadmium, :mercury, :molybdenum, :niobium, :tin, :tungsten, :antimony, :polonium, :ruthenium, :technetium, :tellurium, :yttrium)
+        params.require(:world_survey).
+               permit(:system,
+                      :commander,
+                      :world,
+                      :world_type,
+                      :terraformable,
+                      :gravity,
+                      :terrain_difficulty,
+                      :notes,
+                      :carbon,
+                      :iron,
+                      :nickel,
+                      :phosphorus,
+                      :sulphur,
+                      :arsenic,
+                      :chromium,
+                      :germanium,
+                      :manganese,
+                      :selenium,
+                      :vanadium,
+                      :zinc,
+                      :zirconium,
+                      :cadmium,
+                      :mercury,
+                      :molybdenum,
+                      :niobium,
+                      :tin,
+                      :tungsten,
+                      :antimony,
+                      :polonium,
+                      :ruthenium,
+                      :technetium,
+                      :tellurium,
+                      :yttrium)
       end
     end
   end
