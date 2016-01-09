@@ -15,3 +15,10 @@ Just a prototype backend api for EDDiscovery. It likely not long for this world.
 `bundle`
 `rake db:create`
 `rake db:migrate`
+
+5) Optional, seeds sample data in the db:
+`rake db:seed`
+
+6) Start the rails server on port 3000:
+
+`rails s`

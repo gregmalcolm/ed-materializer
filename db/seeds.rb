@@ -1,7 +1,53 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
-#
-# Examples:
-#
-#   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
-#   Mayor.create(name: 'Emanuel', city: cities.first)
+WorldSurvey.create([
+{
+  system: "NGANJI",
+  commander: "Eoran",
+  world: "A 5",
+  world_type: "High Metal Content",
+  terraformable: false,
+  gravity: 1.47,
+  terrain_difficulty: 3,
+  carbon: true,
+  iron: true,
+  nickel: true,
+  phosphorus: true,
+  sulphur: true,
+  chromium: true,
+  germanium: true,
+  manganese: true,
+  tin: true,
+  antimony: true
+},
+{
+  system: "SHINRARTA DEZHRA",
+  commander: "Dommaarraa",
+  world: "A 5",
+  world_type: "High Metal Content",
+  terraformable: false,
+  gravity: 0.99,
+  terrain_difficulty: 2,
+  carbon: true,
+  iron: true,
+  nickel: true,
+  phosphorus: true,
+  sulphur: true,
+  manganese: true,
+  selenium: true,
+  molybdenum: true,
+  niobium: true
+},
+{
+  system: "SHINRARTA DEZHRA",
+  commander: "Marlon Blake",
+  world: "A 5",
+  world_type: "High Metal Content",
+  terraformable: false,
+  gravity: 0.99,
+  terrain_difficulty: 2,
+  arsenic: true,
+  germanium: true,
+  molybdenum: true,
+  niobium: true,
+  polonium: true
+},
+])
