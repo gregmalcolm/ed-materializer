@@ -6,7 +6,7 @@ Just a prototype backend api for EDDiscovery. It likely not long for this world.
 Setup
 -----
 
-1) Install Ruby 2.3
+1) Install Ruby 2.2.4
 
 2) Install Postgres
 
