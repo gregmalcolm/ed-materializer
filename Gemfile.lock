@@ -47,6 +47,7 @@ GEM
       activesupport (>= 4.1.0)
     i18n (0.7.0)
     json (1.8.3)
+    json_schema (0.10.0)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
@@ -57,6 +58,9 @@ GEM
     nokogiri (1.6.7.1)
       mini_portile2 (~> 2.0.0.rc2)
     pg (0.18.4)
+    prmd (0.11.4)
+      erubis (~> 2.7)
+      json_schema (~> 0.3, >= 0.3.1)
     rack (1.6.4)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -127,6 +131,7 @@ PLATFORMS
 
 DEPENDENCIES
   pg
+  prmd
   rails (= 4.2.5)
   rails-api
   rspec-rails
