@@ -4,9 +4,10 @@ module Api
       before_action :set_world_survey, only: [:show, :update, :destroy]
 
       def index
-        @world_surveys = WorldSurvey.all
-
-        render json: @world_surveys
+        @world_surveys = WorldSurvey.page(page).
+                                     per(per_page)
+        render json: @world_surveys, serializer: PaginatedSerializer,
+                                     each_serializer: WorldSurveySerializer
       end
 
       def show
@@ -51,35 +52,16 @@ module Api
                       :commander,
                       :world,
                       :world_type,
-                      :terraformable,
-                      :gravity,
-                      :terrain_difficulty,
-                      :notes,
-                      :carbon,
-                      :iron,
-                      :nickel,
-                      :phosphorus,
-                      :sulphur,
-                      :arsenic,
-                      :chromium,
-                      :germanium,
-                      :manganese,
-                      :selenium,
-                      :vanadium,
-                      :zinc,
-                      :zirconium,
-                      :cadmium,
-                      :mercury,
-                      :molybdenum,
-                      :niobium,
-                      :tin,
-                      :tungsten,
-                      :antimony,
-                      :polonium,
-                      :ruthenium,
-                      :technetium,
-                      :tellurium,
-                      :yttrium)
+                      :updated_at,
+                      :created_at)
+      end
+
+      def page
+        params[:page] || 1
+      end
+
+      def per_page
+        params[:per_page] || 500
       end
     end
   end
