@@ -19,6 +19,26 @@ Example through CURL (runnable in git bash or unix):
 
 `curl -i -H "Content-Type: application/json" https://ed-materializer.herokuapp.com/api/v1/world_surveys/\?page=1`
 
+There are also querystring params availabe that will filter on:
+* page
+* per_page (defaults to 500)
+* q (filter)
+
+Filter arguments are a contained within `q` as the following indexes:
+* system
+* commander
+* world
+* updated_before
+* updated_after
+
+Examples:
+
+Filter on commander and world:
+`curl -i -H "Content-Type: application/json" https://ed-materializer.herokuapp.com/api/v1/world_surveys/?q[commander]=marlon%20blake&q[world]=A%205`
+
+Find all records after 30th Dec 2015
+`curl -i -H "Content-Type: application/json" https://ed-materializer.herokuapp.com/api/v1/world_surveys/?q[updated_after]=2015-12-30`
+
 GET show urls
 -------------
 
@@ -29,7 +49,6 @@ Currently uses numerical ids
 This returns the record where id=1
 
 `curl -i -H "Content-Type: application/json" https://ed-materializer.herokuapp.com/api/v1/world_surveys/1`
-
 
 POST record inserts
 -------------------

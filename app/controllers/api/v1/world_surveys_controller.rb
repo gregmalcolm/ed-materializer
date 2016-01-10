@@ -4,8 +4,8 @@ module Api
       before_action :set_world_survey, only: [:show, :update, :destroy]
 
       def index
-        @world_surveys = WorldSurvey.page(page).
-                                     per(per_page)
+        @world_surveys = filtered.page(page).
+                                  per(per_page)
         render json: @world_surveys, serializer: PaginatedSerializer,
                                      each_serializer: WorldSurveySerializer
       end
@@ -62,6 +62,19 @@ module Api
 
       def per_page
         params[:per_page] || 500
+      end
+
+      def filtered
+        q = params[:q]
+        if q.present?
+          WorldSurvey.by_system(q[:system]).
+                      by_commander(q[:commander]).
+                      by_world(q[:world]).
+                      updated_before(q[:updated_before]).
+                      updated_after(q[:updated_after])
+        else
+          WorldSurvey.all
+        end
       end
     end
   end
