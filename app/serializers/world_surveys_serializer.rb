@@ -1,4 +1,4 @@
-class WorldSurveySerializer < ActiveModel::Serializer::ArraySerializer
+class WorldSurveysSerializer < ActiveModel::Serializer
   attributes :system,
              :commander,
              :world,
@@ -31,5 +31,9 @@ class WorldSurveySerializer < ActiveModel::Serializer::ArraySerializer
              :ruthenium,
              :technetium,
              :tellurium,
-             :yttrium
+             :yttrium,
+             :arrival_point,
+             :atmosphere_type,
+             :vulcanism_type,
+             :radius
 end

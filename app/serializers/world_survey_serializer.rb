@@ -33,6 +33,10 @@ class WorldSurveySerializer < ActiveModel::Serializer
              :technetium,
              :tellurium,
              :yttrium,
+             :arrival_point,
+             :atmosphere_type,
+             :vulcanism_type,
+             :radius,
              :updated_at,
              :created_at
 end

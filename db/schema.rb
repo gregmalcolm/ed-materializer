@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160107200207) do
+ActiveRecord::Schema.define(version: 20160110151113) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,16 @@ ActiveRecord::Schema.define(version: 20160107200207) do
     t.boolean  "yttrium"
     t.datetime "created_at",         null: false
     t.datetime "updated_at",         null: false
+    t.float    "arrival_point"
+    t.integer  "atmosphere_type"
+    t.integer  "vulcanism_type"
+    t.float    "radius"
   end
+
+  add_index "world_surveys", ["commander"], name: "index_world_surveys_on_commander", using: :btree
+  add_index "world_surveys", ["system", "commander", "world", "updated_at"], name: "index_world_surveys_on_sys_com_wor_upd", using: :btree
+  add_index "world_surveys", ["system"], name: "index_world_surveys_on_system", using: :btree
+  add_index "world_surveys", ["updated_at"], name: "index_world_surveys_on_updated_at", using: :btree
+  add_index "world_surveys", ["world"], name: "index_world_surveys_on_world", using: :btree
 
 end
