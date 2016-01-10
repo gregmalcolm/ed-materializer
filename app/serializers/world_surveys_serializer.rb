@@ -1,4 +1,4 @@
-class WorldSurveySerializer < ActiveModel::ArraySerializer
+class WorldSurveySerializer < ActiveModel::Serializer::ArraySerializer
   attributes :system,
              :commander,
              :world,
