@@ -28,3 +28,8 @@ rake db:migrate
 6) Start the rails server on port 3000:
 
 ```rails s```
+
+Schema
+------
+
+Documented in [schema.md](/schema.md)
