@@ -1,114 +1,61 @@
 require 'rails_helper'
+require 'support/helpers/world_surveys_helper.rb'
 
 describe Api::V1::WorldSurveysController, type: :controller do
-
-  let(:valid_attributes) {
-    {
-      system: "Void's Brink",
-      commander: "Alex Ryder",
-      world: "A 1",
-      zinc: true
-    }
-  }
-
-  let(:invalid_attributes) {
-    { id: 42 }
-  }
+  include WorldSurveysHelper
 
   let(:valid_session) { {} }
+  let!(:surveys) { spawn_world_surveys }
 
   describe "GET #index" do
-    it "assigns all world_surveys as @world_surveys" do
-      world_survey = WorldSurvey.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:world_surveys)).to eq([world_survey])
-    end
+    let(:json) { JSON.parse(response.body)["world_surveys"] }
+
+    before { get :index, {}, valid_session }
+    it { expect(response).to have_http_status(200) }
+    it { expect(json[0]["system"]).to be == "NGANJI" }
+    it { expect(json.size).to be >= 3 }
   end
 
   describe "GET #show" do
-    it "assigns the requested world_survey as @world_survey" do
-      world_survey = WorldSurvey.create! valid_attributes
-      get :show, {:id => world_survey.to_param}, valid_session
-      expect(assigns(:world_survey)).to eq(world_survey)
-    end
+    let(:json) { JSON.parse(response.body)["world_survey"] }
+
+    before { get :show, {id: surveys[1].id}, valid_session }
+    it { expect(response).to have_http_status(200) }
+    it { expect(json["system"]).to be == "SHINRARTA DEZHRA" }
+    it { expect(json["commander"]).to be == "Dommaarraa" }
   end
 
   describe "POST #create" do
-    context "with valid params" do
-      it "creates a new WorldSurvey" do
-        expect {
-          post :create, {:world_survey => valid_attributes}, valid_session
-        }.to change(WorldSurvey, :count).by(1)
-      end
+    let(:json) { JSON.parse(response.body)["world_survey"] }
 
-      it "assigns a newly created world_survey as @world_survey" do
-        post :create, {:world_survey => valid_attributes}, valid_session
-        expect(assigns(:world_survey)).to be_a(WorldSurvey)
-        expect(assigns(:world_survey)).to be_persisted
-      end
+    let(:new_survey) { { world_survey:
+      { system: "MAGRATHEA", commander: "Arthur Dent", world: "B 2", zinc: true } }
+    }
 
-      it "responds to created world_survey with a success code" do
-        post :create, {:world_survey => valid_attributes}, valid_session
-        expect(response.code).to eq("201")
-      end
-    end
-
-    context "with invalid params" do
-      #it "responds to invalid create params a fail code" do
-        #post :create, {:world_survey => invalid_attributes}, valid_session
-        #expect(response.code).to eq("401")
-      #end
+    context "adding a survey" do
+      before { post :create, new_survey, valid_session }
+      it { expect(response).to have_http_status(201) }
+      it { expect(json["system"]).to be == "MAGRATHEA" }
+      it { expect(WorldSurvey.last.system).to be == "MAGRATHEA" }
     end
   end
 
-  describe "PUT #update" do
-    context "with valid params" do
-      let(:new_attributes) {
-        {
-          system: "Void's Brink",
-          commander: "Alex Ryder",
-          world: "B 2",
-          polonium: true,
-          iron: true,
-          zinc: false
-        }
-      }
-
-      it "assigns the requested world_survey as @world_survey" do
-        world_survey = WorldSurvey.create! valid_attributes
-        put :update, {:id => world_survey.to_param, :world_survey => valid_attributes}, valid_session
-        expect(assigns(:world_survey)).to eq(world_survey)
-      end
-
-      it "responds with a success code for a valid record" do
-        world_survey = WorldSurvey.create! valid_attributes
-        put :update, {:id => world_survey.to_param, :world_survey => valid_attributes}, valid_session
-        expect(response.code).to eq("204")
-      end
-    end
-
-    context "with invalid params" do
-      it "assigns the world_survey as @world_survey" do
-        world_survey = WorldSurvey.create! valid_attributes
-        put :update, {:id => world_survey.to_param, :world_survey => invalid_attributes}, valid_session
-        expect(assigns(:world_survey)).to eq(world_survey)
-      end
+  describe "PATCH/PUT #update" do
+    let(:updated_survey) { { id: surveys[0].id,
+                             world_survey: { mercury: true }} }
+    context "updating a survey" do
+      before { put :update, updated_survey, valid_session }
+      let(:survey) { WorldSurvey.find(surveys[0].id) }
+      it { expect(response).to have_http_status(204) }
+      it { expect(survey.system).to be == "NGANJI" }
+      it { expect(survey.mercury).to be true }
     end
   end
 
   describe "DELETE #destroy" do
-    it "destroys the requested world_survey" do
-      world_survey = WorldSurvey.create! valid_attributes
-      expect {
-        delete :destroy, {:id => world_survey.to_param}, valid_session
-      }.to change(WorldSurvey, :count).by(-1)
-    end
-
-    it "responds to a deletion with the exepected code" do
-      world_survey = WorldSurvey.create! valid_attributes
-      delete :destroy, {:id => world_survey.to_param}, valid_session
-      expect(response.code).to eq("204")
-    end
+    let(:id) { surveys[0].id }
+    before { delete :destroy, {id: id}, valid_session }
+    it { expect(response).to have_http_status(204) }
+    it { expect(WorldSurvey.where(id: id).any?).to be false }
   end
-
 end

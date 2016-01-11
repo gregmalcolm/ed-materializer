@@ -47,14 +47,14 @@ module Api
       end
 
       def world_survey_params
+        # Blacklisting isn't the most secure way of doing this
+        # but the attribute list is long and the security implications
+        # are low here
         params.require(:world_survey).
-               permit(:system,
-                      :commander,
-                      :world,
-                      :world_type,
-                      :updated_at,
-                      :created_at)
+               except!(:id, :updated_at, :created_at).
+               permit!
       end
+
 
       def page
         params[:page] || 1
