@@ -5,7 +5,8 @@ module Api
 
       def index
         @world_surveys = filtered.page(page).
-                                  per(per_page)
+                                  per(per_page).
+                                  order("updated_at")
         render json: @world_surveys, serializer: PaginatedSerializer,
                                      each_serializer: WorldSurveySerializer
       end
