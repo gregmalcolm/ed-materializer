@@ -26,7 +26,7 @@ describe Api::V1::WorldSurveysController, type: :controller do
   end
 
   describe "POST #create" do
-    let(:json) { JSON.parse(response.body)["world_survey"] }
+    let(:json) { JSON.parse(response.body) }
 
     let(:new_survey) { { world_survey:
       { system: "MAGRATHEA", commander: "Arthur Dent", world: "B 2", zinc: true } }
@@ -35,14 +35,23 @@ describe Api::V1::WorldSurveysController, type: :controller do
     context "adding a survey" do
       before { post :create, new_survey, valid_session }
       it { expect(response).to have_http_status(201) }
-      it { expect(json["system"]).to be == "MAGRATHEA" }
+      it { expect(json["world_survey"]["system"]).to be == "MAGRATHEA" }
       it { expect(WorldSurvey.last.system).to be == "MAGRATHEA" }
     end
 
-    context "Trying to add a servey that already exists" do
+    context "one survey per commander per world" do
       before { create :world_survey, new_survey[:world_survey] }
       before { post :create, new_survey, valid_session }
       it { expect(response).to have_http_status(422) }
+      it { expect(json["commander"]).to include "has already been taken" }
+    end
+
+    context "adding a survey" do
+      before { post :create, {world_survey: {tin: true}}, valid_session }
+      it { expect(response).to have_http_status(422) }
+      it { expect(json["commander"]).to include "can't be blank" }
+      it { expect(json["system"]).to include "can't be blank" }
+      it { expect(json["world"]).to include "can't be blank" }
     end
   end
 

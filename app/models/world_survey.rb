@@ -7,5 +7,6 @@ class WorldSurvey < ActiveRecord::Base
   scope :updated_after,  ->(time) { where("updated_at>?", time ) if Time.parse(time) rescue false }
 
   validates :commander, uniqueness: { scope: [:system, :world] }
+  validates :commander, :system, :world, presence: true
 end
 
