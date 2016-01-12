@@ -1,4 +1,6 @@
 class WorldSurvey < ActiveRecord::Base
+  has_paper_trail
+
   scope :by_system,    ->(system)    { where("UPPER(TRIM(system)=?", system.to_s.upcase.strip ) if system }
   scope :by_commander, ->(commander) { where("UPPER(TRIM(commander))=?", commander.to_s.upcase.strip ) if commander }
   scope :by_world,     ->(world)     { where("UPPER(TRIM(world))=?", world.to_s.upcase.strip ) if world }

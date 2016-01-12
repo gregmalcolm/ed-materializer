@@ -9,6 +9,7 @@ gem 'active_model_serializers', '0.10.0.rc3'
 gem 'pg'
 gem 'puma'
 gem 'kaminari'
+gem 'paper_trail', '~> 4.0.0'
 
 group :test, :development do
   gem 'pry-byebug'
