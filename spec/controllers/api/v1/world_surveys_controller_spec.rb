@@ -38,6 +38,12 @@ describe Api::V1::WorldSurveysController, type: :controller do
       it { expect(json["system"]).to be == "MAGRATHEA" }
       it { expect(WorldSurvey.last.system).to be == "MAGRATHEA" }
     end
+
+    context "Trying to add a servey that already exists" do
+      before { create :world_survey, new_survey[:world_survey] }
+      before { post :create, new_survey, valid_session }
+      it { expect(response).to have_http_status(422) }
+    end
   end
 
   describe "PATCH/PUT #update" do
