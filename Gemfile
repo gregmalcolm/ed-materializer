@@ -7,9 +7,7 @@ gem 'rails-api'
 gem 'active_model_serializers', '0.10.0.rc3'
 
 gem 'pg'
-gem 'thin'
-
-gem 'prmd'
+gem 'puma'
 gem 'kaminari'
 
 group :test, :development do
