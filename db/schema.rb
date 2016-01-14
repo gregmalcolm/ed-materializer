@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160112041238) do
+ActiveRecord::Schema.define(version: 20160114012942) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,7 +32,6 @@ ActiveRecord::Schema.define(version: 20160112041238) do
     t.string   "commander"
     t.string   "world"
     t.string   "world_type"
-    t.boolean  "terraformable"
     t.float    "gravity"
     t.integer  "terrain_difficulty"
     t.text     "notes"
@@ -61,12 +60,13 @@ ActiveRecord::Schema.define(version: 20160112041238) do
     t.boolean  "technetium"
     t.boolean  "tellurium"
     t.boolean  "yttrium"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
     t.float    "arrival_point"
     t.integer  "atmosphere_type"
-    t.integer  "vulcanism_type"
     t.float    "radius"
+    t.string   "terraformable",      limit: 30
+    t.string   "vulcanism_type",     limit: 30
   end
 
   add_index "world_surveys", ["commander"], name: "index_world_surveys_on_commander", using: :btree
