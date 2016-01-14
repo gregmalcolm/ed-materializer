@@ -1,3 +1,5 @@
 language: ruby
 rvm:
 - 2.2.4
+before_script:
+  - psql -c 'create database ed_materializer_test;' -U postgres
