@@ -1,7 +1,13 @@
 ED Materializer
 ===============
 
-Just a prototype backend api for EDDiscovery. It likely not long for this world.
+[![Build Status](https://travis-ci.org/gregmalcolm/ed-materializer.svg)](https://travis-ci.org/gregmalcolm/ed-materializer)
+
+This is a simple API for storing Elite Dangerous exploration data on Worlds.
+Prospecting materials and the like.
+
+Primarily implemented so that [EDDiscovery](https://github.com/EDDiscovery/EDDiscovery)
+can have a place to store prospecting materials data.
 
 Setup
 -----
