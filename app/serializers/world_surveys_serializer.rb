@@ -5,6 +5,10 @@ class WorldSurveysSerializer < ActiveModel::Serializer
              :world_type,
              :terraformable,
              :gravity,
+             :arrival_point,
+             :atmosphere_type,
+             :vulcanism_type,
+             :radius
              :terrain_difficulty,
              :notes,
              :carbon,
@@ -31,9 +35,5 @@ class WorldSurveysSerializer < ActiveModel::Serializer
              :ruthenium,
              :technetium,
              :tellurium,
-             :yttrium,
-             :arrival_point,
-             :atmosphere_type,
-             :vulcanism_type,
-             :radius
+             :yttrium
 end

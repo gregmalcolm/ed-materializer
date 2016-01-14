@@ -75,19 +75,28 @@ describe Api::V1::WorldSurveysController, type: :controller do
       it { expect(WorldSurvey.last.system).to be == "MAGRATHEA" }
     end
 
-    context "one survey per commander per world" do
+    context "allows one survey per commander per world" do
       before { create :world_survey, new_survey[:world_survey] }
       before { post :create, new_survey, valid_session }
       it { expect(response).to have_http_status(422) }
       it { expect(json["commander"]).to include "has already been taken" }
     end
 
-    context "adding a survey" do
+    context "rejects blanks in key fields" do
       before { post :create, {world_survey: {tin: true}}, valid_session }
       it { expect(response).to have_http_status(422) }
       it { expect(json["commander"]).to include "can't be blank" }
       it { expect(json["system"]).to include "can't be blank" }
       it { expect(json["world"]).to include "can't be blank" }
+    end
+
+    context "adding a survey updates every field" do
+      let(:full_attributes) { attributes_for(:world_survey, :full) }
+      let(:new_survey) { {world_survey: full_attributes} }
+      let(:result) { json["world_survey"] }
+      before { post :create, new_survey, valid_session }
+      it { expect(response).to have_http_status(201) }
+      it { expect(result.values).to_not include be_blank }
     end
   end
 
