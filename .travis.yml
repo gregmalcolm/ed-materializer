@@ -1,7 +1,9 @@
 language: ruby
 rvm:
-- 2.2.4
+  - 2.2.4
 before_script:
   - cp config/database.yml.travis config/database.yml
   - psql -c 'create database travis_ci_test;' -U postgres
-
+script:
+  - bundle exec rake db:test:prepare
+  - bundle exec rspec spec
