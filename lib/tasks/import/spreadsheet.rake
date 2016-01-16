@@ -11,14 +11,19 @@ namespace :import do
   desc "Import Distant Horizons prospector spreadsheet"
   task :spreadsheet => :environment do
     Rake::Task["import:dh_spreadsheet:download"].invoke
+    Rake::Task["import:dh_spreadsheet:update_db"].invoke
     Rake::Task["import:dh_spreadsheet:clean_up"].invoke
   end
 
   namespace :dh_spreadsheet do
 
+    def clean_up
+      FileUtils.rm_f output_path
+    end
+
     task :download => :environment do
       print "Downloading Distant Horizons Spreadsheet..."
-      FileUtils.rm_f output_path
+      clean_up
       open("#{Rails.root}/tmp/dh_materials.xlsx", 'wb') do |file|
         file << open("https://docs.google.com/spreadsheets/d/#{
           spreadsheet_id}/export?format=xlsx&id=#{spreadsheet_id}").read
@@ -26,9 +31,13 @@ namespace :import do
       puts " Done!"
     end
 
+    task :update_db => :environment do
+
+    end
+
     task :clean_up => :environment do
       print "Cleaning up..."
-      FileUtils.rm_f output_path
+      clean_up
       puts " Done!"
     end
   end

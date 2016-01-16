@@ -10,6 +10,7 @@ gem 'pg'
 gem 'puma'
 gem 'kaminari'
 gem 'paper_trail', '~> 4.0.0'
+gem 'roo'
 
 group :test, :development do
   gem 'pry-byebug'

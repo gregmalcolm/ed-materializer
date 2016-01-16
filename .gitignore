@@ -19,3 +19,4 @@
 !.elasticbeanstalk/*.global.yml
 
 .secret/*
+*.xlsx
