@@ -8,7 +8,7 @@ class WorldSurveysSerializer < ActiveModel::Serializer
              :arrival_point,
              :atmosphere_type,
              :vulcanism_type,
-             :radius
+             :radius,
              :terrain_difficulty,
              :notes,
              :carbon,
