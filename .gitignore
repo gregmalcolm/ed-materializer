@@ -7,16 +7,17 @@
 # Ignore bundler config.
 /.bundle
 
-# Ignore all logfiles and tempfiles.
-/log/*
-!/log/.keep
-/tmp
-.byebug_history
-
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
+# Ignore all logfiles and tempfiles.
+/log/*
+!/log/.keep
+/tmp
+.byebug_history
 .secret/*
 *.xlsx
+imports/*csv*
+.DS_Store
