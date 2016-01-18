@@ -16,6 +16,7 @@ gem 'devise_token_auth'
 gem 'omniauth'
 
 gem 'rack-cors', :require => 'rack/cors'
+gem 'figaro'
 
 group :test, :development do
   gem 'pry-byebug'
