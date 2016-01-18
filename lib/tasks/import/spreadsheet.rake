@@ -2,7 +2,7 @@ require 'csv'
 
 namespace :import do
   def import_files
-    Dir.glob("#{Rails.root}/imports/dw_materials_*.csv")
+    Dir.glob("#{Rails.root}/tmp/dw_materials_*.csv")
   end
 
   def spreadsheet_id
@@ -41,9 +41,9 @@ namespace :import do
     end
 
     def read_csv_data()
-      @worlds_arr =      CSV.read("#{Rails.root}/imports/dw_materials_worlds.csv", headers: true)
-      @surveys_arr =     CSV.read("#{Rails.root}/imports/dw_materials_surveys.csv", headers: true)
-      @survey_logs_arr = CSV.read("#{Rails.root}/imports/dw_materials_log.csv", headers: true)
+      @worlds_arr =      CSV.read("#{Rails.root}/tmp/dw_materials_worlds.csv", headers: true)
+      @surveys_arr =     CSV.read("#{Rails.root}/tmp/dw_materials_surveys.csv", headers: true)
+      @survey_logs_arr = CSV.read("#{Rails.root}/tmp/dw_materials_log.csv", headers: true)
     end
 
     def build_worlds_dict
@@ -174,7 +174,7 @@ namespace :import do
       clean_up
       begin
         sheets.each do |sheet|
-          open("#{Rails.root}/imports/dw_materials_#{sheet[:name]}.csv", 'wb') do |file|
+          open("#{Rails.root}/tmp/dw_materials_#{sheet[:name]}.csv", 'wb') do |file|
             url = spreadsheet_url(sheet[:gid])
             file << open(url).read
           end
