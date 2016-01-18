@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   scope :api, module: :api do
     scope :v1, module: :v1 do
+      mount_devise_token_auth_for 'User', at: 'auth'
       resources :world_surveys, except: [:new, :edit]
       get :change_logs, to: "change_logs#index"
     end

@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::API
+  protect_from_forgery with: :null_session
+  include DeviseTokenAuth::Concerns::SetUserByToken
   def page
     params[:page] || 1
   end

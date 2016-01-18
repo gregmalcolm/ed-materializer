@@ -11,6 +11,10 @@ gem 'puma'
 gem 'kaminari'
 gem 'paper_trail', '~> 4.0.0'
 
+gem 'devise'
+gem 'devise_token_auth'
+gem 'omniauth'
+
 group :test, :development do
   gem 'pry-byebug'
   gem 'rspec-rails'
