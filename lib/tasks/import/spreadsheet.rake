@@ -83,6 +83,33 @@ namespace :import do
       end
     end
 
+    def update_world_data
+      @worlds_arr.each do |data|
+        system = data["System Name"].to_s.upcase.strip
+        world = data["Body"].to_s.upcase.strip
+        if system.present? && world.present?
+          log "Updating world data for #{system} #{world}..."
+          attributes = { world_type: data["World Type"],
+                         radius: data["Radius [km]"],
+                         gravity: data["Gravity [km]"],
+                         vulcanism_type: data["Volcanism"],
+                         arrival_point: data["Arrival Point"] }
+          unless attributes.values.all?(&:blank?)
+            WorldSurvey.where("UPPER(TRIM(system)) = :system AND
+                               UPPER(TRIM(world)) = :world",
+                               { system: system, world: world }).
+                        update_all(world_type: data["World Type"],
+                                   radius: data["Radius [km]"],
+                                   gravity: data["Gravity [km]"],
+                                   vulcanism_type: data["Volcanism"],
+                                   arrival_point: data["Arrival Point"])
+          else
+            log "Nothing to update"
+          end
+        end
+      end
+    end
+
     task :download => :environment do
       log "Downloading Distant Worlds Spreadsheet..."
       clean_up
@@ -110,7 +137,7 @@ namespace :import do
       read_csv_data()
       @worlds_dict = build_worlds_dict()
       insert_key_fields
-
+      update_world_data
       log "Done!"
     end
 
