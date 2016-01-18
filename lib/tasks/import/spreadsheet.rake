@@ -41,15 +41,23 @@ namespace :import do
     end
 
     def read_csv_data()
-      @worlds_arr =  CSV.read("#{Rails.root}/imports/dw_materials_worlds.csv", headers: true)
-      @surveys_arr = CSV.read("#{Rails.root}/imports/dw_materials_surveys.csv", headers: true)
-      @logs_arr =    CSV.read("#{Rails.root}/imports/dw_materials_log.csv", headers: true)
+      @worlds_arr =      CSV.read("#{Rails.root}/imports/dw_materials_worlds.csv", headers: true)
+      @surveys_arr =     CSV.read("#{Rails.root}/imports/dw_materials_surveys.csv", headers: true)
+      @survey_logs_arr = CSV.read("#{Rails.root}/imports/dw_materials_log.csv", headers: true)
     end
 
     def build_worlds_dict
-      @worlds_arr.inject({}) do |acc, system|
+      @worlds_dict = @worlds_arr.inject({}) do |acc, system|
         full_system = system["World Name"].to_s.upcase.strip
         acc[full_system] = system.to_h if full_system.present?
+        acc
+      end
+    end
+
+    def build_surveys_dict
+      @surveys_dict = @surveys_arr.inject({}) do |acc, survey|
+        survey_id = survey["Survey ID"]
+        acc[survey_id] = survey.to_h if survey_id
         acc
       end
     end
@@ -73,7 +81,7 @@ namespace :import do
           prefix = "Inserting #{full_system}:"
           if ws.blank?
             log "#{prefix} creating..."
-            ws.create(system: system.titleize, world: world, commander: commander)
+            ws.create(system: system, world: world, commander: commander)
           else
             log "#{prefix} already exists"
           end
@@ -110,6 +118,57 @@ namespace :import do
       end
     end
 
+    def update_materials_data
+      @survey_logs_arr.each do |data|
+        survey = @surveys_dict[data["Survey / World"]]
+        full_system = @worlds_dict[survey["World"]] if survey.present?
+        system = full_system["System Name"].to_s.upcase.strip if full_system.present?
+        world = full_system["Body"].to_s.upcase.strip if full_system.present?
+        commander = survey["Surveyed By"].to_s.upcase.strip if survey.present?
+        if system.present? && world.present? && commander.present?
+          log "Updating materials data for #{system} #{world} by #{commander}..."
+          attributes = { carbon: data["C"].to_i > 0,
+                         iron: data["Fe"].to_i > 0,
+                         nickel: data["Ni"].to_i > 0,
+                         phosphorus: data["P"].to_i > 0,
+                         sulphur: data["S"].to_i > 0,
+                         arsenic: data["As"].to_i > 0,
+                         chromium: data["Cr"].to_i > 0,
+                         germanium: data["Ge"].to_i > 0,
+                         manganese: data["Mn"].to_i > 0,
+                         selenium: data["Se"].to_i > 0,
+                         vanadium: data["V"].to_i > 0,
+                         zinc: data["Zn"].to_i > 0,
+                         zirconium: data["Zr"].to_i > 0,
+                         cadmium: data["Cd"].to_i > 0,
+                         mercury: data["Hg"].to_i > 0,
+                         molybdenum: data["Mo"].to_i > 0,
+                         niobium: data["Nb"].to_i > 0,
+                         tin: data["Sn"].to_i > 0,
+                         tungsten: data["W"].to_i > 0,
+                         antimony: data["Sb"].to_i > 0,
+                         polonium: data["Po"].to_i > 0,
+                         ruthenium: data["Ru"].to_i > 0,
+                         technetium: data["Tc"].to_i > 0,
+                         tellurium: data["Te"].to_i > 0,
+                         yttrium: data["Y"].to_i > 0,
+                         notes: survey["Notes"] }
+
+          unless attributes.values.all?(&:blank?)
+            WorldSurvey.where("UPPER(TRIM(system)) = :system AND
+                               UPPER(TRIM(world)) = :world AND
+                               UPPER(TRIM(commander)) = :commander",
+                               { system: system,
+                                 world: world,
+                                 commander: commander}).
+                        update_all(attributes)
+          else
+            log "Nothing to update"
+          end
+        end
+      end
+    end
+
     task :download => :environment do
       log "Downloading Distant Worlds Spreadsheet..."
       clean_up
@@ -134,10 +193,12 @@ namespace :import do
       # be refined if the sitation changes
       @start_time = Time.now()
 
-      read_csv_data()
-      @worlds_dict = build_worlds_dict()
+      read_csv_data
+      build_worlds_dict
+      build_surveys_dict
       insert_key_fields
       update_world_data
+      update_materials_data
       log "Done!"
     end
 
