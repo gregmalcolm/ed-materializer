@@ -13,9 +13,13 @@ namespace :import do
     [
       {name: "log",     gid: 0},
       {name: "surveys", gid: 574066838},
-      {name: "worlds",  gid: 728822980},
-      {name: "systems", gid: 2126209210}
+      {name: "worlds",  gid: 728822980}
     ]
+  end
+
+  def log(message, level=:info)
+    Rails.logger.send(level, message)
+    puts message
   end
 
   desc "Import Distant Worlds prospector spreadsheet"
@@ -37,26 +41,50 @@ namespace :import do
     end
 
     def read_csv_data()
-      #@systems_arr = CSV.read("#{Rails.root}/imports/dw_materials_systems.csv", headers: true)
       @worlds_arr =  CSV.read("#{Rails.root}/imports/dw_materials_worlds.csv", headers: true)
       @surveys_arr = CSV.read("#{Rails.root}/imports/dw_materials_surveys.csv", headers: true)
       @logs_arr =    CSV.read("#{Rails.root}/imports/dw_materials_log.csv", headers: true)
     end
 
-    def build_systems_dict
+    def build_worlds_dict
       @worlds_arr.inject({}) do |acc, system|
-        acc[system["World Name"]] = system.to_h
+        full_system = system["World Name"].to_s.upcase.strip
+        acc[full_system] = system.to_h if full_system.present?
         acc
       end
     end
 
     def insert_key_fields
-      #@surveys_arr.each do |survey|
-      #end
+      @surveys_arr.each do |survey|
+        full_system = survey["World"].to_s.upcase
+        world_data = @worlds_dict[full_system]
+
+        system    = world_data["System Name"] if world_data
+        world     = world_data["Body"] if world_data
+        commander = survey["Surveyed By"]
+
+        if system && world && commander
+          ws = WorldSurvey.where("UPPER(TRIM(system)) = :system AND
+                                  UPPER(TRIM(world)) = :world AND
+                                  UPPER(TRIM(commander)) = :commander",
+                                  { system:    system.upcase.strip,
+                                    world:     world.upcase.strip,
+                                    commander: commander.upcase.strip })
+          prefix = "Inserting #{full_system}:"
+          if ws.blank?
+            log "#{prefix} creating..."
+            ws.create(system: system.titleize, world: world, commander: commander)
+          else
+            log "#{prefix} already exists"
+          end
+        else
+          log "Unable to find key fields for #{full_system} (#{system}, #{world}, #{commander})"
+        end
+      end
     end
 
     task :download => :environment do
-      print "Downloading Distant Worlds Spreadsheet..."
+      log "Downloading Distant Worlds Spreadsheet..."
       clean_up
       begin
         sheets.each do |sheet|
@@ -66,32 +94,30 @@ namespace :import do
           end
         end
       rescue OpenSSL::SSL::SSLError
-        puts ""
-        STDERR.puts "SSL problems. Probably a certs issue with this flavor of ruby. Instructions on how to fix it can be found here: https://gist.github.com/mislav/5026283"
+        log ""
+        STDERR.log "SSL problems. Probably a certs issue with this flavor of ruby. Instructions on how to fix it can be found here: https://gist.github.com/mislav/5026283"
         raise
       end
-      puts " Done!"
+      log "Done!"
     end
 
     task :update_db => :environment do
-      print "Updating Database with DW Spreadsheet data..."
+      log "Updating Database with DW Spreadsheet data..."
       # Taking advantage of the CSVs being small. This will of course not to
       # be refined if the sitation changes
       @start_time = Time.now()
 
       read_csv_data()
-      @systems_dict = build_systems_dict()
-      #@systems_dict["Achenar 3"]["Body"]
-      #@systems_dict["Achenar 3"]["System Name"]
+      @worlds_dict = build_worlds_dict()
       insert_key_fields
 
-      puts " Done!"
+      log "Done!"
     end
 
     task :clean_up => :environment do
-      print "Cleaning up..."
+      log "Cleaning up..."
       clean_up
-      puts " Done!"
+      log "Done!"
     end
   end
 end
