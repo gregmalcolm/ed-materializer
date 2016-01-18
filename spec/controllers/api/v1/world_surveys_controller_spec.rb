@@ -65,21 +65,21 @@ describe Api::V1::WorldSurveysController, type: :controller do
     let(:json) { JSON.parse(response.body) }
 
     let(:new_survey) { { world_survey:
-      { system: "MAGRATHEA", commander: "Arthur Dent", world: "B 2", zinc: true } }
+      { system: "Magrathea", commander: "Arthur Dent", world: "B 2", zinc: true } }
     }
 
     context "adding a survey" do
       before { post :create, new_survey, valid_session }
       it { expect(response).to have_http_status(201) }
-      it { expect(json["world_survey"]["system"]).to be == "MAGRATHEA" }
-      it { expect(WorldSurvey.last.system).to be == "MAGRATHEA" }
+      it { expect(json["world_survey"]["system"]).to be == "Magrathea" }
+      it { expect(WorldSurvey.last.system).to be == "Magrathea" }
     end
 
     context "allows one survey per commander per world" do
       before { create :world_survey, new_survey[:world_survey] }
       before { post :create, new_survey, valid_session }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["commander"]).to include "has already been taken" }
+      it { expect(json["world"]).to include "has already been taken for this system and commander" }
     end
 
     context "rejects blanks in key fields" do
@@ -97,6 +97,17 @@ describe Api::V1::WorldSurveysController, type: :controller do
       before { post :create, new_survey, valid_session }
       it { expect(response).to have_http_status(201) }
       it { expect(result.values).to_not include be_blank }
+    end
+
+    context "when checking for clashing systems, take into account casing" do
+      let(:clashing_survey) { { world_survey:
+        { system: "MAGRATHEA", commander: "ARTHUR DENT", world: "b 2", tin: true } }
+      }
+
+      before { create :world_survey, new_survey[:world_survey] }
+      before { post :create, clashing_survey, valid_session }
+      it { expect(response).to have_http_status(422) }
+      it { expect(json["world"]).to include "has already been taken for this system and commander" }
     end
   end
 
