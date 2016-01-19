@@ -1,18 +1,20 @@
 require 'rails_helper'
+require 'support/helpers/auth_helper.rb'
 require 'support/helpers/world_surveys_helper.rb'
 
 describe Api::V1::WorldSurveysController, type: :controller do
+  include AuthHelper
   include WorldSurveysHelper
 
-  let(:valid_session) { {} }
   let!(:surveys) { spawn_world_surveys }
+  let!(:users) { spawn_users }
 
   describe "GET #index" do
     let(:json) { JSON.parse(response.body)["world_surveys"] }
     let(:commanders) { json.map { |j| j["commander"] } }
 
     context "drinking from the firehouse" do
-      before { get :index, {}, valid_session }
+      before { get :index, {} }
       it { expect(response).to have_http_status(200) }
       it { expect(json[1]["system"]).to be == "NGANJI" }
       it { expect(json.size).to be >= 3 }
@@ -20,32 +22,32 @@ describe Api::V1::WorldSurveysController, type: :controller do
 
     describe "filtering" do
       context "on system" do
-        before { get :index, {q: {system: " nganjI "}}, valid_session }
+        before { get :index, {q: {system: " nganjI "}} }
         it { expect(json[0]["system"]).to be == "NGANJI" }
         it { expect(json.size).to be == 1 }
       end
 
       context "on commander" do
-        before { get :index, {q: {commander: "  DOMMAARRAA"}}, valid_session }
+        before { get :index, {q: {commander: "  DOMMAARRAA"}} }
         it { expect(json[0]["system"]).to be == "SHINRARTA DEZHRA" }
         it { expect(json.size).to be == 1 }
       end
 
       context "on world" do
-        before { get :index, {q: {world: "a 5 "}}, valid_session }
+        before { get :index, {q: {world: "a 5 "}} }
         it { expect(json[0]["system"]).to be == "SHINRARTA DEZHRA" }
         it { expect(json.size).to be == 2 }
       end
 
       context "on updated_before" do
-        before { get :index, {q: {updated_before: Time.now - 3.days}}, valid_session }
+        before { get :index, {q: {updated_before: Time.now - 3.days}} }
         it { expect(commanders).to include "Finwen" }
         it { expect(commanders).to include "Marlon Blake" }
         it { expect(json.size).to be == 2 }
       end
 
       context "on updated_after" do
-        before { get :index, {q: {updated_after: Time.now - 3.days}}, valid_session }
+        before { get :index, {q: {updated_after: Time.now - 3.days}} }
         it { expect(commanders).to include "Dommaarraa" }
         it { expect(json.size).to be == 1 }
       end
@@ -55,7 +57,7 @@ describe Api::V1::WorldSurveysController, type: :controller do
   describe "GET #show" do
     let(:json) { JSON.parse(response.body)["world_survey"] }
 
-    before { get :show, {id: surveys[2].id}, valid_session }
+    before { get :show, {id: surveys[2].id} }
     it { expect(response).to have_http_status(200) }
     it { expect(json["system"]).to be == "SHINRARTA DEZHRA" }
     it { expect(json["commander"]).to be == "Dommaarraa" }
@@ -69,7 +71,7 @@ describe Api::V1::WorldSurveysController, type: :controller do
     }
 
     context "adding a survey" do
-      before { post :create, new_survey, valid_session }
+      before { post :create, new_survey }
       it { expect(response).to have_http_status(201) }
       it { expect(json["world_survey"]["system"]).to be == "Magrathea" }
       it { expect(WorldSurvey.last.system).to be == "Magrathea" }
@@ -77,13 +79,13 @@ describe Api::V1::WorldSurveysController, type: :controller do
 
     context "allows one survey per commander per world" do
       before { create :world_survey, new_survey[:world_survey] }
-      before { post :create, new_survey, valid_session }
+      before { post :create, new_survey }
       it { expect(response).to have_http_status(422) }
       it { expect(json["world"]).to include "has already been taken for this system and commander" }
     end
 
     context "rejects blanks in key fields" do
-      before { post :create, {world_survey: {tin: true}}, valid_session }
+      before { post :create, {world_survey: {tin: true}} }
       it { expect(response).to have_http_status(422) }
       it { expect(json["commander"]).to include "can't be blank" }
       it { expect(json["system"]).to include "can't be blank" }
@@ -94,7 +96,7 @@ describe Api::V1::WorldSurveysController, type: :controller do
       let(:full_attributes) { attributes_for(:world_survey, :full) }
       let(:new_survey) { {world_survey: full_attributes} }
       let(:result) { json["world_survey"] }
-      before { post :create, new_survey, valid_session }
+      before { post :create, new_survey }
       it { expect(response).to have_http_status(201) }
       it { expect(result.values).to_not include be_blank }
     end
@@ -105,7 +107,7 @@ describe Api::V1::WorldSurveysController, type: :controller do
       }
 
       before { create :world_survey, new_survey[:world_survey] }
-      before { post :create, clashing_survey, valid_session }
+      before { post :create, clashing_survey }
       it { expect(response).to have_http_status(422) }
       it { expect(json["world"]).to include "has already been taken for this system and commander" }
     end
@@ -115,7 +117,7 @@ describe Api::V1::WorldSurveysController, type: :controller do
     let(:updated_survey) { { id: surveys[1].id,
                              world_survey: { mercury: true }} }
     context "updating a survey" do
-      before { put :update, updated_survey, valid_session }
+      before { put :update, updated_survey }
       let(:survey) { WorldSurvey.find(surveys[1].id) }
       it { expect(response).to have_http_status(204) }
       it { expect(survey.system).to be == "NGANJI" }
@@ -124,9 +126,20 @@ describe Api::V1::WorldSurveysController, type: :controller do
   end
 
   describe "DELETE #destroy" do
-    let(:id) { surveys[0].id }
-    before { delete :destroy, {id: id}, valid_session }
-    it { expect(response).to have_http_status(204) }
-    it { expect(WorldSurvey.where(id: id).any?).to be false }
+    let(:json) { JSON.parse(response.body) }
+
+    context "unauthenticated" do
+      let(:id) { surveys[0].id }
+      before { delete :destroy, {id: id} }
+      it { expect(response).to have_http_status(401) }
+      it { expect(json["errors"]).to include "Authorized users only." }
+    end
+    context "authorized" do
+      let(:id) { surveys[0].id }
+      let!(:auth_tokens) { debugger;sign_in users[:edd]}
+      before { delete :destroy, {id: id}, auth_tokens }
+      it { expect(response).to have_http_status(204) }
+      it { expect(WorldSurvey.where(id: id).any?).to be false }
+    end
   end
 end
