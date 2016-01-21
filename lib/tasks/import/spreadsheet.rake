@@ -125,7 +125,7 @@ namespace :import do
     def update_materials_data
       @survey_logs_arr.each do |data|
         survey = @surveys_dict[data["Survey / World"]]
-        full_system = @worlds_dict[survey["World"]] if survey.present?
+        full_system = @worlds_dict[survey["World"].to_s.upcase.strip] if survey.present?
         system = full_system["System Name"].to_s.upcase.strip if full_system.present?
         world = full_system["Body"].to_s.upcase.strip if full_system.present?
         commander = survey["Surveyed By"].to_s.upcase.strip if survey.present?
