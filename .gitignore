@@ -21,3 +21,4 @@
 *.xlsx
 imports/*csv*
 .DS_Store
+config/application.yml
