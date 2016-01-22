@@ -4,6 +4,7 @@ FactoryGirl.define do
     uid "shepherd@example.com"
     name "CMDR Shepherd"
     password "normandy"
+    confirmed_at Time.now
 
     trait :admin do
       role "admin"
