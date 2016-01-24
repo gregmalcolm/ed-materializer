@@ -44,8 +44,20 @@ namespace :import do
         spreadsheet_id}/export?format=csv&gid=#{gid}&id=#{spreadsheet_id}"
     end
 
+    def fix_world_file
+      worlds_orig_file =  "#{imports_dir}/dw_materials_worlds.csv"
+      worlds_file = "#{imports_dir}/dw_materials_worlds2.csv"
+      FileUtils.rm_f(worlds_file)
+      File.open(worlds_file, 'w') do |file|
+        data = File.read(worlds_orig_file)
+        # CSV doesn't like carriage returns in headers
+        2.times { data = data.sub("\n", "") }
+        file.write data
+      end
+    end
+
     def read_csv_data()
-      @worlds_arr =      CSV.read("#{imports_dir}/dw_materials_worlds.csv", headers: true)
+      @worlds_arr =      CSV.read("#{imports_dir}/dw_materials_worlds2.csv", headers: true)
       @surveys_arr =     CSV.read("#{imports_dir}/dw_materials_surveys.csv", headers: true)
       @survey_logs_arr = CSV.read("#{imports_dir}/dw_materials_log.csv", headers: true)
     end
@@ -197,6 +209,7 @@ namespace :import do
       # be refined if the sitation changes
       @start_time = Time.now()
 
+      fix_world_file
       read_csv_data
       build_worlds_dict
       build_surveys_dict
