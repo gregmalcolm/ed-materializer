@@ -113,11 +113,11 @@ describe Api::V1::WorldSurveysController, type: :controller do
       it { expect(json["world"]).to include "has already been taken for this system and commander" }
     end
 
-    #context "unauthorized" do
-      #before { post :create, new_survey }
-      #it { expect(response).to have_http_status(401) }
-      #it { expect(json["errors"]).to include "Authorized users only." }
-    #end
+    context "unauthorized" do
+      before { post :create, new_survey }
+      it { expect(response).to have_http_status(401) }
+      it { expect(json["errors"]).to include "Authorized users only." }
+    end
   end
 
   describe "PATCH/PUT #update" do
@@ -131,28 +131,28 @@ describe Api::V1::WorldSurveysController, type: :controller do
       it { expect(survey.mercury).to be true }
     end
 
-    #context "unauthenticated" do
-      #before { put :update, updated_survey }
-      #it { expect(response).to have_http_status(401) }
-      #it { expect(json["errors"]).to include "Authorized users only." }
-    #end
+    context "unauthenticated" do
+      before { put :update, updated_survey }
+      it { expect(response).to have_http_status(401) }
+      it { expect(json["errors"]).to include "Authorized users only." }
+    end
   end
 
   describe "DELETE #destroy" do
-    #context "unauthenticated" do
-      #let(:id) { surveys[0].id }
-      #before { delete :destroy, {id: id} }
-      #it { expect(response).to have_http_status(401) }
-      #it { expect(json["errors"]).to include "Authorized users only." }
-    #end
+    context "unauthenticated" do
+      let(:id) { surveys[0].id }
+      before { delete :destroy, {id: id} }
+      it { expect(response).to have_http_status(401) }
+      it { expect(json["errors"]).to include "Authorized users only." }
+    end
 
-    #context "unauthorized basic user" do
-      #let(:id) { surveys[0].id }
-      #let(:auth_tokens) { sign_in users[:marlon]}
-      #before { delete :destroy, {id: id}, auth_tokens }
-      #it { expect(response).to have_http_status(401) }
-      #it { expect(json["errors"]).to include "Authorized users only." }
-    #end
+    context "unauthorized basic user" do
+      let(:id) { surveys[0].id }
+      let(:auth_tokens) { sign_in users[:marlon]}
+      before { delete :destroy, {id: id}, auth_tokens }
+      it { expect(response).to have_http_status(401) }
+      it { expect(json["errors"]).to include "Authorized users only." }
+    end
 
     context "authorized power user" do
       let(:id) { surveys[0].id }

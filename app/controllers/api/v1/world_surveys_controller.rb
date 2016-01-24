@@ -1,7 +1,7 @@
 module Api
   module V1
     class WorldSurveysController < ApplicationController
-      #before_action :authorize_admin!, except: [:index, :show]
+      before_action :authorize_admin!, except: [:index, :show]
       before_action :set_world_survey, only: [:show, :update, :destroy]
 
       def index
