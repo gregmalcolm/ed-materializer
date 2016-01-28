@@ -11,10 +11,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160128174704) do
+ActiveRecord::Schema.define(version: 20160128175936) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "star_surveys", force: :cascade do |t|
+    t.string   "system"
+    t.string   "commander"
+    t.string   "star",            limit: 30
+    t.boolean  "is_primary_star"
+    t.string   "star_type"
+    t.string   "subclass"
+    t.float    "solar_mass"
+    t.float    "solar_radius"
+    t.float    "surface_temp"
+    t.float    "star_age"
+    t.float    "orbit_period"
+    t.float    "arrival_point"
+    t.string   "luminosity"
+    t.text     "note"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "star_surveys", ["commander"], name: "index_star_surveys_on_commander", using: :btree
+  add_index "star_surveys", ["is_primary_star"], name: "index_star_surveys_on_is_primary_star", using: :btree
+  add_index "star_surveys", ["star"], name: "index_star_surveys_on_star", using: :btree
+  add_index "star_surveys", ["system", "commander", "star", "is_primary_star", "updated_at"], name: "index_star_surveys_on_sys_com_upd", using: :btree
+  add_index "star_surveys", ["system"], name: "index_star_surveys_on_system", using: :btree
+  add_index "star_surveys", ["updated_at"], name: "index_star_surveys_on_updated_at", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "provider",               default: "email", null: false
