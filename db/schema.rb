@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160121001519) do
+ActiveRecord::Schema.define(version: 20160128174704) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -102,6 +102,16 @@ ActiveRecord::Schema.define(version: 20160121001519) do
     t.string   "terraformable",      limit: 30
     t.string   "vulcanism_type",     limit: 30
     t.string   "atmosphere_type",    limit: 30
+    t.string   "reserve"
+    t.float    "mass"
+    t.integer  "surface_temp"
+    t.float    "surface_pressure"
+    t.float    "orbit_period"
+    t.float    "rotation_period"
+    t.float    "semi_major_axis"
+    t.float    "rock_pct"
+    t.float    "metal_pct"
+    t.float    "ice_pct"
   end
 
   add_index "world_surveys", ["commander"], name: "index_world_surveys_on_commander", using: :btree
