@@ -1,8 +1,12 @@
 require 'csv'
 
 namespace :import do
-  def import_files
+  def csv_files
     Dir.glob("#{imports_dir}/dw_materials_*.csv")
+  end
+
+  def import_files
+    sheets.map { |s| "#{imports_dir}/dw_materials_#{s[:name]}.csv" }
   end
 
   def spreadsheet_id
@@ -17,7 +21,8 @@ namespace :import do
     [
       {name: "log",     gid: 0},
       {name: "surveys", gid: 574066838},
-      {name: "worlds",  gid: 728822980}
+      {name: "worlds",  gid: 728822980},
+      {name: "systems", gid: 2126209210}
     ]
   end
 
@@ -36,7 +41,7 @@ namespace :import do
   namespace :dw_spreadsheet do
 
     def clean_up
-      import_files.each { |f| FileUtils.rm_f(f) }
+      csv_files.each { |f| FileUtils.rm_f(f) }
     end
 
     def spreadsheet_url(gid)
@@ -44,22 +49,30 @@ namespace :import do
         spreadsheet_id}/export?format=csv&gid=#{gid}&id=#{spreadsheet_id}"
     end
 
-    def fix_world_file
-      worlds_orig_file =  "#{imports_dir}/dw_materials_worlds.csv"
-      worlds_file = "#{imports_dir}/dw_materials_worlds2.csv"
-      FileUtils.rm_f(worlds_file)
-      File.open(worlds_file, 'w') do |file|
-        data = File.read(worlds_orig_file)
+    def fix_csvs
+      import_files.each { |filename| fix_header(filename) }
+    end
+
+    def fix_header(filename)
+      fixed_file = filename[0..-5] << "_fixed.csv"
+      FileUtils.rm_f(fixed_file)
+      File.open(fixed_file, 'w') do |file|
+        data = File.read(filename)
+
+        # Count lines until we encounter a double comma
+        num_header_lines = data[0,(data =~ /,,,/)].split("\n").size - 2
+
         # CSV doesn't like carriage returns in headers
-        2.times { data = data.sub("\n", "") }
+        num_header_lines.times { data = data.sub("\n", "") }
         file.write data
       end
     end
 
     def read_csv_data()
-      @worlds_arr =      CSV.read("#{imports_dir}/dw_materials_worlds2.csv", headers: true)
-      @surveys_arr =     CSV.read("#{imports_dir}/dw_materials_surveys.csv", headers: true)
-      @survey_logs_arr = CSV.read("#{imports_dir}/dw_materials_log.csv", headers: true)
+      @worlds_arr =      CSV.read("#{imports_dir}/dw_materials_worlds_fixed.csv", headers: true)
+      @systems_arr =     CSV.read("#{imports_dir}/dw_materials_systems_fixed.csv", headers: true)
+      @surveys_arr =     CSV.read("#{imports_dir}/dw_materials_surveys_fixed.csv", headers: true)
+      @survey_logs_arr = CSV.read("#{imports_dir}/dw_materials_log_fixed.csv", headers: true)
     end
 
     def build_worlds_dict
@@ -126,7 +139,18 @@ namespace :import do
                                    radius: data["Radius [km]"],
                                    gravity: data["Gravity [km]"],
                                    vulcanism_type: data["Volcanism"],
-                                   arrival_point: data["Arrival Point"])
+                                   arrival_point: (data["Arrival Point [Ls]"].to_f if data["Arrival Point [Ls]"]),
+                                   reserve: data["Reserves"],
+                                   mass: data["Mass [Earth M]"],
+                                   surface_temp: data["Surf. Temp. [K]"],
+                                   surface_pressure: data["Surf. P [atm]"],
+                                   orbit_period: data["Orb. Per. [D]"],
+                                   rotation_period: data["Rot. Per. [D]"],
+                                   semi_major_axis: data["Semi Maj. Axis [AU]"],
+                                   rock_pct: (data["Rock %"] if data["Rock %"]),
+                                   metal_pct: (data["Metal %"] if data["Metal %"]),
+                                   ice_pct: (data["Ice %"] if data["Ice %"])
+                                  )
           else
             log "Nothing to update"
           end
@@ -209,7 +233,7 @@ namespace :import do
       # be refined if the sitation changes
       @start_time = Time.now()
 
-      fix_world_file
+      fix_csvs
       read_csv_data
       build_worlds_dict
       build_surveys_dict
