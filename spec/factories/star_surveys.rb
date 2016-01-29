@@ -3,7 +3,6 @@ FactoryGirl.define do
     system "Betalgeuse"
     commander "Jameson"
     star "A"
-    is_primary_star true
 
     trait :full do
        note "Unlikely"

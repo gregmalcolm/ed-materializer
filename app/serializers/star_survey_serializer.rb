@@ -3,7 +3,6 @@ class StarSurveySerializer < ActiveModel::Serializer
              :system,
              :commander,
              :star,
-             :is_primary_star,
              :star_type,
              :subclass,
              :solar_mass,
