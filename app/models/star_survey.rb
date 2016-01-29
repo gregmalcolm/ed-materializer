@@ -10,7 +10,7 @@ class StarSurvey < ActiveRecord::Base
   scope :updated_before, ->(time) { where("updated_at<?", time ) if Time.parse(time) rescue false }
   scope :updated_after,  ->(time) { where("updated_at>?", time ) if Time.parse(time) rescue false }
 
-  validates :commander, :system, :star, presence: true
+  validates :commander, :system, presence: true
   validate :key_fields_must_be_unique
 
   private

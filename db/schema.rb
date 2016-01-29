@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160129034353) do
+ActiveRecord::Schema.define(version: 20160129044539) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,7 +24,6 @@ ActiveRecord::Schema.define(version: 20160129034353) do
     t.string   "subclass"
     t.float    "solar_mass"
     t.float    "solar_radius"
-    t.float    "surface_temp"
     t.float    "star_age"
     t.float    "orbit_period"
     t.float    "arrival_point"
@@ -32,6 +31,7 @@ ActiveRecord::Schema.define(version: 20160129034353) do
     t.text     "note"
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
+    t.integer  "surface_temp"
   end
 
   add_index "star_surveys", ["commander"], name: "index_star_surveys_on_commander", using: :btree
