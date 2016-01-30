@@ -145,24 +145,24 @@ namespace :import do
                        }
           unless attributes.values.all?(&:blank?)
             WorldSurvey.where("UPPER(TRIM(system)) = :system AND
-                               UPPER(TRIM(world)) = :world",
-                               { system: system, world: world }).
-                        update_all(world_type: data["World Type"],
-                                   radius: data["Radius [km]"],
-                                   gravity: data["Gravity [km]"],
-                                   vulcanism_type: data["Volcanism"],
-                                   arrival_point: (data["Arrival Point [Ls]"].to_f if data["Arrival Point [Ls]"]),
-                                   reserve: data["Reserves"],
-                                   mass: data["Mass [Earth M]"],
-                                   surface_temp: data["Surf. Temp. [K]"],
-                                   surface_pressure: data["Surf. P [atm]"],
-                                   orbit_period: data["Orb. Per. [D]"],
-                                   rotation_period: data["Rot. Per. [D]"],
-                                   semi_major_axis: data["Semi Maj. Axis [AU]"],
-                                   rock_pct: (data["Rock %"] if data["Rock %"]),
-                                   metal_pct: (data["Metal %"] if data["Metal %"]),
-                                   ice_pct: (data["Ice %"] if data["Ice %"])
-                                  )
+                               UPPER(TRIM(world)) = :world AND
+                               world_type IS NULL AND
+                               radius IS NULL AND
+                               gravity IS NULL AND
+                               vulcanism_type IS NULL AND
+                               arrival_point IS NULL AND
+                               reserve IS NULL AND
+                               mass IS NULL AND
+                               surface_temp IS NULL AND
+                               surface_pressure IS NULL AND
+                               orbit_period IS NULL AND
+                               rotation_period IS NULL AND
+                               semi_major_axis IS NULL AND
+                               rock_pct IS NULL AND
+                               metal_pct IS NULL AND
+                               ice_pct IS NULL",
+                               { system: system, world: world })
+                       .update_all(attributes)
           else
             log "Nothing to update"
           end
@@ -209,11 +209,37 @@ namespace :import do
           unless attributes.values.all?(&:blank?)
             WorldSurvey.where("UPPER(TRIM(system)) = :system AND
                                UPPER(TRIM(world)) = :world AND
-                               UPPER(TRIM(commander)) = :commander",
+                               UPPER(TRIM(commander)) = :commander AND
+                               carbon IS NULL AND
+                               iron IS NULL AND
+                               nickel IS NULL AND
+                               phosphorus IS NULL AND
+                               sulphur IS NULL AND
+                               arsenic IS NULL AND
+                               chromium IS NULL AND
+                               germanium IS NULL AND
+                               manganese IS NULL AND
+                               selenium IS NULL AND
+                               vanadium IS NULL AND
+                               zinc IS NULL AND
+                               zirconium IS NULL AND
+                               cadmium IS NULL AND
+                               mercury IS NULL AND
+                               molybdenum IS NULL AND
+                               niobium IS NULL AND
+                               tin IS NULL AND
+                               tungsten IS NULL AND
+                               antimony IS NULL AND
+                               polonium IS NULL AND
+                               ruthenium IS NULL AND
+                               technetium IS NULL AND
+                               tellurium IS NULL AND
+                               yttrium IS NULL AND
+                               notes IS NULL",
                                { system: system,
                                  world: world,
-                                 commander: commander}).
-                        update_all(attributes)
+                                 commander: commander})
+                       .update_all(attributes)
           else
             log "Nothing to update"
           end
@@ -271,9 +297,18 @@ namespace :import do
                        }
           unless attributes.values.all?(&:blank?)
             StarSurvey.where("UPPER(TRIM(system)) = :system AND
-                              star in ('', 'A')",
-                              { system: system }).
-                        update_all(attributes)
+                              star in ('', 'A') AND
+                              star_type IS NULL AND
+                              solar_mass IS NULL AND
+                              solar_radius IS NULL AND
+                              star_age IS NULL AND
+                              orbit_period IS NULL AND
+                              arrival_point IS NULL AND
+                              luminosity IS NULL AND
+                              note IS NULL AND
+                              surface_temp IS NULL",
+                              { system: system })
+                      .update_all(attributes)
           else
             log "Nothing to update"
           end
@@ -296,6 +331,7 @@ namespace :import do
         STDERR.log "SSL problems. Probably a certs issue with this flavor of ruby. Instructions on how to fix it can be found here: https://gist.github.com/mislav/5026283"
         raise
       end
+      fix_csvs
       log "Done!"
     end
 
@@ -305,7 +341,6 @@ namespace :import do
       # be refined if the sitation changes
       @start_time = Time.now()
 
-      fix_csvs
       read_csv_data
       build_worlds_dict
       build_surveys_dict
