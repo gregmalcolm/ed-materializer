@@ -6,10 +6,10 @@ module Api
 
       def index
         @star_surveys = filtered.page(page).
-                                  per(per_page).
-                                  order("updated_at")
+                                 per(per_page).
+                                 order("updated_at")
         render json: @star_surveys, serializer: PaginatedSerializer,
-                                     each_serializer: StarSurveySerializer
+                                    each_serializer: StarSurveySerializer
       end
 
       def show

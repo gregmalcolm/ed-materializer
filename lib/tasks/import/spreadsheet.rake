@@ -91,14 +91,15 @@ namespace :import do
       end
     end
 
-    def insert_key_fields
+    def insert_key_world_fields
       @surveys_arr.each do |survey|
         full_system = survey["World"].to_s.upcase
         world_data = @worlds_dict[full_system]
 
         system    = world_data["System Name"] if world_data
-        world     = world_data["Body"] if world_data
         commander = survey["Surveyed By"]
+
+        world     = world_data["Body"] if world_data
 
         if system && world && commander
           ws = WorldSurvey.where("UPPER(TRIM(system)) = :system AND
@@ -107,7 +108,7 @@ namespace :import do
                                   { system:    system.upcase.strip,
                                     world:     world.upcase.strip,
                                     commander: commander.upcase.strip })
-          prefix = "Inserting #{full_system}:"
+          prefix = "Inserting World Survey #{full_system}:"
           if ws.blank?
             log "#{prefix} creating..."
             ws.create(system: system, world: world, commander: commander)
@@ -115,7 +116,7 @@ namespace :import do
             log "#{prefix} already exists"
           end
         else
-          log "Unable to find key fields for #{full_system} (#{system}, #{world}, #{commander})"
+          log "Unable to find key fields for #{full_system} (#{system} #{world}, #{commander})"
         end
       end
     end
@@ -130,7 +131,18 @@ namespace :import do
                          radius: data["Radius [km]"],
                          gravity: data["Gravity [km]"],
                          vulcanism_type: data["Volcanism"],
-                         arrival_point: data["Arrival Point"] }
+                         arrival_point: (data["Arrival Point [Ls]"].to_f if data["Arrival Point [Ls]"]),
+                         reserve: data["Reserves"],
+                         mass: data["Mass [Earth M]"],
+                         surface_temp: data["Surf. Temp. [K]"],
+                         surface_pressure: data["Surf. P [atm]"],
+                         orbit_period: data["Orb. Per. [D]"],
+                         rotation_period: data["Rot. Per. [D]"],
+                         semi_major_axis: data["Semi Maj. Axis [AU]"],
+                         rock_pct: data["Rock %"],
+                         metal_pct: data["Metal %"],
+                         ice_pct: data["Ice %"]
+                       }
           unless attributes.values.all?(&:blank?)
             WorldSurvey.where("UPPER(TRIM(system)) = :system AND
                                UPPER(TRIM(world)) = :world",
@@ -209,6 +221,66 @@ namespace :import do
       end
     end
 
+    def insert_primary_stars
+      @surveys_arr.each do |survey|
+        full_system = survey["World"].to_s.upcase
+        world_data = @worlds_dict[full_system]
+
+        system    = world_data["System Name"] if world_data
+        commander = survey["Surveyed By"]
+
+        star = ""
+        if world_data && world_data["Body"].to_s.strip.downcase =~ /^[a-z]/
+          star = "A"
+        end
+
+        if system && commander
+          ss = StarSurvey.where("UPPER(TRIM(system)) = :system AND
+                                 UPPER(TRIM(star)) = :star AND
+                                 UPPER(TRIM(commander)) = :commander",
+                                 { system:    system.upcase.strip,
+                                   star:      star.upcase.strip,
+                                   commander: commander.upcase.strip })
+          prefix = "Inserting Star Survey #{system} #{star}:"
+          if ss.blank?
+            log "#{prefix} creating..."
+            ss.create(system: system, star: star, commander: commander)
+          else
+            log "#{prefix} already exists"
+          end
+        else
+          log "Unable to find key fields for #{full_system} (#{system} #{star}, #{commander})"
+        end
+      end
+    end
+
+    def update_star_data
+      @systems_arr.each do |data|
+        system = data["System Name"].to_s.upcase.strip
+        if system.present?
+          log "Updating star data for #{system}..."
+          attributes = { star_type: data["Spectral Class"],
+                         solar_mass: data["Mass [Sol M]"],
+                         solar_radius: data["Radius [Sol R]"],
+                         star_age: (data["Star Age [My]"].to_i * 1_000_000 if data["Star Age [My]"].present?),
+                         orbit_period: data[""],
+                         arrival_point: data[""],
+                         luminosity: data["Star Luminosity"],
+                         note: data["Notes"],
+                         surface_temp: data["Surf. T [K]"]
+                       }
+          unless attributes.values.all?(&:blank?)
+            StarSurvey.where("UPPER(TRIM(system)) = :system AND
+                              star in ('', 'A')",
+                              { system: system }).
+                        update_all(attributes)
+          else
+            log "Nothing to update"
+          end
+        end
+      end
+    end
+
     task :download => :environment do
       log "Downloading Distant Worlds Spreadsheet..."
       clean_up
@@ -237,9 +309,11 @@ namespace :import do
       read_csv_data
       build_worlds_dict
       build_surveys_dict
-      insert_key_fields
+      insert_key_world_fields
       update_world_data
       update_materials_data
+      insert_primary_stars
+      update_star_data
       log "Done!"
     end
 
