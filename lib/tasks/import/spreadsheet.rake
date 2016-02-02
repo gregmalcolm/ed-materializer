@@ -60,7 +60,7 @@ namespace :import do
         data = File.read(filename)
 
         # Count lines until we encounter a double comma
-        num_header_lines = data[0,(data =~ /,,,/)].split("\n").size - 2
+        num_header_lines = data[0,(data =~ /(,,,)|(,\d*\.\d*,)/)].split("\n").size - 2
 
         # CSV doesn't like carriage returns in headers
         num_header_lines.times { data = data.sub("\n", "") }
