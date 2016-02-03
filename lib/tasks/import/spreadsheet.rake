@@ -17,6 +17,10 @@ namespace :import do
     ENV["IMPORT_DIR"] || "#{Rails.root}/imports"
   end
 
+  def updater_tag
+    "DW Spreadsheet"
+  end
+
   def sheets
     [
       {name: "log",     gid: 0},
@@ -34,7 +38,8 @@ namespace :import do
   desc "Import Distant Worlds prospector spreadsheet"
   task :spreadsheet => :environment do
     Rake::Task["import:dw_spreadsheet:download"].invoke
-    Rake::Task["import:dw_spreadsheet:update_db"].invoke
+    Rake::Task["import:dw_spreadsheet:update_db_v1"].invoke
+    Rake::Task["import:dw_spreadsheet:update_db_v2"].invoke
     Rake::Task["import:dw_spreadsheet:clean_up"].invoke
   end
 
@@ -316,6 +321,61 @@ namespace :import do
       end
     end
 
+    def insert_primary_stars_v2
+      @worlds_arr.each do |world|
+        system    = world["System Name"] if world
+        star = ""
+        if world["Body"].to_s.strip.downcase =~ /^[a-z]/
+          star = "A"
+        end
+
+        if system
+          item = Star.where("UPPER(TRIM(system)) = :system AND
+                             UPPER(TRIM(star)) = :star",
+                             { system:  system.upcase.strip,
+                               star:    star.upcase.strip,
+                               updater: updater_tag })
+          prefix = "Inserting Star Survey #{system} #{star}:"
+          if item.blank?
+            log "#{prefix} creating..."
+            item.create(system: system, star: star, updater: updater_tag)
+          else
+            log "#{prefix} already exists"
+          end
+        else
+          log "Unable to find key fields for #{system} #{star}"
+        end
+      end
+    end
+
+    def update_star_data_v2
+      @systems_arr.each do |data|
+        system = data["System Name"].to_s.upcase.strip
+        if system.present?
+          log "Updating star data for #{system}..."
+          attributes = { star_type: data["Spectral Class"],
+                         solar_mass: data["Mass [Sol M]"],
+                         solar_radius: data["Radius [Sol R]"],
+                         star_age: (data["Star Age [My]"].to_i * 1_000_000 if data["Star Age [My]"].present?),
+                         orbit_period: data[""],
+                         arrival_point: data[""],
+                         luminosity: data["Star Luminosity"],
+                         note: data["Notes"],
+                         surface_temp: data["Surf. T [K]"]
+                       }
+          unless attributes.values.all?(&:blank?)
+            Star.where("UPPER(TRIM(system)) = :system AND
+                        star in ('', 'A') AND
+                        updater = :updater",
+                        { system: system, updater: updater_tag })
+                 .update_all(attributes)
+          else
+            log "Nothing to update"
+          end
+        end
+      end
+    end
+
     task :download => :environment do
       log "Downloading Distant Worlds Spreadsheet..."
       clean_up
@@ -335,8 +395,8 @@ namespace :import do
       log "Done!"
     end
 
-    task :update_db => :environment do
-      log "Updating Database with DW Spreadsheet data..."
+    task :update_db_v1 => :environment do
+      log "Updating Database V1 with DW Spreadsheet data..."
       # Taking advantage of the CSVs being small. This will of course not to
       # be refined if the sitation changes
       @start_time = Time.now()
@@ -351,6 +411,21 @@ namespace :import do
       update_star_data
       log "Done!"
     end
+
+    task :update_db_v2 => :environment do
+      log "Updating Database V2 with DW Spreadsheet data..."
+      # Taking advantage of the CSVs being small. This will of course not to
+      # be refined if the sitation changes
+      @start_time = Time.now()
+
+      read_csv_data
+      build_worlds_dict
+      build_surveys_dict
+      insert_primary_stars_v2
+      update_star_data_v2
+      log "Done!"
+    end
+
 
     task :clean_up => :environment do
       log "Cleaning up..."
