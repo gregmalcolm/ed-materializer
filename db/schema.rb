@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160129044539) do
+ActiveRecord::Schema.define(version: 20160203022748) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,30 @@ ActiveRecord::Schema.define(version: 20160129044539) do
   add_index "star_surveys", ["system", "commander", "star", "updated_at"], name: "index_star_surveys_on_sys_com_upd", using: :btree
   add_index "star_surveys", ["system"], name: "index_star_surveys_on_system", using: :btree
   add_index "star_surveys", ["updated_at"], name: "index_star_surveys_on_updated_at", using: :btree
+
+  create_table "stars", force: :cascade do |t|
+    t.string   "system",        limit: 50
+    t.string   "updater",       limit: 50
+    t.string   "star",          limit: 50
+    t.string   "star_type"
+    t.string   "subclass"
+    t.float    "solar_mass"
+    t.float    "solar_radius"
+    t.float    "star_age"
+    t.float    "orbit_period"
+    t.float    "arrival_point"
+    t.string   "luminosity"
+    t.text     "note"
+    t.integer  "surface_temp"
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+  end
+
+  add_index "stars", ["star"], name: "index_stars_on_star", using: :btree
+  add_index "stars", ["system", "star", "updated_at"], name: "index_stars_on_sys_sta_upd", using: :btree
+  add_index "stars", ["system"], name: "index_stars_on_system", using: :btree
+  add_index "stars", ["updated_at"], name: "index_stars_on_updated_at", using: :btree
+  add_index "stars", ["updater"], name: "index_stars_on_updater", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "provider",               default: "email", null: false

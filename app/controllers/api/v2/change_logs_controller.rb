@@ -1,5 +1,5 @@
 module Api
-  module V1
+  module V2
     class ChangeLogsController < ::Api::Base::ChangeLogsController
     end
   end
