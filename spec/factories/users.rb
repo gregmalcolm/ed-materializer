@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :user do
     provider "email"
-    uid "shepherd@example.com"
+    email "shepherd@example.com"
     name "CMDR Shepherd"
     password "normandy"
     confirmed_at Time.now
