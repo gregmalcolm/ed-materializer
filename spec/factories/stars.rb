@@ -5,8 +5,8 @@ FactoryGirl.define do
     star "A"
 
     trait :full do
-       star_type "shiny"
-       subclass "upper"
+       spectral_class "A"
+       spectral_subclass "4"
        solar_mass 23.3
        solar_radius 90.1
        surface_temp 42

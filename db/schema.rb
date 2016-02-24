@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160203022748) do
+ActiveRecord::Schema.define(version: 20160224175716) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,11 +41,11 @@ ActiveRecord::Schema.define(version: 20160203022748) do
   add_index "star_surveys", ["updated_at"], name: "index_star_surveys_on_updated_at", using: :btree
 
   create_table "stars", force: :cascade do |t|
-    t.string   "system",        limit: 50
-    t.string   "updater",       limit: 50
-    t.string   "star",          limit: 50
-    t.string   "star_type"
-    t.string   "subclass"
+    t.string   "system",            limit: 50
+    t.string   "updater",           limit: 50
+    t.string   "star",              limit: 50
+    t.string   "spectral_class"
+    t.string   "spectral_subclass"
     t.float    "solar_mass"
     t.float    "solar_radius"
     t.float    "star_age"
@@ -54,8 +54,8 @@ ActiveRecord::Schema.define(version: 20160203022748) do
     t.string   "luminosity"
     t.text     "note"
     t.integer  "surface_temp"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
   end
 
   add_index "stars", ["star"], name: "index_stars_on_star", using: :btree

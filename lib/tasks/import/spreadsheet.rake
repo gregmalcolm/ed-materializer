@@ -353,7 +353,8 @@ namespace :import do
         system = data["System Name"].to_s.upcase.strip
         if system.present?
           log "Updating star data for #{system}..."
-          attributes = { star_type: data["Spectral Class"],
+          attributes = { spectral_class: data["Spectral Class"],
+                         spectral_subclass: (data["Spectral Subclass"].to_i if data["Spectral Subclass"].present?),
                          solar_mass: data["Mass [Sol M]"],
                          solar_radius: data["Radius [Sol R]"],
                          star_age: (data["Star Age [My]"].to_i * 1_000_000 if data["Star Age [My]"].present?),
