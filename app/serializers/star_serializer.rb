@@ -13,6 +13,7 @@ class StarSerializer < ActiveModel::Serializer
              :arrival_point,
              :luminosity,
              :notes,
+             :image_url,
              :updated_at,
              :created_at
 end

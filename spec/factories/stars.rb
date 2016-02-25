@@ -15,6 +15,7 @@ FactoryGirl.define do
        arrival_point 323.3
        luminosity "really shiny"
        notes "I was drunk during this survey"
+       image_url "http://i.imgur.com/lcASEtu.jpg"
     end
   end
 end

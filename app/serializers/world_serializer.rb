@@ -22,6 +22,7 @@ class WorldSerializer < ActiveModel::Serializer
              :terraformable,
              :atmosphere_type,
              :notes,
+             :image_url,
              :updated_at,
              :created_at
 end

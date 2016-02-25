@@ -65,7 +65,8 @@ module Api
                       :orbit_period,
                       :arrival_point,
                       :luminosity,
-                      :notes)
+                      :notes,
+                      :image_url)
       end
 
       def filtered

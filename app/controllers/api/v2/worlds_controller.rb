@@ -74,7 +74,8 @@ module Api
                       :arrival_point,
                       :terraformable,
                       :atmosphere_type,
-                      :notes)
+                      :notes,
+                      :image_url)
       end
 
       def filtered

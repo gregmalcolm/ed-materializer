@@ -24,6 +24,7 @@ FactoryGirl.define do
        rock_pct 33
        metal_pct 33
        ice_pct 34
+       image_url "http://i.imgur.com/lcASEtu.jpg"
     end
   end
 end

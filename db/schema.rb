@@ -11,10 +11,71 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160225045725) do
+ActiveRecord::Schema.define(version: 20160225173611) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "basecamps", force: :cascade do |t|
+    t.integer  "world_id"
+    t.string   "updater",              limit: 50
+    t.string   "name",                 limit: 50
+    t.string   "descripton"
+    t.string   "landing_zone_terrain", limit: 30
+    t.integer  "terrain_hue_1"
+    t.integer  "terrain_hue_2"
+    t.integer  "terrain_hue_3"
+    t.float    "landing_zone_lat"
+    t.float    "landing_zone_lon"
+    t.text     "notes"
+    t.string   "image_url"
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+  end
+
+  add_index "basecamps", ["updated_at"], name: "index_basecamps_on_updated_at", using: :btree
+  add_index "basecamps", ["updater"], name: "index_basecamps_on_updater", using: :btree
+  add_index "basecamps", ["world_id", "updater", "updated_at"], name: "index_basecamps_on_wor_updr_upd", using: :btree
+  add_index "basecamps", ["world_id"], name: "index_basecamps_on_world_id", using: :btree
+
+  create_table "site_surveys", force: :cascade do |t|
+    t.integer  "basecamp_id"
+    t.string   "commander",   limit: 50
+    t.string   "resource",    limit: 20
+    t.integer  "carbon"
+    t.integer  "iron"
+    t.integer  "nickel"
+    t.integer  "phosphorus"
+    t.integer  "sulphur"
+    t.integer  "arsenic"
+    t.integer  "chromium"
+    t.integer  "germanium"
+    t.integer  "manganese"
+    t.integer  "selenium"
+    t.integer  "vanadium"
+    t.integer  "zinc"
+    t.integer  "zirconium"
+    t.integer  "cadmium"
+    t.integer  "mercury"
+    t.integer  "molybdenum"
+    t.integer  "niobium"
+    t.integer  "tin"
+    t.integer  "tungsten"
+    t.integer  "antimony"
+    t.integer  "polonium"
+    t.integer  "ruthenium"
+    t.integer  "technetium"
+    t.integer  "tellurium"
+    t.integer  "yttrium"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "site_surveys", ["basecamp_id", "commander", "resource", "updated_at"], name: "index_ssurveys_on_bc_com_res_upd", using: :btree
+  add_index "site_surveys", ["basecamp_id"], name: "index_site_surveys_on_basecamp_id", using: :btree
+  add_index "site_surveys", ["commander"], name: "index_site_surveys_on_commander", using: :btree
+  add_index "site_surveys", ["resource"], name: "index_site_surveys_on_resource", using: :btree
+  add_index "site_surveys", ["updated_at"], name: "index_site_surveys_on_updated_at", using: :btree
 
   create_table "star_surveys", force: :cascade do |t|
     t.string   "system"
@@ -56,6 +117,7 @@ ActiveRecord::Schema.define(version: 20160225045725) do
     t.integer  "surface_temp"
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
+    t.string   "image_url"
   end
 
   add_index "stars", ["star"], name: "index_stars_on_star", using: :btree
@@ -193,6 +255,7 @@ ActiveRecord::Schema.define(version: 20160225045725) do
     t.string   "atmosphere_type",    limit: 30
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.string   "image_url"
   end
 
   add_index "worlds", ["system", "world", "updated_at"], name: "index_worlds_on_sys_sta_upd", using: :btree
