@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160224175716) do
+ActiveRecord::Schema.define(version: 20160225020601) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -167,5 +167,38 @@ ActiveRecord::Schema.define(version: 20160224175716) do
   add_index "world_surveys", ["system"], name: "index_world_surveys_on_system", using: :btree
   add_index "world_surveys", ["updated_at"], name: "index_world_surveys_on_updated_at", using: :btree
   add_index "world_surveys", ["world"], name: "index_world_surveys_on_world", using: :btree
+
+  create_table "worlds", force: :cascade do |t|
+    t.string   "system",             limit: 50
+    t.string   "updater",            limit: 50
+    t.string   "world",              limit: 50
+    t.string   "world_type"
+    t.float    "mass"
+    t.float    "radius"
+    t.float    "gravity"
+    t.integer  "surface_temp"
+    t.float    "surface_pressure"
+    t.float    "orbit_period"
+    t.float    "rotation_period"
+    t.float    "semi_major_axis"
+    t.integer  "terrain_difficulty"
+    t.string   "vulcanism_type",     limit: 30
+    t.float    "rock_pct"
+    t.float    "metal_pct"
+    t.float    "ice_pct"
+    t.string   "reserve"
+    t.float    "arrival_point"
+    t.text     "notes"
+    t.string   "terraformable",      limit: 30
+    t.string   "atmosphere_type",    limit: 30
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "worlds", ["system", "world", "updated_at"], name: "index_worlds_on_sys_sta_upd", using: :btree
+  add_index "worlds", ["system"], name: "index_worlds_on_system", using: :btree
+  add_index "worlds", ["updated_at"], name: "index_worlds_on_updated_at", using: :btree
+  add_index "worlds", ["updater"], name: "index_worlds_on_updater", using: :btree
+  add_index "worlds", ["world"], name: "index_worlds_on_star", using: :btree
 
 end

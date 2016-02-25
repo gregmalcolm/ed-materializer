@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     end
     scope :v2, module: :v2 do
       resources :stars, except: [:new, :edit]
+      resources :worlds, except: [:new, :edit]
       get :change_logs, to: "change_logs#index"
     end
   end
