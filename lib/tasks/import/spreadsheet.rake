@@ -134,7 +134,7 @@ namespace :import do
           log "Updating world data for #{system} #{world}..."
           attributes = { world_type: data["World Type"],
                          radius: data["Radius [km]"],
-                         gravity: data["Gravity [km]"],
+                         gravity: data["Gravity [g]"],
                          vulcanism_type: data["Volcanism"],
                          arrival_point: (data["Arrival Point [Ls]"].to_f if data["Arrival Point [Ls]"]),
                          reserve: data["Reserves"],
@@ -335,7 +335,7 @@ namespace :import do
                              { system:  system.upcase.strip,
                                star:    star.upcase.strip,
                                updater: updater_tag })
-          prefix = "Inserting Star Survey #{system} #{star}:"
+          prefix = "Inserting Star #{system} #{star}:"
           if item.blank?
             log "#{prefix} creating..."
             item.create(system: system, star: star, updater: updater_tag)
@@ -373,6 +373,50 @@ namespace :import do
           else
             log "Nothing to update"
           end
+        end
+      end
+    end
+    
+    def insert_worlds_v2
+      @worlds_arr.each do |data|
+        system = data["System Name"] if data
+        world  = data["Body"] if data
+
+        if system && world
+          item = World.where("UPPER(TRIM(system)) = :system AND
+                             UPPER(TRIM(world)) = :world",
+                             { system:  system.upcase.strip,
+                               world:   world.upcase.strip,
+                               updater: updater_tag })
+          prefix = "Inserting World #{system} #{world}:"
+          if item.blank?
+            attributes = { system: system, 
+                           world: world, 
+                           updater: updater_tag,
+                           world_type: data["World Type"],
+                           mass: data["Mass [Earth M]"],
+                           radius: data["Radius [km]"],
+                           gravity: data["Gravity [km]"],
+                           surface_temp: data["Surf. Temp. [K]"],
+                           surface_pressure: data["Surf. P [atm]"],
+                           orbit_period: data["Orb. Per. [D]"],
+                           rotation_period: data["Rot. Per. [D]"],
+                           semi_major_axis: data["Semi Maj. Axis [AU]"],
+                           vulcanism_type: data["Volcanism"],
+                           rock_pct: data["Rock %"],
+                           metal_pct: data["Metal %"],
+                           ice_pct: data["Ice %"],
+                           reserve: data["Reserves"],
+                           arrival_point: (data["Arrival Point [Ls]"].to_f if data["Arrival Point [Ls]"]),
+                           notes: data["Notes"]
+                       }
+            log "#{prefix} creating..."
+            item.create(attributes)
+          else
+            log "#{prefix} already exists"
+          end
+        else
+          log "Unable to find key fields for #{system} #{world}"
         end
       end
     end
@@ -424,6 +468,7 @@ namespace :import do
       build_surveys_dict
       insert_primary_stars_v2
       update_star_data_v2
+      insert_worlds_v2
       log "Done!"
     end
 

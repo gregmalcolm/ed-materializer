@@ -1,5 +1,4 @@
 class ApplicationController < ActionController::API
-  #protect_from_forgery with: :null_session
   include DeviseTokenAuth::Concerns::SetUserByToken
   include Authorization
   def page
@@ -7,6 +6,6 @@ class ApplicationController < ActionController::API
   end
 
   def per_page
-    params[:per_page] || 500
+    params[:per_page] || 100
   end
 end
