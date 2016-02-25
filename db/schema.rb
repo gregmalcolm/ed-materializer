@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160225020601) do
+ActiveRecord::Schema.define(version: 20160225045725) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,7 +52,7 @@ ActiveRecord::Schema.define(version: 20160225020601) do
     t.float    "orbit_period"
     t.float    "arrival_point"
     t.string   "luminosity"
-    t.text     "note"
+    t.text     "notes"
     t.integer  "surface_temp"
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false

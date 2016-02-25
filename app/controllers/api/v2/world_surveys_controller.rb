@@ -1,5 +1,5 @@
 module Api
-  module V1
+  module V2
     class WorldSurveysController < ApplicationController
       before_action :authorize_admin!, except: [:index, :show]
       before_action :set_world_survey, only: [:show, :update, :destroy]
@@ -9,18 +9,18 @@ module Api
                                   per(per_page).
                                   order("updated_at")
         render json: @world_surveys, serializer: PaginatedSerializer,
-                                     each_serializer: ::V1::WorldSurveySerializer
+                                     each_serializer: ::V2::WorldSurveySerializer
       end
 
       def show
-        render json: @world_survey, serializer: ::V1::WorldSurveySerializer
+        render json: @world_survey, serializer: ::V2::WorldSurveySerializer
       end
 
       def create
         @world_survey = WorldSurvey.new(world_survey_params)
 
         if @world_survey.save
-          render json: @world_survey, serializer: ::V1::WorldSurveySerializer,
+          render json: @world_survey, serializer: ::V2::WorldSurveySerializer,
                                       status: :created, 
                                       location: @world_survey
         else
@@ -58,24 +58,6 @@ module Api
               .permit(:system,
                       :commander,
                       :world,
-                      :world_type,
-                      :terraformable,
-                      :gravity,
-                      :terrain_difficulty,
-                      :arrival_point,
-                      :atmosphere_type,
-                      :vulcanism_type,
-                      :radius,
-                      :reserve,
-                      :mass,
-                      :surface_temp,
-                      :surface_pressure,
-                      :orbit_period,
-                      :rotation_period,
-                      :semi_major_axis,
-                      :rock_pct,
-                      :metal_pct,
-                      :ice_pct,
                       :notes,
                       :carbon,
                       :iron,
@@ -105,16 +87,11 @@ module Api
       end
 
       def filtered
-        q = params[:q]
-        if q.present?
-          WorldSurvey.by_system(q[:system]).
-                      by_commander(q[:commander]).
-                      by_world(q[:world]).
-                      updated_before(q[:updated_before]).
-                      updated_after(q[:updated_after])
-        else
-          WorldSurvey.all
-        end
+        WorldSurvey.by_system(params[:system])
+                   .by_commander(params[:commander])
+                   .by_world(params[:world])
+                   .updated_before(params[:updated_before])
+                   .updated_after(params[:updated_after])
       end
     end
   end

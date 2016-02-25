@@ -12,7 +12,7 @@ class StarSerializer < ActiveModel::Serializer
              :orbit_period,
              :arrival_point,
              :luminosity,
-             :note,
+             :notes,
              :updated_at,
              :created_at
 end

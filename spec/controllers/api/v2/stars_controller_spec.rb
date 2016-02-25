@@ -104,7 +104,7 @@ describe Api::V2::StarsController, type: :controller do
 
     context "when checking for clashing systems, take into account casing" do
       let(:clashing_star) { { star:
-        { system: "MAGRATHEA", updater: "fORD pREFECT", star: "", note: "Again!" } }
+        { system: "MAGRATHEA", updater: "fORD pREFECT", star: "", notes: "Again!" } }
       }
 
       before { create :star, new_star[:star] }

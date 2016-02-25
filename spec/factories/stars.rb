@@ -14,7 +14,7 @@ FactoryGirl.define do
        orbit_period 20.4
        arrival_point 323.3
        luminosity "really shiny"
-       note "I was drunk during this survey"
+       notes "I was drunk during this survey"
     end
   end
 end

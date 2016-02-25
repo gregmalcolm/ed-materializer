@@ -361,7 +361,7 @@ namespace :import do
                          orbit_period: data[""],
                          arrival_point: data[""],
                          luminosity: data["Star Luminosity"],
-                         note: data["Notes"],
+                         notes: data["Notes"],
                          surface_temp: data["Surf. T [K]"]
                        }
           unless attributes.values.all?(&:blank?)

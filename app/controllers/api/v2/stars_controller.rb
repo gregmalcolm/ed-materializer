@@ -52,9 +52,20 @@ module Api
         # Blacklisting isn't the most secure way of doing this
         # but the attribute list is long and the security implications
         # are low here
-        params.require(:star).
-               except!(:id, :updated_at, :created_at).
-               permit!
+        params.require(:star)
+              .permit(:system,
+                      :updater,
+                      :star,
+                      :spectral_class,
+                      :spectral_subclass,
+                      :solar_mass,
+                      :solar_radius,
+                      :surface_temp,
+                      :star_age,
+                      :orbit_period,
+                      :arrival_point,
+                      :luminosity,
+                      :notes)
       end
 
       def filtered
