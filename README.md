@@ -38,4 +38,4 @@ rake db:migrate
 Schema
 ------
 
-Documented in [schema.md](/schema.md)
+Documented in [schema.md](https://github.com/gregmalcolm/ed-materializer/wiki/Schema)
