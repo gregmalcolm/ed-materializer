@@ -3,7 +3,7 @@ class Basecamp < ActiveRecord::Base
 
   belongs_to :world
 
-  scope :by_world,      ->(world)   { where(world_id: world.id) if world }
+  scope :by_world_id,   ->(world_id) { where(world_id: world_id) if world_id }
   scope :by_name,       ->(name)  { where("UPPER(TRIM(name))=?", name.to_s.upcase.strip ) if name }
   scope :by_updater,    ->(updater) { where("UPPER(TRIM(updater))=?", updater.to_s.upcase.strip ) if updater }
 
@@ -18,7 +18,7 @@ class Basecamp < ActiveRecord::Base
   private
 
   def key_fields_must_be_unique
-    if Basecamp.by_world(self.world)
+    if Basecamp.by_world_id(self.world_id)
                .by_name(self.name)
                .not_me(self.id)
                .any?

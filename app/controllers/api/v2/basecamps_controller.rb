@@ -13,35 +13,36 @@ module Api
                                  each_serializer: BasecampSerializer
       end
 
-      #def show
-        #render json: @basecamp
-      #end
+      def show
+        render json: @basecamp
+      end
 
-      #def create
-        #@basecamp = Basecamp.new(basecamp_params)
+      def create
+        @basecamp = Basecamp.new(new_basecamp_params)
 
-        #if @basecamp.save
-          #render json: @basecamp, status: :created, location: @basecamp
-        #else
-          #render json: @basecamp.errors, status: :unprocessable_entity
-        #end
-      #end
+        if @basecamp.save
+          render json: @basecamp, status: :created, 
+                                  location: world_basecamps_url(params[:world_id])
+        else
+          render json: @basecamp.errors, status: :unprocessable_entity
+        end
+      end
 
-      #def update
-        #@basecamp = Basecamp.find(params[:id])
+      def update
+        @basecamp = Basecamp.find(params[:id])
 
-        #if @basecamp.update(basecamp_params)
-          #head :no_content
-        #else
-          #render json: @basecamp.errors, status: :unprocessable_entity
-        #end
-      #end
+        if @basecamp.update(basecamp_params)
+          head :no_content
+        else
+          render json: @basecamp.errors, status: :unprocessable_entity
+        end
+      end
 
-      #def destroy
-        #@basecamp.destroy
+      def destroy
+        @basecamp.destroy
 
-        #head :no_content
-      #end
+        head :no_content
+      end
 
       private
 
@@ -69,8 +70,12 @@ module Api
                       :image_url)
       end
 
+      def new_basecamp_params
+        basecamp_params.merge(world_id: params[:world_id])
+      end
+
       def filtered
-        Basecamp.by_world(@world)
+        Basecamp.by_world_id(params[:world_id])
                 .by_name(params[:name])
                 .by_updater(params[:updater])
                 .updated_before(params[:updated_before])

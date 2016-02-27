@@ -25,7 +25,7 @@ module BasecampsHelper
              created_at: time - 5.days),
       create(:basecamp,
              world: world2,
-             name: "The Dark Tower",
+             name: "Dark Fortress",
              updater: "Majkl578",
              landing_zone_terrain: nil,
              landing_zone_lat: 73.35,
