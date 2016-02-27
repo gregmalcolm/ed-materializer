@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160225173611) do
+ActiveRecord::Schema.define(version: 20160227145217) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,7 +20,7 @@ ActiveRecord::Schema.define(version: 20160225173611) do
     t.integer  "world_id"
     t.string   "updater",              limit: 50
     t.string   "name",                 limit: 50
-    t.string   "descripton"
+    t.text     "description"
     t.string   "landing_zone_terrain", limit: 30
     t.integer  "terrain_hue_1"
     t.integer  "terrain_hue_2"

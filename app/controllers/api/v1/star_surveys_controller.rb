@@ -49,9 +49,6 @@ module Api
       end
 
       def star_survey_params
-        # Blacklisting isn't the most secure way of doing this
-        # but the attribute list is long and the security implications
-        # are low here
         params.require(:star_survey)
               .permit(:system,
                       :commander,

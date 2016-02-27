@@ -49,9 +49,6 @@ module Api
       end
 
       def world_params
-        # Blacklisting isn't the most secure way of doing this
-        # but the attribute list is long and the security implications
-        # are low here
         params.require(:world)
               .permit(:system,
                       :updater,
