@@ -9,12 +9,13 @@ Rails.application.routes.draw do
     scope :v2, module: :v2 do
       resources :stars, except: [:new, :edit]
       resources :worlds, except: [:new, :edit] do
-        resources :basecamps, except: [:new, :edit] do
-          resources :site_surveys, except: [:new, :edit]
-        end
+        resources :basecamps, except: [:new, :edit]
       end
+      resources :basecamps, except: [:new, :edit] do
+        resources :site_surveys, except: [:new, :edit]
+      end
+      resources :site_surveys, except: [:new, :edit]
       resources :world_surveys, except: [:new, :edit]
-      get :basecamps, to: "basecamps#index"
       get :site_surveys, to: "site_surveys#index"
       get :change_logs, to: "change_logs#index"
     end

@@ -4,7 +4,7 @@ class SiteSurvey < ActiveRecord::Base
   belongs_to :basecamp
 
   scope :by_commander, ->(commander) { where("UPPER(TRIM(commander))=?", commander.to_s.upcase.strip ) if commander }
-  scope :by_resource,  ->(resource)  { where("UPPER(TRIM(resource))=?", resource.to_s.upcase.strip ) if resource }
+  scope :by_resource,  ->(resource)  { where("COALESCE(UPPER(TRIM(resource)), '')=?", resource.to_s.upcase.strip ) if resource }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
 
