@@ -2,7 +2,7 @@ class Star < ActiveRecord::Base
   has_paper_trail
 
   scope :by_system,     ->(system)  { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
-  scope :by_star,       ->(star)    { where("COALESCE(UPPER(TRIM(star),'')=?", star.to_s.upcase.strip ) if star }
+  scope :by_star,       ->(star)    { where("COALESCE(UPPER(TRIM(star)),'')=?", star.to_s.upcase.strip ) if star }
   scope :by_updater,    ->(updater) { where("UPPER(TRIM(updater))=?", updater.to_s.upcase.strip ) if updater }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
