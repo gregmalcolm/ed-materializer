@@ -459,6 +459,61 @@ namespace :import do
       end
     end
 
+    def insert_site_surveys_data
+      @survey_logs_arr.each do |data|
+        survey = @surveys_dict[data["Survey / World"]]
+        full_system = survey["World"]
+        commander = survey["Surveyed By"]
+        resource = data["Resource"] || "AGGREGATED"
+        
+        world = World.where("upper(system || ' ' || world) = ?", full_system.to_s.upcase)
+                     .first
+        bc = Basecamp.by_world_id(world.try(:id))
+                     .where("landing_zone_lat": survey["Landing Zone Latitude"])
+                     .where("landing_zone_lon": survey["Landing Zone Longitude"])
+                     .first
+        ss = SiteSurvey.by_basecamp_id(bc.try(:id))
+                       .by_commander(commander)
+                       .by_resource(resource)
+                       .first_or_initialize
+        prefix = ss.id ? "Inserting " : "Updating "
+        prefix << " SiteSurvey record for #{full_system} (bc:#{bc.try(:id)} cmdr:#{commander} res:#{resource.to_s}):"
+        ss.assign_attributes(basecamp_id: bc.try(:id),
+                             commander: commander,
+                             resource: resource,
+                             carbon: data["C"],
+                             iron: data["Fe"],
+                             nickel: data["Ni"],
+                             phosphorus: data["P"],
+                             sulphur: data["S"],
+                             arsenic: data["As"],
+                             chromium: data["Cr"],
+                             germanium: data["Ge"],
+                             manganese: data["Mn"],
+                             selenium: data["Se"],
+                             vanadium: data["V"],
+                             zinc: data["Zn"],
+                             zirconium: data["Zr"],
+                             cadmium: data["Cd"],
+                             mercury: data["Hg"],
+                             molybdenum: data["Mo"],
+                             niobium: data["Nb"],
+                             tin: data["Sn"],
+                             tungsten: data["W"],
+                             antimony: data["Sb"],
+                             polonium: data["Po"],
+                             ruthenium: data["Ru"],
+                             technetium: data["Tc"],
+                             tellurium: data["Te"],
+                             yttrium: data["Y"])
+        if ss.save
+          log "#{prefix}: Success"  
+        else
+          log "#{prefix}: Failed"  
+        end
+      end
+    end
+
     task :download => :environment do
       log "Downloading Distant Worlds Spreadsheet..."
       clean_up
@@ -501,13 +556,14 @@ namespace :import do
       read_csv_data
       build_worlds_dict
       build_surveys_dict
-      insert_primary_stars_v2
-      update_star_data_v2
-      insert_worlds_v2
-      insert_key_world_survey_fields
-      update_world_survey_data
-      update_world_survey_materials_data
-      insert_basecamps_data
+      #insert_primary_stars_v2
+      #update_star_data_v2
+      #insert_worlds_v2
+      #insert_key_world_survey_fields
+      #update_world_survey_data
+      #update_world_survey_materials_data
+      #insert_basecamps_data
+      insert_site_surveys_data
       log "Done!"
     end
 

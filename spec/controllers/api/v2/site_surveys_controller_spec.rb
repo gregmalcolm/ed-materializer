@@ -46,7 +46,7 @@ describe Api::V2::SiteSurveysController, type: :controller do
       
       context "resource" do
         before { get :index, {basecamp_id: basecamps[1].id, 
-                              resource: ""} }
+                              resource: "AGGREGATED"} }
         it { expect(site_surveys_json[0]["commander"]).to be == "Michael Darkmoor" }
         it { expect(site_surveys_json.size).to be == 1 }
       end

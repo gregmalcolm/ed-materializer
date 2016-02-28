@@ -1,6 +1,7 @@
 class SiteSurvey < ActiveRecord::Base
   has_paper_trail
   
+  after_initialize :default_values  
   belongs_to :basecamp
 
   scope :by_basecamp_id, ->(basecamp_id) { where(basecamp_id: basecamp_id) if basecamp_id }
@@ -12,6 +13,12 @@ class SiteSurvey < ActiveRecord::Base
   scope :updated_before, ->(time) { where("updated_at<?", time ) if Time.parse(time) rescue false }
   scope :updated_after,  ->(time) { where("updated_at>?", time ) if Time.parse(time) rescue false }
 
-  validates :commander, :basecamp, presence: true
+  validates :commander, :basecamp, :resource, presence: true
+
+  private
+
+  def default_values
+    self.resource ||= "AGGREGATED"
+  end
 end
 

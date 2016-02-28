@@ -63,6 +63,8 @@ module Api
               .permit(:basecamp_id,
                       :commander,
                       :resource, 
+                      :notes,
+                      :image_url,
                       :carbon,
                       :iron,
                       :nickel,

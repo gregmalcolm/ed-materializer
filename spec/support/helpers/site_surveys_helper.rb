@@ -34,7 +34,7 @@ module SiteSurveysHelper
       create(:site_survey,
              basecamp: basecamp2,
              commander: "Michael Darkmoor",
-             resource: nil,
+             resource: "AGGREGATED",
              iron: 23,
              sulphur: 2,
              niobium: 4,
