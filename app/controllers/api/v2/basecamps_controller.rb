@@ -3,9 +3,10 @@ module Api
     class BasecampsController < ApplicationController
       before_action :authorize_admin!, except: [:index, :show]
       before_action :set_basecamp, only: [:show, :update, :destroy]
-      before_action :set_world, only: [:index, :show, :update, :destroy]
+      before_action :set_world, only: [:show, :update, :destroy]
 
       def index
+        set_world if params[:world_id]
         @basecamps = filtered.page(page).
                               per(per_page).
                               order("updated_at")

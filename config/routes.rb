@@ -12,6 +12,7 @@ Rails.application.routes.draw do
         resources :basecamps, except: [:new, :edit]
       end
       resources :world_surveys, except: [:new, :edit]
+      get :basecamps, to: "basecamps#index"
       get :change_logs, to: "change_logs#index"
     end
   end
