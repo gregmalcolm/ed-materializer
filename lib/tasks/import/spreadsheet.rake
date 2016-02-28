@@ -21,6 +21,13 @@ namespace :import do
     "DW Spreadsheet"
   end
 
+  def color_lookup(color_name)
+    color_name = color_name.to_s
+                           .downcase.gsub("ice","white")
+    color = Color::CSS[color_name]
+    color.hex.to_i(16) if color
+  end
+
   def sheets
     [
       {name: "log",     gid: 0},
@@ -96,7 +103,7 @@ namespace :import do
       end
     end
 
-    def insert_key_world_fields
+    def insert_key_world_survey_fields
       @surveys_arr.each do |survey|
         full_system = survey["World"].to_s.upcase
         world_data = @worlds_dict[full_system]
@@ -126,7 +133,7 @@ namespace :import do
       end
     end
 
-    def update_world_data
+    def update_world_survey_data
       @worlds_arr.each do |data|
         system = data["System Name"].to_s.upcase.strip
         world = data["Body"].to_s.upcase.strip
@@ -175,7 +182,7 @@ namespace :import do
       end
     end
 
-    def update_materials_data
+    def update_world_survey_materials_data
       @survey_logs_arr.each do |data|
         survey = @surveys_dict[data["Survey / World"]]
         full_system = @worlds_dict[survey["World"].to_s.upcase.strip] if survey.present?
@@ -331,7 +338,7 @@ namespace :import do
 
         if system
           item = Star.where("UPPER(TRIM(system)) = :system AND
-                             UPPER(TRIM(star)) = :star",
+                             COALESCE(UPPER(TRIM(star)),'') = :star",
                              { system:  system.upcase.strip,
                                star:    star.upcase.strip,
                                updater: updater_tag })
@@ -366,7 +373,7 @@ namespace :import do
                        }
           unless attributes.values.all?(&:blank?)
             Star.where("UPPER(TRIM(system)) = :system AND
-                        star in ('', 'A') AND
+                        COALESCE(star,'') in ('', 'A') AND
                         updater = :updater",
                         { system: system, updater: updater_tag })
                  .update_all(attributes)
@@ -421,6 +428,37 @@ namespace :import do
       end
     end
 
+    def insert_basecamps_data
+      @surveys_arr.each do |data|
+        world = World.where("UPPER(system || ' ' || world) = ?", data["World"].to_s.upcase)
+                     .first
+        if world
+          prefix = "Inserting Basecamp for #{ data['World']} at #{
+            data['Landing Zone Latitude']},#{data['Landing Zone Longitude']}:"
+          bc = Basecamp.where(world_id: world.id)
+                       .where(landing_zone_lat: data["Landing Zone Latitude"])
+                       .where(landing_zone_lon: data["Landing Zone Longitude"])
+          if bc.blank?
+            log "#{prefix} creating..."
+            Basecamp.create(world_id: world.id,
+                            updater: updater_tag,
+                            name: "Camp #{data['Surveyed By']} #{data['Date']}",
+                            landing_zone_terrain: data["Landing Zone Terrain"],
+                            terrain_hue_1: color_lookup(data["Terrain Hue 1"]),
+                            terrain_hue_2: color_lookup(data["Terrain Hue 2"]),
+                            terrain_hue_3: color_lookup(data["Terrain Hue 3"]),
+                            landing_zone_lat: data["Landing Zone Latitude"],
+                            landing_zone_lon: data["Landing Zone Longitude"],
+                            notes: data["Notes"])
+          else
+            log "#{prefix} already exists"
+          end
+        else
+          log "Unable to update Basecamp record for #{data['World']}"
+        end
+      end
+    end
+
     task :download => :environment do
       log "Downloading Distant Worlds Spreadsheet..."
       clean_up
@@ -449,9 +487,6 @@ namespace :import do
       read_csv_data
       build_worlds_dict
       build_surveys_dict
-      insert_key_world_fields
-      update_world_data
-      update_materials_data
       insert_primary_stars
       update_star_data
       log "Done!"
@@ -469,6 +504,10 @@ namespace :import do
       insert_primary_stars_v2
       update_star_data_v2
       insert_worlds_v2
+      insert_key_world_survey_fields
+      update_world_survey_data
+      update_world_survey_materials_data
+      insert_basecamps_data
       log "Done!"
     end
 

@@ -17,6 +17,7 @@ gem 'omniauth'
 
 gem 'rack-cors', :require => 'rack/cors'
 gem 'figaro'
+gem 'color'
 
 group :test, :development do
   gem 'pry-byebug'
