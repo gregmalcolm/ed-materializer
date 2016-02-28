@@ -556,13 +556,13 @@ namespace :import do
       read_csv_data
       build_worlds_dict
       build_surveys_dict
-      #insert_primary_stars_v2
-      #update_star_data_v2
-      #insert_worlds_v2
-      #insert_key_world_survey_fields
-      #update_world_survey_data
-      #update_world_survey_materials_data
-      #insert_basecamps_data
+      insert_primary_stars_v2
+      update_star_data_v2
+      insert_worlds_v2
+      insert_key_world_survey_fields
+      update_world_survey_data
+      update_world_survey_materials_data
+      insert_basecamps_data
       insert_site_surveys_data
       log "Done!"
     end
