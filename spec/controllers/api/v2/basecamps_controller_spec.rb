@@ -29,6 +29,12 @@ describe Api::V2::BasecampsController, type: :controller do
     end
 
     describe "filtering" do
+      context "on world_id" do
+        before { get :index, {world_id: worlds[1].id} }
+        it { expect(basecamps_json[0]["updater"]).to be == "Majkl578" }
+        it { expect(basecamps_json.size).to be == 1 }
+      end
+      
       context "on name" do
         before { get :index, {world_id: worlds[0].id, 
                               name: " fge BC2"} }
@@ -62,11 +68,18 @@ describe Api::V2::BasecampsController, type: :controller do
   describe "GET #show" do
     let(:basecamp) { json["basecamp"] }
 
-    before { get :show, {id: basecamps[2].id, 
-                         world_id: worlds[1].id} }
-    it { expect(response).to have_http_status(200) }
-    it { expect(basecamp["name"]).to be == "Dark Fortress" }
-    it { expect(basecamp["updater"]).to be == "Majkl578" }
+    context "nested" do
+      before { get :show, {id: basecamps[2].id, 
+                           world_id: worlds[1].id} }
+      it { expect(response).to have_http_status(200) }
+      it { expect(basecamp["name"]).to be == "Dark Fortress" }
+    end
+    
+    context "not nested" do
+      before { get :show, {id: basecamps[2].id} }
+      it { expect(response).to have_http_status(200) }
+      it { expect(basecamp["name"]).to be == "Dark Fortress" }
+    end
   end
 
   describe "POST #create" do
@@ -142,6 +155,17 @@ describe Api::V2::BasecampsController, type: :controller do
       it { expect(basecamp.terrain_hue_1).to be 512 }
     end
 
+    context "note nested" do
+      let(:updated_basecamp) { { id: basecamps[1].id,
+                                 basecamp: {world_id: worlds[0].id,
+                                            terrain_hue_2: 256 } } }
+      before { put :update, updated_basecamp, auth_tokens }
+      let(:basecamp) { Basecamp.find(basecamps[1].id)}
+      it { expect(response).to have_http_status(204) }
+      it { expect(basecamp.name).to be == "FGE BC2" }
+      it { expect(basecamp.terrain_hue_2).to be 256 }
+    end
+    
     context "unauthenticated" do
       before { put :update, updated_basecamp }
       it { expect(response).to have_http_status(401) }

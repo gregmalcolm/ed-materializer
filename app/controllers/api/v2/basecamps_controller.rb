@@ -3,10 +3,9 @@ module Api
     class BasecampsController < ApplicationController
       before_action :authorize_admin!, except: [:index, :show]
       before_action :set_basecamp, only: [:show, :update, :destroy]
-      before_action :set_world, only: [:show, :update, :destroy]
+      before_action :set_world, only: [:index, :show, :update, :destroy]
 
       def index
-        set_world if params[:world_id]
         @basecamps = filtered.page(page).
                               per(per_page).
                               order("updated_at")
@@ -23,7 +22,7 @@ module Api
 
         if @basecamp.save
           render json: @basecamp, status: :created, 
-                                  location: world_basecamps_url(params[:world_id])
+                                  location: @world
         else
           render json: @basecamp.errors, status: :unprocessable_entity
         end
@@ -52,7 +51,11 @@ module Api
       end
       
       def set_world
-        @world = World.find(params[:world_id])
+        @world = if params[:world_id]
+                      World.find(params[:world_id]) 
+                    else
+                      @basecamp.world if @basecamp
+                    end
       end
 
       def basecamp_params
@@ -72,7 +75,7 @@ module Api
       end
 
       def new_basecamp_params
-        basecamp_params.merge(world_id: params[:world_id])
+        { world_id: params[:world_id] }.merge(basecamp_params)
       end
 
       def filtered

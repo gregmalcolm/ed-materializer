@@ -95,7 +95,8 @@ module Api
       end
 
       def filtered
-        SiteSurvey.by_resource(params[:resource])
+        SiteSurvey.by_basecamp_id(params[:basecamp_id])
+                  .by_resource(params[:resource])
                   .by_commander(params[:commander])
                   .updated_before(params[:updated_before])
                   .updated_after(params[:updated_after])

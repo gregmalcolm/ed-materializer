@@ -31,6 +31,12 @@ describe Api::V2::SiteSurveysController, type: :controller do
     end
 
     describe "filtering" do
+      context "on basecamp_id" do
+        before { get :index, {basecamp_id: basecamps[1].id} }
+        it { expect(site_surveys_json[0]["commander"]).to be == "Michael Darkmoor" }
+        it { expect(site_surveys_json.size).to be == 1 }
+      end
+      
       context "on commander" do
         before { get :index, {basecamp_id: basecamps[0].id, 
                               commander: "  Eoran "} }
@@ -116,7 +122,7 @@ describe Api::V2::SiteSurveysController, type: :controller do
     context "not nested" do
       let(:updated_site_survey) { { id: site_surveys[1].id,
                                     site_survey: { basecamp_id: basecamps[0].id, 
-                                    polonium: 5 } } }
+                                                   polonium: 5 } } }
       before { put :update, updated_site_survey, auth_tokens }
       let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
       it { expect(response).to have_http_status(204) }
