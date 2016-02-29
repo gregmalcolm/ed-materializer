@@ -1,4 +1,4 @@
-class WorldSurvey < ActiveRecord::Base
+class WorldSurveyV1 < ActiveRecord::Base
   has_paper_trail
 
   scope :by_system,    ->(system)    { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
@@ -16,7 +16,7 @@ class WorldSurvey < ActiveRecord::Base
   private
 
   def key_fields_must_be_unique
-    if WorldSurvey.by_commander(self.commander)
+    if WorldSurveyV1.by_commander(self.commander)
                   .by_system(self.system)
                   .by_world(self.world)
                   .not_me(self.id)

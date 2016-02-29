@@ -9,27 +9,30 @@ module Api
                                   per(per_page).
                                   order("updated_at")
         render json: @world_surveys, serializer: PaginatedSerializer,
-                                     each_serializer: ::V2::WorldSurveySerializer
+                                     each_serializer: ::V2::WorldSurveyV1Serializer,
+                                     root: "world_surveys"
       end
 
       def show
-        render json: @world_survey, serializer: ::V2::WorldSurveySerializer
+        render json: @world_survey, serializer: ::V2::WorldSurveyV1Serializer,
+                                    root: "world_survey"
       end
 
       def create
-        @world_survey = WorldSurvey.new(world_survey_params)
+        @world_survey = WorldSurveyV1.new(world_survey_params)
 
         if @world_survey.save
-          render json: @world_survey, serializer: ::V2::WorldSurveySerializer,
+          render json: @world_survey, serializer: ::V2::WorldSurveyV1Serializer,
                                       status: :created, 
-                                      location: @world_survey
+                                      location: world_survey_url(@world_survey),
+                                      root: "world_survey"
         else
           render json: @world_survey.errors, status: :unprocessable_entity
         end
       end
 
       def update
-        @world_survey = WorldSurvey.find(params[:id])
+        @world_survey = WorldSurveyV1.find(params[:id])
 
         if @world_survey.update(world_survey_params)
           head :no_content
@@ -47,7 +50,7 @@ module Api
       private
 
       def set_world_survey
-        @world_survey = WorldSurvey.find(params[:id])
+        @world_survey = WorldSurveyV1.find(params[:id])
       end
 
       def world_survey_params
@@ -84,7 +87,7 @@ module Api
       end
 
       def filtered
-        WorldSurvey.by_system(params[:system])
+        WorldSurveyV1.by_system(params[:system])
                    .by_commander(params[:commander])
                    .by_world(params[:world])
                    .updated_before(params[:updated_before])

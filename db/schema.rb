@@ -174,7 +174,7 @@ ActiveRecord::Schema.define(version: 20160229001928) do
 
   add_index "versions", ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id", using: :btree
 
-  create_table "world_surveys_v1", force: :cascade do |t|
+  create_table "world_survey_v1s", force: :cascade do |t|
     t.string   "system"
     t.string   "commander"
     t.string   "world"
@@ -226,11 +226,11 @@ ActiveRecord::Schema.define(version: 20160229001928) do
     t.float    "ice_pct"
   end
 
-  add_index "world_surveys_v1", ["commander"], name: "index_world_surveys_v1_on_commander", using: :btree
-  add_index "world_surveys_v1", ["system", "commander", "world", "updated_at"], name: "index_world_surveys_v1_on_sys_com_wor_upd", using: :btree
-  add_index "world_surveys_v1", ["system"], name: "index_world_surveys_v1_on_system", using: :btree
-  add_index "world_surveys_v1", ["updated_at"], name: "index_world_surveys_v1_on_updated_at", using: :btree
-  add_index "world_surveys_v1", ["world"], name: "index_world_surveys_v1_on_world", using: :btree
+  add_index "world_survey_v1s", ["commander"], name: "index_world_survey_v1s_on_commander", using: :btree
+  add_index "world_survey_v1s", ["system", "commander", "world", "updated_at"], name: "index_world_survey_v1s_on_sys_com_wor_upd", using: :btree
+  add_index "world_survey_v1s", ["system"], name: "index_world_survey_v1s_on_system", using: :btree
+  add_index "world_survey_v1s", ["updated_at"], name: "index_world_survey_v1s_on_updated_at", using: :btree
+  add_index "world_survey_v1s", ["world"], name: "index_world_survey_v1s_on_world", using: :btree
 
   create_table "worlds", force: :cascade do |t|
     t.string   "system",             limit: 50

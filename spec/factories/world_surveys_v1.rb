@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :world_survey do
+  factory :world_survey_v1 do
     system "Betalgeuse"
     commander "Jameson"
     world "A 1"

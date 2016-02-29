@@ -1,10 +1,10 @@
 require 'rails_helper'
 require 'support/helpers/auth_helper.rb'
-require 'support/helpers/world_surveys_helper.rb'
+require 'support/helpers/world_surveys_v1_helper.rb'
 
 describe Api::V2::WorldSurveysController, type: :controller do
   include AuthHelper
-  include WorldSurveysHelper
+  include WorldSurveysV1Helper
   include Devise::TestHelpers
 
   let!(:surveys) { spawn_world_surveys }
@@ -76,11 +76,11 @@ describe Api::V2::WorldSurveysController, type: :controller do
       before { post :create, new_survey, auth_tokens }
       it { expect(response).to have_http_status(201) }
       it { expect(world_survey["system"]).to be == "Magrathea" }
-      it { expect(WorldSurvey.last.system).to be == "Magrathea" }
+      it { expect(WorldSurveyV1.last.system).to be == "Magrathea" }
     end
 
     context "allows one survey per commander per world" do
-      before { create :world_survey, new_survey[:world_survey] }
+      before { create :world_survey_v1, new_survey[:world_survey] }
       before { post :create, new_survey, auth_tokens }
       it { expect(response).to have_http_status(422) }
       it { expect(json["world"]).to include "has already been taken for this system and commander" }
@@ -95,7 +95,7 @@ describe Api::V2::WorldSurveysController, type: :controller do
     end
 
     context "adding a survey updates every field" do
-      let(:full_attributes) { attributes_for(:world_survey, :full) }
+      let(:full_attributes) { attributes_for(:world_survey_v1, :full) }
       let(:new_survey) { {world_survey: full_attributes} }
       before { post :create, new_survey, auth_tokens }
       it { expect(response).to have_http_status(201) }
@@ -107,7 +107,7 @@ describe Api::V2::WorldSurveysController, type: :controller do
         { system: "MAGRATHEA", commander: "ARTHUR DENT", world: "b 2", tin: true } }
       }
 
-      before { create :world_survey, new_survey[:world_survey] }
+      before { create :world_survey_v1, new_survey[:world_survey] }
       before { post :create, clashing_survey, auth_tokens }
       it { expect(response).to have_http_status(422) }
       it { expect(json["world"]).to include "has already been taken for this system and commander" }
@@ -125,7 +125,7 @@ describe Api::V2::WorldSurveysController, type: :controller do
                              world_survey: { mercury: true }} }
     context "updating a survey" do
       before { put :update, updated_survey, auth_tokens }
-      let(:survey) { WorldSurvey.find(surveys[1].id)}
+      let(:survey) { WorldSurveyV1.find(surveys[1].id)}
       it { expect(response).to have_http_status(204) }
       it { expect(survey.system).to be == "NGANJI" }
       it { expect(survey.mercury).to be true }
@@ -158,7 +158,7 @@ describe Api::V2::WorldSurveysController, type: :controller do
       let(:id) { surveys[0].id }
       before { delete :destroy, {id: id}, auth_tokens }
       it { expect(response).to have_http_status(204) }
-      it { expect(WorldSurvey.where(id: id).any?).to be false }
+      it { expect(WorldSurveyV1.where(id: id).any?).to be false }
     end
   end
 end

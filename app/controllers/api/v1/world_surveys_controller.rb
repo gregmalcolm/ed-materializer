@@ -9,27 +9,31 @@ module Api
                                   per(per_page).
                                   order("updated_at")
         render json: @world_surveys, serializer: PaginatedSerializer,
-                                     each_serializer: ::V1::WorldSurveySerializer
+                                     each_serializer: ::V1::WorldSurveyV1Serializer,
+                                     root: "world_surveys"
+                  
       end
 
       def show
-        render json: @world_survey, serializer: ::V1::WorldSurveySerializer
+        render json: @world_survey, serializer: ::V1::WorldSurveyV1Serializer, 
+                                    root: "world_survey"
       end
 
       def create
-        @world_survey = WorldSurvey.new(world_survey_params)
+        @world_survey = WorldSurveyV1.new(world_survey_params)
 
         if @world_survey.save
-          render json: @world_survey, serializer: ::V1::WorldSurveySerializer,
+          render json: @world_survey, serializer: ::V1::WorldSurveyV1Serializer,
                                       status: :created, 
-                                      location: @world_survey
+                                      location: world_survey_url(@world_survey),
+                                      root: "world_survey"
         else
           render json: @world_survey.errors, status: :unprocessable_entity
         end
       end
 
       def update
-        @world_survey = WorldSurvey.find(params[:id])
+        @world_survey = WorldSurveyV1.find(params[:id])
 
         if @world_survey.update(world_survey_params)
           head :no_content
@@ -47,7 +51,7 @@ module Api
       private
 
       def set_world_survey
-        @world_survey = WorldSurvey.find(params[:id])
+        @world_survey = WorldSurveyV1.find(params[:id])
       end
 
       def world_survey_params
@@ -104,13 +108,13 @@ module Api
       def filtered
         q = params[:q]
         if q.present?
-          WorldSurvey.by_system(q[:system]).
+          WorldSurveyV1.by_system(q[:system]).
                       by_commander(q[:commander]).
                       by_world(q[:world]).
                       updated_before(q[:updated_before]).
                       updated_after(q[:updated_after])
         else
-          WorldSurvey.all
+          WorldSurveyV1.all
         end
       end
     end

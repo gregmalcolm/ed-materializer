@@ -1,8 +1,8 @@
-module WorldSurveysHelper
+module WorldSurveysV1Helper
   def spawn_world_surveys
     time = Time.now
     [
-      create(:world_survey,
+      create(:world_survey_v1,
              system: "SHINRARTA DEZHRA",
              commander: "Marlon Blake",
              world: "A 5",
@@ -17,7 +17,7 @@ module WorldSurveysHelper
              polonium: true,
              updated_at: time - 10.days,
              created_at: time - 10.days),
-      create(:world_survey,
+      create(:world_survey_v1,
              system: "NGANJI",
              commander: "Finwen",
              world: "B 3",
@@ -37,7 +37,7 @@ module WorldSurveysHelper
              antimony: true,
              updated_at: time - 5.days,
              created_at: time - 5.days),
-      create(:world_survey,
+      create(:world_survey_v1,
              system: "SHINRARTA DEZHRA",
              commander: "Dommaarraa", # Thanks for the mats spreadsheet!
              world: "A 5",
