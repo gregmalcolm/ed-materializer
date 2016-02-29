@@ -1,58 +1,58 @@
 require 'rails_helper'
 require 'support/helpers/auth_helper.rb'
-require 'support/helpers/world_surveys_v1_helper.rb'
 
 describe Api::V2::WorldSurveysController, type: :controller do
   include AuthHelper
-  include WorldSurveysV1Helper
+  include WorldsHelper
+  include WorldSurveysHelper
   include Devise::TestHelpers
+  
+  def combined_attrs(attributes, world_id) 
+    attributes.merge(world_id: world_id)
+  end
 
-  let!(:surveys) { spawn_world_surveys }
+  let!(:worlds) { spawn_worlds }
+  let!(:world_surveys) { spawn_world_surveys(world1: worlds[0], world2: worlds[1], world3: worlds[2]) }
   let!(:users) { spawn_users }
   let(:auth_tokens) { sign_in users[:edd]}
   let(:json) { JSON.parse(response.body)}
 
   describe "GET #index" do
-    let(:world_surveys) { json["world_surveys"] }
-    let(:commanders) { world_surveys.map { |j| j["commander"] } }
+    let(:world_surveys_json) { json["world_surveys"] }
+    let(:updaters) { world_surveys_json.map { |j| j["updater"] } }
 
     context "drinking from the firehouse" do
-      before { get :index, {} }
+      before { get :index, {world_id: worlds[0].id} }
       it { expect(response).to have_http_status(200) }
-      it { expect(world_surveys[1]["system"]).to be == "NGANJI" }
-      it { expect(world_surveys.size).to be >= 3 }
+      it { expect(world_surveys_json[0]["carbon"]).to be true }
+      it { expect(world_surveys_json.size).to be == 1 }
     end
 
     describe "filtering" do
-      context "on system" do
-        before { get :index, {system: " nganjI "} }
-        it { expect(world_surveys[0]["system"]).to be == "NGANJI" }
-        it { expect(world_surveys.size).to be == 1 }
+      context "on world_id" do
+        before { get :index, {world_id: worlds[1].id} }
+        it { expect(world_surveys_json[0]["updater"]).to be == "Finwen" }
+        it { expect(world_surveys_json.size).to be == 1 }
       end
-
-      context "on commander" do
-        before { get :index, {commander: "  DOMMAARRAA"} }
-        it { expect(world_surveys[0]["system"]).to be == "SHINRARTA DEZHRA" }
-        it { expect(world_surveys.size).to be == 1 }
-      end
-
-      context "on world" do
-        before { get :index, {world: "a 5 "} }
-        it { expect(world_surveys[0]["system"]).to be == "SHINRARTA DEZHRA" }
-        it { expect(world_surveys.size).to be == 2 }
+      
+      context "on updater" do
+        before { get :index, {world_id: worlds[2].id, 
+                              updater: "  DommAARRAA "} }
+        it { expect(world_surveys_json[0]["updater"]).to be == "Dommaarraa" }
+        it { expect(world_surveys_json.size).to be == 1 }
       end
 
       context "on updated_before" do
-        before { get :index, {updated_before: Time.now - 3.days} }
-        it { expect(commanders).to include "Finwen" }
-        it { expect(commanders).to include "Marlon Blake" }
-        it { expect(world_surveys.size).to be == 2 }
+        before { get :index, {updated_before: Time.now - 8.days} }
+        it { expect(updaters).to include "Marlon Blake" }
+        it { expect(world_surveys_json.size).to be == 1 }
       end
 
       context "on updated_after" do
-        before { get :index, {updated_after: Time.now - 3.days} }
-        it { expect(commanders).to include "Dommaarraa" }
-        it { expect(world_surveys.size).to be == 1 }
+        before { get :index, {updated_after: Time.now - 8.days} }
+        it { expect(updaters).to include "Finwen" }
+        it { expect(updaters).to include "Dommaarraa" }
+        it { expect(world_surveys_json.size).to be == 2 }
       end
     end
   end
@@ -60,105 +60,135 @@ describe Api::V2::WorldSurveysController, type: :controller do
   describe "GET #show" do
     let(:world_survey) { json["world_survey"] }
 
-    before { get :show, {id: surveys[2].id} }
-    it { expect(response).to have_http_status(200) }
-    it { expect(world_survey["system"]).to be == "SHINRARTA DEZHRA" }
-    it { expect(world_survey["commander"]).to be == "Dommaarraa" }
+    context "nested" do
+      before { get :show, {id: world_surveys[2].id, 
+                           world_id: worlds[1].id} }
+      it { expect(response).to have_http_status(200) }
+      it { expect(world_survey["iron"]).to be true }
+    end
+    
+    context "not nested" do
+      before { get :show, {id: world_surveys[2].id} }
+      it { expect(response).to have_http_status(200) }
+      it { expect(world_survey["iron"]).to be true }
+    end
   end
 
   describe "POST #create" do
-    let(:world_survey) { json["world_survey"] }
-    let(:new_survey) { { world_survey:
-      { system: "Magrathea", commander: "Arthur Dent", world: "B 2", zinc: true } }
+    let(:world_survey_json) { json["world_survey"] }
+    let(:new_world_survey) { {
+      updater: "Arthur Dent", 
+      sulphur: false, 
+      yttrium: true}
     }
+    let(:new_world) { create :world }
 
-    context "adding a survey" do
-      before { post :create, new_survey, auth_tokens }
+    context "adding a world_survey" do
+      before { get :create, { world_id: new_world.id, 
+                              world_survey: new_world_survey }, auth_tokens }
       it { expect(response).to have_http_status(201) }
-      it { expect(world_survey["system"]).to be == "Magrathea" }
-      it { expect(WorldSurveyV1.last.system).to be == "Magrathea" }
+      it { expect(world_survey_json["updater"]).to be == "Arthur Dent" }
+      it { expect(WorldSurvey.last.updater).to be == "Arthur Dent" }
     end
 
-    context "allows one survey per commander per world" do
-      before { create :world_survey_v1, new_survey[:world_survey] }
-      before { post :create, new_survey, auth_tokens }
+    context "allows one record per world_survey" do
+      let!(:existing_world_survey) { 
+        create :world_survey, combined_attrs(new_world_survey, new_world.id) 
+      }
+      before { get :create, { world_id: new_world.id, 
+                              world_survey: new_world_survey }, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["world"]).to include "has already been taken for this system and commander" }
+      it { expect(json["world_survey"][0]).to match(/has already been taken/) }
+    end
+    
+    context "expects a world id" do
+      before { expect { get :create, { world_survey: new_world_survey }, auth_tokens
+                      }.to raise_error(RoutingError)
+             }
     end
 
     context "rejects blanks in key fields" do
-      before { post :create, {world_survey: {tin: true}}, auth_tokens }
+      before { get :create, { world_id: new_world.id, 
+                              world_survey: { mercury: true} }, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["commander"]).to include "can't be blank" }
-      it { expect(json["system"]).to include "can't be blank" }
-      it { expect(json["world"]).to include "can't be blank" }
+      it { expect(json["updater"]).to include "can't be blank" }
     end
 
-    context "adding a survey updates every field" do
-      let(:full_attributes) { attributes_for(:world_survey_v1, :full) }
-      let(:new_survey) { {world_survey: full_attributes} }
-      before { post :create, new_survey, auth_tokens }
-      it { expect(response).to have_http_status(201) }
-      it { expect(world_survey.values).to_not include be_blank }
-    end
-
-    context "when checking for clashing systems, take into account casing" do
-      let(:clashing_survey) { { world_survey:
-        { system: "MAGRATHEA", commander: "ARTHUR DENT", world: "b 2", tin: true } }
+    context "when checking for clashing names, take into account casing" do
+      let(:clashing_world_survey) {
+        { updater: "Arthur", tin: true }
       }
 
-      before { create :world_survey_v1, new_survey[:world_survey] }
-      before { post :create, clashing_survey, auth_tokens }
+      let!(:existing_world_survey) { create :world_survey, combined_attrs(new_world_survey, new_world.id) }
+      before { post :create, { world_id: new_world.id, 
+                               world_survey: clashing_world_survey }, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["world"]).to include "has already been taken for this system and commander" }
+      it { expect(json["world_survey"][0]).to match(/has already been taken/) }
     end
 
     context "unauthorized" do
-      before { post :create, new_survey }
+      before { post :create, { world_id: new_world.id, 
+                               world_survey: new_world_survey } }
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }
     end
   end
 
   describe "PATCH/PUT #update" do
-    let(:updated_survey) { { id: surveys[1].id,
-                             world_survey: { mercury: true }} }
-    context "updating a survey" do
-      before { put :update, updated_survey, auth_tokens }
-      let(:survey) { WorldSurveyV1.find(surveys[1].id)}
+    let(:updated_world_survey) { { world_id: worlds[1].id,
+                                   id: world_surveys[1].id,
+                                   world_survey: {updater: "Davros"} } }
+    context "updating a world_survey" do
+      before { put :update, updated_world_survey, auth_tokens }
+      let(:world_survey) { WorldSurvey.find(world_surveys[1].id)}
       it { expect(response).to have_http_status(204) }
-      it { expect(survey.system).to be == "NGANJI" }
-      it { expect(survey.mercury).to be true }
+      it { expect(world_survey.updater).to be == "Davros" }
+      it { expect(world_survey.carbon).to be true }
     end
 
+    context "not nested" do
+      let(:updated_world_survey) { { id: world_surveys[1].id,
+                                     world_survey: {world_id: worlds[1].id,
+                                                    updater: "Davros" } } }
+      before { put :update, updated_world_survey, auth_tokens }
+      let(:world_survey) { WorldSurvey.find(world_surveys[1].id)}
+      it { expect(response).to have_http_status(204) }
+      it { expect(world_survey.updater).to be == "Davros" }
+      it { expect(world_survey.carbon).to be true }
+    end
+    
     context "unauthenticated" do
-      before { put :update, updated_survey }
+      before { put :update, updated_world_survey }
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }
     end
   end
 
   describe "DELETE #destroy" do
+    context "authorized power user" do
+      let(:id) { world_surveys[0].id }
+      before { delete :destroy, {world_id: worlds[0].id,
+                                 id: id}, auth_tokens }
+      it { expect(response).to have_http_status(204) }
+      it { expect(WorldSurvey.where(id: id).any?).to be false }
+    end
+    
     context "unauthenticated" do
-      let(:id) { surveys[0].id }
-      before { delete :destroy, {id: id} }
+      let(:id) { world_surveys[0].id }
+
+      before { delete :destroy, {world_id: worlds[0].id,
+                                 id: id} }
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }
     end
 
     context "unauthorized basic user" do
-      let(:id) { surveys[0].id }
+      let(:id) { world_surveys[0].id }
       let(:auth_tokens) { sign_in users[:marlon]}
-      before { delete :destroy, {id: id}, auth_tokens }
+      before { delete :destroy, {world_id: worlds[0].id,
+                                 id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }
-    end
-
-    context "authorized power user" do
-      let(:id) { surveys[0].id }
-      before { delete :destroy, {id: id}, auth_tokens }
-      it { expect(response).to have_http_status(204) }
-      it { expect(WorldSurveyV1.where(id: id).any?).to be false }
     end
   end
 end

@@ -2,6 +2,7 @@ class World < ActiveRecord::Base
   has_paper_trail
 
   has_many :basecamps
+  has_many :world_surveys
 
   scope :by_system,     ->(system)  { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
   scope :by_world,      ->(world)   { where("UPPER(TRIM(world))=?", world.to_s.upcase.strip ) if world }

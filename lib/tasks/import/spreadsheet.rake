@@ -103,7 +103,7 @@ namespace :import do
       end
     end
 
-    def insert_key_world_survey_fields
+    def insert_key_world_survey_v1_fields
       @surveys_arr.each do |survey|
         full_system = survey["World"].to_s.upcase
         world_data = @worlds_dict[full_system]
@@ -114,9 +114,9 @@ namespace :import do
         world     = world_data["Body"] if world_data
 
         if system && world && commander
-          ws = WorldSurvey.where("UPPER(TRIM(system)) = :system AND
-                                  UPPER(TRIM(world)) = :world AND
-                                  UPPER(TRIM(commander)) = :commander",
+          ws = WorldSurveyV1.where("UPPER(TRIM(system)) = :system AND
+                                    UPPER(TRIM(world)) = :world AND
+                                    UPPER(TRIM(commander)) = :commander",
                                   { system:    system.upcase.strip,
                                     world:     world.upcase.strip,
                                     commander: commander.upcase.strip })
@@ -133,7 +133,7 @@ namespace :import do
       end
     end
 
-    def update_world_survey_data
+    def update_world_survey_v1_data
       @worlds_arr.each do |data|
         system = data["System Name"].to_s.upcase.strip
         world = data["Body"].to_s.upcase.strip
@@ -156,24 +156,24 @@ namespace :import do
                          ice_pct: data["Ice %"]
                        }
           unless attributes.values.all?(&:blank?)
-            WorldSurvey.where("UPPER(TRIM(system)) = :system AND
-                               UPPER(TRIM(world)) = :world AND
-                               world_type IS NULL AND
-                               radius IS NULL AND
-                               gravity IS NULL AND
-                               vulcanism_type IS NULL AND
-                               arrival_point IS NULL AND
-                               reserve IS NULL AND
-                               mass IS NULL AND
-                               surface_temp IS NULL AND
-                               surface_pressure IS NULL AND
-                               orbit_period IS NULL AND
-                               rotation_period IS NULL AND
-                               semi_major_axis IS NULL AND
-                               rock_pct IS NULL AND
-                               metal_pct IS NULL AND
-                               ice_pct IS NULL",
-                               { system: system, world: world })
+            WorldSurveyV1.where("UPPER(TRIM(system)) = :system AND
+                                 UPPER(TRIM(world)) = :world AND
+                                 world_type IS NULL AND
+                                 radius IS NULL AND
+                                 gravity IS NULL AND
+                                 vulcanism_type IS NULL AND
+                                 arrival_point IS NULL AND
+                                 reserve IS NULL AND
+                                 mass IS NULL AND
+                                 surface_temp IS NULL AND
+                                 surface_pressure IS NULL AND
+                                 orbit_period IS NULL AND
+                                 rotation_period IS NULL AND
+                                 semi_major_axis IS NULL AND
+                                 rock_pct IS NULL AND
+                                 metal_pct IS NULL AND
+                                 ice_pct IS NULL",
+                                 { system: system, world: world })
                        .update_all(attributes)
           else
             log "Nothing to update"
@@ -182,7 +182,7 @@ namespace :import do
       end
     end
 
-    def update_world_survey_materials_data
+    def update_world_survey_v1_materials_data
       @survey_logs_arr.each do |data|
         survey = @surveys_dict[data["Survey / World"]]
         full_system = @worlds_dict[survey["World"].to_s.upcase.strip] if survey.present?
@@ -219,38 +219,38 @@ namespace :import do
                          notes: survey["Notes"] }
 
           unless attributes.values.all?(&:blank?)
-            WorldSurvey.where("UPPER(TRIM(system)) = :system AND
-                               UPPER(TRIM(world)) = :world AND
-                               UPPER(TRIM(commander)) = :commander AND
-                               carbon IS NULL AND
-                               iron IS NULL AND
-                               nickel IS NULL AND
-                               phosphorus IS NULL AND
-                               sulphur IS NULL AND
-                               arsenic IS NULL AND
-                               chromium IS NULL AND
-                               germanium IS NULL AND
-                               manganese IS NULL AND
-                               selenium IS NULL AND
-                               vanadium IS NULL AND
-                               zinc IS NULL AND
-                               zirconium IS NULL AND
-                               cadmium IS NULL AND
-                               mercury IS NULL AND
-                               molybdenum IS NULL AND
-                               niobium IS NULL AND
-                               tin IS NULL AND
-                               tungsten IS NULL AND
-                               antimony IS NULL AND
-                               polonium IS NULL AND
-                               ruthenium IS NULL AND
-                               technetium IS NULL AND
-                               tellurium IS NULL AND
-                               yttrium IS NULL AND
-                               notes IS NULL",
-                               { system: system,
-                                 world: world,
-                                 commander: commander})
+            WorldSurveyV1.where("UPPER(TRIM(system)) = :system AND
+                                 UPPER(TRIM(world)) = :world AND
+                                 UPPER(TRIM(commander)) = :commander AND
+                                 carbon IS NULL AND
+                                 iron IS NULL AND
+                                 nickel IS NULL AND
+                                 phosphorus IS NULL AND
+                                 sulphur IS NULL AND
+                                 arsenic IS NULL AND
+                                 chromium IS NULL AND
+                                 germanium IS NULL AND
+                                 manganese IS NULL AND
+                                 selenium IS NULL AND
+                                 vanadium IS NULL AND
+                                 zinc IS NULL AND
+                                 zirconium IS NULL AND
+                                 cadmium IS NULL AND
+                                 mercury IS NULL AND
+                                 molybdenum IS NULL AND
+                                 niobium IS NULL AND
+                                 tin IS NULL AND
+                                 tungsten IS NULL AND
+                                 antimony IS NULL AND
+                                 polonium IS NULL AND
+                                 ruthenium IS NULL AND
+                                 technetium IS NULL AND
+                                 tellurium IS NULL AND
+                                 yttrium IS NULL AND
+                                 notes IS NULL",
+                                 { system: system,
+                                   world: world,
+                                   commander: commander})
                        .update_all(attributes)
           else
             log "Nothing to update"
@@ -544,9 +544,9 @@ namespace :import do
       build_surveys_dict
       insert_primary_stars
       update_star_data
-      insert_key_world_survey_fields
-      update_world_survey_data
-      update_world_survey_materials_data
+      insert_key_world_survey_v1_fields
+      update_world_survey_v1_data
+      update_world_survey_v1_materials_data
       log "Done!"
     end
 
