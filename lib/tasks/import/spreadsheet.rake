@@ -21,6 +21,33 @@ namespace :import do
     "DW Spreadsheet"
   end
 
+  def materials
+    %w[carbon
+       iron
+       nickel
+       phosphorus
+       sulphur
+       arsenic
+       chromium
+       germanium
+       manganese
+       selenium
+       vanadium
+       zinc
+       zirconium
+       cadmium
+       mercury
+       molybdenum
+       niobium
+       tin
+       tungsten
+       antimony
+       polonium
+       ruthenium
+       technetium
+       tellurium
+       yttrium]
+  end
   def color_lookup(color_name)
     color_name = color_name.to_s
                            .downcase.gsub("ice","white")
@@ -513,6 +540,31 @@ namespace :import do
         end
       end
     end
+    
+    def insert_world_surveys_data
+      @worlds_arr.each do |data|
+        world = World.by_system(data["System Name"])
+                     .by_world(data["Body"])
+                     .first
+        if world
+          ws = WorldSurvey.by_world_id(world.id).first_or_initialize
+          ws.updater = updater_tag
+          ss= world.site_surveys
+          ss.each do |survey|
+            materials.each do |m|
+              ws[m] = true if survey[m].to_i > 0
+            end
+          end
+          prefix = ws.id ? "Inserting " : "Updating "
+          prefix << " WorldSurvey record for #{data["World Name"]}"
+          if ws.save
+            log "#{prefix}: Success"  
+          else
+            log "#{prefix}: Failed"  
+          end
+        end
+      end
+    end
 
     task :download => :environment do
       log "Downloading Distant Worlds Spreadsheet..."
@@ -564,6 +616,7 @@ namespace :import do
       insert_worlds_v2
       insert_basecamps_data
       insert_site_surveys_data
+      insert_world_surveys_data
       log "Done!"
     end
 

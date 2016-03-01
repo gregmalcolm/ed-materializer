@@ -10,6 +10,7 @@ Rails.application.routes.draw do
       resources :stars, except: [:new, :edit]
       resources :worlds, except: [:new, :edit] do
         resources :basecamps, except: [:new, :edit]
+        resources :world_surveys, except: [:new, :edit]
       end
       resources :basecamps, except: [:new, :edit] do
         resources :site_surveys, except: [:new, :edit]
