@@ -13,7 +13,7 @@ module Api
       end
 
       def show
-        render json: @world
+        render json: @world, serializer: WorldTreeSerializer
       end
 
       def create

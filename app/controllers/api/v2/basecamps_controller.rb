@@ -14,7 +14,7 @@ module Api
       end
 
       def show
-        render json: @basecamp
+        render json: @basecamp, serializer: BasecampTreeSerializer
       end
 
       def create
