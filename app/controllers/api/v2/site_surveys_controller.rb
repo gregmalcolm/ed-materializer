@@ -18,7 +18,7 @@ module Api
       end
 
       def create
-        @site_survey = SiteSurvey.new(new_site_survey_params)
+        @site_survey = SiteSurvey.new(site_survey_params)
 
         if @site_survey.save
           render json: @site_survey, status: :created, 
@@ -31,7 +31,7 @@ module Api
       def update
         @site_survey = SiteSurvey.find(params[:id])
 
-        if @site_survey.update(site_survey_params)
+        if @site_survey.update(safe_site_survey_params)
           head :no_content
         else
           render json: @site_survey.errors, status: :unprocessable_entity
@@ -58,7 +58,7 @@ module Api
                     end
       end
 
-      def site_survey_params
+      def safe_site_survey_params
         params.require(:site_survey)
               .permit(:basecamp_id,
                       :commander,
@@ -92,12 +92,13 @@ module Api
                       :yttrium)
       end
 
-      def new_site_survey_params
-        {basecamp_id: params[:basecamp_id]}.merge(site_survey_params)
+      def site_survey_params
+        {basecamp_id: params[:basecamp_id]}.merge(safe_site_survey_params)
       end
 
       def filtered
-        SiteSurvey.by_basecamp_id(params[:basecamp_id])
+        SiteSurvey.by_world_id(params[:world_id])
+                  .by_basecamp_id(params[:basecamp_id])
                   .by_resource(params[:resource])
                   .by_commander(params[:commander])
                   .updated_before(params[:updated_before])

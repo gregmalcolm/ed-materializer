@@ -14,7 +14,7 @@ describe Api::V2::SiteSurveysController, type: :controller do
 
   let!(:worlds) { spawn_worlds }
   let!(:basecamps) { spawn_basecamps(world1: worlds[0], world2: worlds[1]) }
-  let!(:site_surveys) { spawn_site_surveys(basecamp1: basecamps[0], basecamp2: basecamps[1]) }
+  let!(:site_surveys) { spawn_site_surveys(basecamp1: basecamps[0], basecamp2: basecamps[2]) }
   let!(:users) { spawn_users }
   let(:auth_tokens) { sign_in users[:edd]}
   let(:json) { JSON.parse(response.body)}
@@ -31,8 +31,14 @@ describe Api::V2::SiteSurveysController, type: :controller do
     end
 
     describe "filtering" do
+      context "on world_id" do
+        before { get :index, {world_id: worlds[1].id} }
+        it { expect(site_surveys_json[0]["commander"]).to be == "Michael Darkmoor" }
+        it { expect(site_surveys_json.size).to be == 1 }
+      end
+      
       context "on basecamp_id" do
-        before { get :index, {basecamp_id: basecamps[1].id} }
+        before { get :index, {basecamp_id: basecamps[2].id} }
         it { expect(site_surveys_json[0]["commander"]).to be == "Michael Darkmoor" }
         it { expect(site_surveys_json.size).to be == 1 }
       end
@@ -45,7 +51,7 @@ describe Api::V2::SiteSurveysController, type: :controller do
       end
       
       context "resource" do
-        before { get :index, {basecamp_id: basecamps[1].id, 
+        before { get :index, {basecamp_id: basecamps[2].id, 
                               resource: "AGGREGATED"} }
         it { expect(site_surveys_json[0]["commander"]).to be == "Michael Darkmoor" }
         it { expect(site_surveys_json.size).to be == 1 }

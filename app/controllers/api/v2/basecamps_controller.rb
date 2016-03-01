@@ -18,7 +18,7 @@ module Api
       end
 
       def create
-        @basecamp = Basecamp.new(new_basecamp_params)
+        @basecamp = Basecamp.new(basecamp_params)
 
         if @basecamp.save
           render json: @basecamp, status: :created, 
@@ -59,6 +59,10 @@ module Api
       end
 
       def basecamp_params
+        { world_id: params[:world_id] }.merge(safe_basecamp_params)
+      end
+      
+      def safe_basecamp_params
         params.require(:basecamp)
               .permit(:world_id,
                       :updater,
@@ -74,9 +78,6 @@ module Api
                       :image_url)
       end
 
-      def new_basecamp_params
-        { world_id: params[:world_id] }.merge(basecamp_params)
-      end
 
       def filtered
         Basecamp.by_world_id(params[:world_id])

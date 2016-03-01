@@ -3,7 +3,9 @@ class SiteSurvey < ActiveRecord::Base
   
   after_initialize :default_values  
   belongs_to :basecamp
+  delegate :world, :to => :basecamp, :allow_nil => true
 
+  scope :by_world_id, ->(world_id) { joins(:basecamp).where("basecamps.world_id = ?", world_id) if world_id }
   scope :by_basecamp_id, ->(basecamp_id) { where(basecamp_id: basecamp_id) if basecamp_id }
   scope :by_commander, ->(commander) { where("UPPER(TRIM(commander))=?", commander.to_s.upcase.strip ) if commander }
   scope :by_resource,  ->(resource)  { where("COALESCE(UPPER(TRIM(resource)), '')=?", resource.to_s.upcase.strip ) if resource }
