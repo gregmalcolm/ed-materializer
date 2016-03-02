@@ -2,7 +2,7 @@ class Basecamp < ActiveRecord::Base
   has_paper_trail
 
   belongs_to :world
-  has_many :site_surveys
+  has_many :site_surveys, dependent: :destroy
 
   scope :by_world_id,   ->(world_id) { where(world_id: world_id) if world_id }
   scope :by_name,       ->(name)  { where("UPPER(TRIM(name))=?", name.to_s.upcase.strip ) if name }
