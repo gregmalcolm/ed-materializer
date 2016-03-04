@@ -73,7 +73,7 @@ namespace :import do
   task :spreadsheet => :environment do
     Rake::Task["import:dw_spreadsheet:download"].invoke
     Rake::Task["import:dw_spreadsheet:update_db_v1"].invoke
-    Rake::Task["import:dw_spreadsheet:update_db_v2"].invoke
+    Rake::Task["import:dw_spreadsheet:update"].invoke
     Rake::Task["import:dw_spreadsheet:clean_up"].invoke
   end
 
@@ -481,7 +481,7 @@ namespace :import do
             log "#{prefix} already exists"
           end
         else
-          log "Unable to update Basecamp record for #{data['World']}"
+          log "Unable to pdate Basecamp record for #{data['World']}"
         end
       end
     end
@@ -604,22 +604,67 @@ namespace :import do
       log "Done!"
     end
 
-    task :update_db_v2 => :environment do
-      log "Updating Database V2 with DW Spreadsheet data..."
-      # Taking advantage of the CSVs being small. This will of course not to
-      # be refined if the sitation changes
+    task :prepare => :environment do
       @start_time = Time.now()
 
       read_csv_data
       build_worlds_dict
       build_surveys_dict
-      insert_primary_stars_v2
-      update_star_data_v2
-      insert_worlds_v2
-      insert_basecamps_data
-      insert_site_surveys_data
-      insert_world_surveys_data
+    end
+
+    task :update => :prepare do
+      log "Updating Database V2 with DW Spreadsheet data..."
+      # Taking advantage of the CSVs being small. This will of course not to
+      # be refined if the sitation changes
+      Rake::Task["import:dw_spreadsheet:update:stars"].invoke
+      Rake::Task["import:dw_spreadsheet:update:worlds"].invoke
+      Rake::Task["import:dw_spreadsheet:update:basecamps"].invoke
+      Rake::Task["import:dw_spreadsheet:update:site_surveys"].invoke
+      Rake::Task["import:dw_spreadsheet:update:world_surveys"].invoke
       log "Done!"
+    end
+
+    namespace :update do
+      task :stars => "import:dw_spreadsheet:prepare" do
+        log "Updating Stars table"
+      
+        insert_primary_stars_v2
+        update_star_data_v2
+      
+        log "Done! Star count is now at #{Star.count}"
+      end
+      
+      task :worlds => "import:dw_spreadsheet:prepare" do
+        log "Updating Worlds table"
+
+        insert_worlds_v2
+      
+        log "Done! World count is now at #{World.count}"
+      end
+      
+      task :basecamps => "import:dw_spreadsheet:prepare" do
+        log "Updating Basecamps table"
+      
+        insert_basecamps_data
+      
+        log "Done! Basecamp count is now at #{Basecamp.count}"
+      end
+      
+      task :site_surveys => "import:dw_spreadsheet:prepare" do
+        log "Updating Site Surveys table"
+      
+        insert_site_surveys_data
+      
+        log "Done! SiteSurvey count is now at #{SiteSurvey.count}"
+      end
+      
+      task :world_surveys => "import:dw_spreadsheet:prepare" do
+        log "Updating World Surveys table"
+      
+        insert_world_surveys_data
+      
+        log "Done! WorldSurvey count is now at #{WorldSurvey.count}"
+      end
     end
 
 
