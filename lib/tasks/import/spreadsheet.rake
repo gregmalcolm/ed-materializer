@@ -155,7 +155,7 @@ namespace :import do
           prefix = "Inserting World Survey #{full_system}:"
           if ws.blank?
             log "#{prefix} creating..."
-            ws.create(system: system, world: world, commander: commander)
+            WorldSurvey..create(system: system, world: world, commander: commander)
           else
             log "#{prefix} already exists"
           end
@@ -314,7 +314,7 @@ namespace :import do
           prefix = "Inserting Star Survey #{system} #{star}:"
           if ss.blank?
             log "#{prefix} creating..."
-            ss.create(system: system, star: star, commander: commander)
+            SiteSuvey.create(system: system, star: star, commander: commander)
           else
             log "#{prefix} already exists"
           end
@@ -377,7 +377,7 @@ namespace :import do
           prefix = "Inserting Star #{system} #{star}:"
           if item.blank?
             log "#{prefix} creating..."
-            item.create(system: system, star: star, updater: updater_tag)
+            Star.create(system: system, star: star, updater: updater_tag)
           else
             log "#{prefix} already exists"
           end
@@ -452,7 +452,7 @@ namespace :import do
                      }
           if item.blank?
             log "#{prefix} Inserting"
-            item.create(attributes)
+            World.create(attributes)
           else
             if item.updater == updater_tag
               log "#{prefix} Updating"
@@ -523,7 +523,7 @@ namespace :import do
                          .by_commander(commander)
                          .by_resource(resource)
                          .first_or_initialize
-          prefix = ss.id ? "Inserting " : "Updating "
+          prefix = ss.id ? "Updating " : "Inserting "
           prefix << " SiteSurvey record for #{full_system} (bc:#{bc.try(:id)} cmdr:#{commander} res:#{resource.to_s}):"
           ss.assign_attributes(basecamp_id: bc.try(:id),
                                commander: commander,
