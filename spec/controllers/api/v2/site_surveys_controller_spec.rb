@@ -150,7 +150,7 @@ describe Api::V2::SiteSurveysController, type: :controller do
       it { expect(response).to have_http_status(204) }
       it { expect(SiteSurvey.where(id: id).any?).to be false }
     end
-    
+
     context "unauthenticated" do
       let(:id) { site_surveys[0].id }
 
