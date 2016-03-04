@@ -48,11 +48,16 @@ namespace :import do
        tellurium
        yttrium]
   end
+
   def color_lookup(color_name)
     color_name = color_name.to_s
                            .downcase.gsub("ice","white")
     color = Color::CSS[color_name]
     color.hex.to_i(16) if color
+  end
+
+  def number(val)
+    val.to_s.delete(",")
   end
 
   def sheets
@@ -386,24 +391,27 @@ namespace :import do
       @systems_arr.each do |data|
         system = data["System Name"].to_s.upcase.strip
         if system.present?
-          log "Updating star data for #{system}..."
+          prefix =  "Updating star data for #{system}:"
           attributes = { spectral_class: data["Spectral Class"],
                          spectral_subclass: (data["Spectral Subclass"].to_i if data["Spectral Subclass"].present?),
-                         solar_mass: data["Mass [Sol M]"],
-                         solar_radius: data["Radius [Sol R]"],
-                         star_age: (data["Star Age [My]"].to_i * 1_000_000 if data["Star Age [My]"].present?),
-                         orbit_period: data[""],
-                         arrival_point: data[""],
+                         solar_mass: number(data["Mass [Sol M]"]),
+                         solar_radius: number(data["Radius [Sol R]"]),
+                         star_age: (number(data["Star Age [My]"]).to_i * 1_000_000 if data["Star Age [My]"].present?),
+                         orbit_period: number(data[""]),
+                         arrival_point: number(data[""]),
                          luminosity: data["Star Luminosity"],
                          notes: data["Notes"],
-                         surface_temp: data["Surf. T [K]"]
+                         surface_temp: number(data["Surf. T [K]"])
                        }
-          unless attributes.values.all?(&:blank?)
-            Star.where("UPPER(TRIM(system)) = :system AND
-                        COALESCE(star,'') in ('', 'A') AND
-                        updater = :updater",
-                        { system: system, updater: updater_tag })
-                 .update_all(attributes)
+          item = Star.where("UPPER(TRIM(system)) = :system",
+                            { system: system }).first
+          if item.present?
+            if item.updater == updater_tag
+              log "#{prefix} Updating"
+              item.update(attributes)
+            else
+              log "#{prefix} has been changed outside of the spreadsheet, ignoring"
+            end
           else
             log "Nothing to update"
           end
@@ -420,34 +428,38 @@ namespace :import do
           item = World.where("UPPER(TRIM(system)) = :system AND
                              UPPER(TRIM(world)) = :world",
                              { system:  system.upcase.strip,
-                               world:   world.upcase.strip,
-                               updater: updater_tag })
-          prefix = "Inserting World #{system} #{world}:"
+                               world:   world.upcase.strip }).first
+          prefix = "World #{system} #{world}:"
+          attributes = { system: system, 
+                         world: world, 
+                         updater: updater_tag,
+                         world_type: data["World Type"],
+                         mass: number(data["Mass [Earth M]"]),
+                         radius: number(data["Radius [km]"]),
+                         gravity: number(data["Gravity [km]"]),
+                         surface_temp: number(data["Surf. Temp. [K]"]),
+                         surface_pressure: number(data["Surf. P [atm]"]),
+                         orbit_period: number(data["Orb. Per. [D]"]),
+                         rotation_period: number(data["Rot. Per. [D]"]),
+                         semi_major_axis: number(data["Semi Maj. Axis [AU]"]),
+                         vulcanism_type: data["Volcanism"],
+                         rock_pct: data["Rock %"],
+                         metal_pct: data["Metal %"],
+                         ice_pct: data["Ice %"],
+                         reserve: data["Reserves"],
+                         arrival_point: (number(data["Arrival Point [Ls]"]).to_f if data["Arrival Point [Ls]"]),
+                         notes: data["Notes"]
+                     }
           if item.blank?
-            attributes = { system: system, 
-                           world: world, 
-                           updater: updater_tag,
-                           world_type: data["World Type"],
-                           mass: data["Mass [Earth M]"],
-                           radius: data["Radius [km]"],
-                           gravity: data["Gravity [km]"],
-                           surface_temp: data["Surf. Temp. [K]"],
-                           surface_pressure: data["Surf. P [atm]"],
-                           orbit_period: data["Orb. Per. [D]"],
-                           rotation_period: data["Rot. Per. [D]"],
-                           semi_major_axis: data["Semi Maj. Axis [AU]"],
-                           vulcanism_type: data["Volcanism"],
-                           rock_pct: data["Rock %"],
-                           metal_pct: data["Metal %"],
-                           ice_pct: data["Ice %"],
-                           reserve: data["Reserves"],
-                           arrival_point: (data["Arrival Point [Ls]"].to_f if data["Arrival Point [Ls]"]),
-                           notes: data["Notes"]
-                       }
-            log "#{prefix} creating..."
+            log "#{prefix} Inserting"
             item.create(attributes)
           else
-            log "#{prefix} already exists"
+            if item.updater == updater_tag
+              log "#{prefix} Updating"
+              item.update(attributes)
+            else
+              log "#{prefix} has been changed outside of the spreadsheet, ignoring"
+            end
           end
         else
           log "Unable to find key fields for #{system} #{world}"
@@ -462,26 +474,33 @@ namespace :import do
         if world
           prefix = "Inserting Basecamp for #{ data['World']} at #{
             data['Landing Zone Latitude']},#{data['Landing Zone Longitude']}:"
-          bc = Basecamp.where(world_id: world.id)
-                       .where(landing_zone_lat: data["Landing Zone Latitude"])
-                       .where(landing_zone_lon: data["Landing Zone Longitude"])
-          if bc.blank?
+          item = Basecamp.where(world_id: world.id)
+                         .where(landing_zone_lat: data["Landing Zone Latitude"])
+                         .where(landing_zone_lon: data["Landing Zone Longitude"]).first
+          attributes = { world_id: world.id,
+                         updater: updater_tag,
+                         name: "Camp #{data['Surveyed By']} #{data['Date']}",
+                         landing_zone_terrain: data["Landing Zone Terrain"],
+                         terrain_hue_1: color_lookup(data["Terrain Hue 1"]),
+                         terrain_hue_2: color_lookup(data["Terrain Hue 2"]),
+                         terrain_hue_3: color_lookup(data["Terrain Hue 3"]),
+                         landing_zone_lat: number(data["Landing Zone Latitude"]),
+                         landing_zone_lon: number(data["Landing Zone Longitude"]),
+                         notes: data["Notes"]
+                       }
+          if item.blank?
             log "#{prefix} creating..."
-            Basecamp.create(world_id: world.id,
-                            updater: updater_tag,
-                            name: "Camp #{data['Surveyed By']} #{data['Date']}",
-                            landing_zone_terrain: data["Landing Zone Terrain"],
-                            terrain_hue_1: color_lookup(data["Terrain Hue 1"]),
-                            terrain_hue_2: color_lookup(data["Terrain Hue 2"]),
-                            terrain_hue_3: color_lookup(data["Terrain Hue 3"]),
-                            landing_zone_lat: data["Landing Zone Latitude"],
-                            landing_zone_lon: data["Landing Zone Longitude"],
-                            notes: data["Notes"])
+            Basecamp.create(attributes)
           else
-            log "#{prefix} already exists"
+            if item.updater == updater_tag
+              log "#{prefix} Updating"
+              item.update(attributes)
+            else
+              log "#{prefix} has been changed outside of the spreadsheet, ignoring"
+            end
           end
         else
-          log "Unable to pdate Basecamp record for #{data['World']}"
+          log "Unable to update Basecamp record for #{data['World']}"
         end
       end
     end
@@ -550,19 +569,23 @@ namespace :import do
                      .first
         if world
           ws = WorldSurvey.by_world_id(world.id).first_or_initialize
-          ws.updater = updater_tag
-          ss= world.site_surveys
-          ss.each do |survey|
-            materials.each do |m|
-              ws[m] = true if survey[m].to_i > 0
-            end
-          end
-          prefix = ws.id ? "Inserting " : "Updating "
+          prefix = ws.id ? "Updating " : "Inserting"
           prefix << " WorldSurvey record for #{data["World Name"]}"
-          if ws.save
-            log "#{prefix}: Success"  
+          if ws.updater && ws.updater != updater_tag 
+            log "#{prefix}: has been changed outside of the spreadsheet, ignoring"
           else
-            log "#{prefix}: Failed"  
+            ws.updater = updater_tag
+            ss= world.site_surveys
+            ss.each do |survey|
+              materials.each do |m|
+                ws[m] = true if survey[m].to_i > 0
+              end
+            end
+            if ws.save
+              log "#{prefix}: Success"  
+            else
+              log "#{prefix}: Failed"  
+            end
           end
         end
       end
