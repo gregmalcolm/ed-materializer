@@ -162,7 +162,7 @@ namespace :import do
 
     def update_world_survey_v1_data
       @worlds_arr.each do |data|
-        system = data["System Name"].to_s.upcase.strip
+        system = data["System name"].to_s.upcase.strip
         world = data["Body"].to_s.upcase.strip
         if system.present? && world.present?
           log "Updating world data for #{system} #{world}..."
@@ -357,7 +357,7 @@ namespace :import do
 
     def insert_primary_stars_v2
       @worlds_arr.each do |world|
-        system    = world["System Name"] if world
+        system    = world["System name"] if world
         star = ""
         if world["Body"].to_s.strip.downcase =~ /^[a-z]/
           star = "A"
@@ -413,7 +413,7 @@ namespace :import do
     
     def insert_worlds_v2
       @worlds_arr.each do |data|
-        system = data["System Name"] if data
+        system = data["System name"] if data
         world  = data["Body"] if data
 
         if system && world
@@ -545,7 +545,7 @@ namespace :import do
     
     def insert_world_surveys_data
       @worlds_arr.each do |data|
-        world = World.by_system(data["System Name"])
+        world = World.by_system(data["System name"])
                      .by_world(data["Body"])
                      .first
         if world
