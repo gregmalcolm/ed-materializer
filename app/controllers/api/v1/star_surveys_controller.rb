@@ -1,7 +1,7 @@
 module Api
   module V1
     class StarSurveysController < ApplicationController
-      before_action :authorize_admin!, except: [:index, :show]
+      before_action :authorize_application!, except: [:index, :show]
       before_action :set_star_survey, only: [:show, :update, :destroy]
 
       def index

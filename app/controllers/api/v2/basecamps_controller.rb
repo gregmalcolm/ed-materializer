@@ -1,7 +1,7 @@
 module Api
   module V2
     class BasecampsController < ApplicationController
-      before_action :authorize_admin!, except: [:index, :show]
+      before_action :authorize_application!, except: [:index, :show]
       before_action :set_basecamp, only: [:show, :update, :destroy]
       before_action :set_world, only: [:index, :show, :update, :destroy]
 

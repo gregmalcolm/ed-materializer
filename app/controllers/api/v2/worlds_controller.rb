@@ -1,7 +1,7 @@
 module Api
   module V2
     class WorldsController < ApplicationController
-      before_action :authorize_admin!, except: [:index, :show]
+      before_action :authorize_application!, except: [:index, :show]
       before_action :set_world, only: [:show, :update, :destroy]
 
       def index
