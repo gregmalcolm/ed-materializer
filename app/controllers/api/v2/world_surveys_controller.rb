@@ -1,7 +1,7 @@
 module Api
   module V2
     class WorldSurveysController < ApplicationController
-      before_action :authorize_application!, except: [:index, :show]
+      before_action :authorize_user!, except: [:index, :show]
       before_action :set_world_survey, only: [:show, :update, :destroy]
       before_action :set_world, only: [:index, :show, :update, :destroy]
 
@@ -59,6 +59,9 @@ module Api
       end
 
       def safe_world_survey_params
+        if current_user.role == "user"
+          params[:world_survey][:updater] = current_user.name
+        end
         params.require(:world_survey)
               .permit(:world_id,
                       :updater,

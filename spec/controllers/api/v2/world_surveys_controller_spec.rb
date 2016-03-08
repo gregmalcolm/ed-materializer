@@ -14,7 +14,8 @@ describe Api::V2::WorldSurveysController, type: :controller do
   let!(:worlds) { spawn_worlds }
   let!(:world_surveys) { spawn_world_surveys(world1: worlds[0], world2: worlds[1], world3: worlds[2]) }
   let!(:users) { spawn_users }
-  let(:auth_tokens) { sign_in users[:edd]}
+  let(:user) { users[:edd] }
+  let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)}
 
   describe "GET #index" do
@@ -135,9 +136,10 @@ describe Api::V2::WorldSurveysController, type: :controller do
   end
 
   describe "PATCH/PUT #update" do
+    let(:updater) { "Davros" }
     let(:updated_world_survey) { { world_id: worlds[1].id,
                                    id: world_surveys[1].id,
-                                   world_survey: {updater: "Davros"} } }
+                                   world_survey: {updater: updater} } }
     context "updating a world_survey" do
       before { put :update, updated_world_survey, auth_tokens }
       let(:world_survey) { WorldSurvey.find(world_surveys[1].id)}
@@ -146,6 +148,15 @@ describe Api::V2::WorldSurveysController, type: :controller do
       it { expect(world_survey.carbon).to be true }
     end
 
+    context "as a normal user" do
+      let(:user) { users[:marlon] }
+      before { put :update, updated_world_survey, auth_tokens }
+      before { world_surveys[1].reload }
+      
+      it { expect(response).to have_http_status(204) }
+      it { expect(world_surveys[1].updater).to be == "Marlon Blake" }
+    end
+    
     context "not nested" do
       let(:updated_world_survey) { { id: world_surveys[1].id,
                                      world_survey: {world_id: worlds[1].id,
@@ -182,9 +193,9 @@ describe Api::V2::WorldSurveysController, type: :controller do
       it { expect(json["errors"]).to include "Authorized users only." }
     end
 
-    context "unauthorized basic user" do
+    context "unauthorized banned user" do
       let(:id) { world_surveys[0].id }
-      let(:auth_tokens) { sign_in users[:marlon]}
+      let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }

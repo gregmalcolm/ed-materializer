@@ -9,7 +9,8 @@ describe Api::V2::StarsController, type: :controller do
 
   let!(:stars) { spawn_stars }
   let!(:users) { spawn_users }
-  let(:auth_tokens) { sign_in users[:edd]}
+  let(:user) { users[:edd] }
+  let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)}
 
   describe "GET #index" do
@@ -77,6 +78,7 @@ describe Api::V2::StarsController, type: :controller do
       it { expect(response).to have_http_status(201) }
       it { expect(star["system"]).to be == "Magrathea" }
       it { expect(Star.last.system).to be == "Magrathea" }
+      it { expect(Star.last.updater).to be == "Ford Prefect" }
     end
 
     context "allows one record per star" do
@@ -113,6 +115,15 @@ describe Api::V2::StarsController, type: :controller do
       it { expect(json["star"]).to include "has already been taken for this system" }
     end
 
+    context "as a normal user" do
+      let(:user) { users[:marlon] }
+      
+      context "has a fixed updater field of self" do
+        before { post :create, new_star, auth_tokens }
+        it { expect(Star.last.updater).to be == "Marlon Blake" }
+      end
+    end
+
     context "unauthorized" do
       before { post :create, new_star }
       it { expect(response).to have_http_status(401) }
@@ -121,18 +132,40 @@ describe Api::V2::StarsController, type: :controller do
   end
 
   describe "PATCH/PUT #update" do
+    let(:updater) { "Eisen" }
     let(:updated_star) { { id: stars[1].id,
-                             star: { solar_mass: 3.14 }} }
-    context "updating a star" do
+                               star: { solar_mass: 3.14,
+                                       updater: updater}}}
+    context "as an application user" do
+      context "updating a star" do
+        before { put :update, updated_star, auth_tokens }
+        let(:star) { Star.find(stars[1].id)}
+        it { expect(response).to have_http_status(204) }
+        it { expect(star.system).to be == "Hoth" }
+        it { expect(star.solar_mass).to be 3.14 }
+        it { expect(star.updater).to be == "Eisen" }
+      end
+    end
+
+    context "as a normal user" do
+      let(:user) { users[:marlon] }
       before { put :update, updated_star, auth_tokens }
-      let(:star) { Star.find(stars[1].id)}
+      before { stars[1].reload }
+      
       it { expect(response).to have_http_status(204) }
-      it { expect(star.system).to be == "Hoth" }
-      it { expect(star.solar_mass).to be 3.14 }
+      it { expect(stars[1].updater).to be == "Marlon Blake" }
     end
 
     context "unauthenticated" do
       before { put :update, updated_star }
+      it { expect(response).to have_http_status(401) }
+      it { expect(json["errors"]).to include "Authorized users only." }
+    end
+    
+    context "as a banned user" do
+      let(:user) { users[:banned] }
+      before { put :update, updated_star, auth_tokens }
+      
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }
     end
@@ -142,14 +175,6 @@ describe Api::V2::StarsController, type: :controller do
     context "unauthenticated" do
       let(:id) { stars[0].id }
       before { delete :destroy, {id: id} }
-      it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
-    end
-
-    context "unauthorized basic user" do
-      let(:id) { stars[0].id }
-      let(:auth_tokens) { sign_in users[:marlon]}
-      before { delete :destroy, {id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }
     end

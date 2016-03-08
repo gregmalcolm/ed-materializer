@@ -9,7 +9,8 @@ describe Api::V2::WorldsController, type: :controller do
 
   let!(:worlds) { spawn_worlds }
   let!(:users) { spawn_users }
-  let(:auth_tokens) { sign_in users[:edd]}
+  let(:user) { users[:edd] }
+  let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)}
 
   describe "GET #index" do
@@ -121,14 +122,26 @@ describe Api::V2::WorldsController, type: :controller do
   end
 
   describe "PATCH/PUT #update" do
+    let(:updater) { "Eisen" }
     let(:updated_world) { { id: worlds[1].id,
-                             world: { gravity: 0.43 }} }
+                             world: { gravity: 0.43,
+                                      updater: "Myshka"}} }
     context "updating a world" do
       before { put :update, updated_world, auth_tokens }
       let(:world) { World.find(worlds[1].id)}
       it { expect(response).to have_http_status(204) }
       it { expect(world.system).to be == "NGANJI" }
       it { expect(world.gravity).to be 0.43}
+      it { expect(world.updater).to be == "Myshka" }
+    end
+    
+    context "as a normal user" do
+      let(:user) { users[:marlon] }
+      before { put :update, updated_world, auth_tokens }
+      before { worlds[1].reload }
+      
+      it { expect(response).to have_http_status(204) }
+      it { expect(worlds[1].updater).to be == "Marlon Blake" }
     end
 
     context "unauthenticated" do
@@ -146,9 +159,9 @@ describe Api::V2::WorldsController, type: :controller do
       it { expect(json["errors"]).to include "Authorized users only." }
     end
 
-    context "unauthorized basic user" do
+    context "unauthorized banned user" do
       let(:id) { worlds[0].id }
-      let(:auth_tokens) { sign_in users[:marlon]}
+      let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }

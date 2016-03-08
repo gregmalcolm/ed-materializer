@@ -1,7 +1,7 @@
 module Api
   module V2
     class SiteSurveysController < ApplicationController
-      before_action :authorize_application!, except: [:index, :show]
+      before_action :authorize_user!, except: [:index, :show]
       before_action :set_site_survey, only: [:show, :update, :destroy]
       before_action :set_basecamp, only: [:index, :show, :update, :destroy]
 
@@ -59,6 +59,9 @@ module Api
       end
 
       def safe_site_survey_params
+        if current_user.role == "user"
+          params[:site_survey][:commander] = current_user.name
+        end
         params.require(:site_survey)
               .permit(:basecamp_id,
                       :commander,

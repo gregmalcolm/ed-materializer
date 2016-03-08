@@ -14,7 +14,8 @@ describe Api::V2::BasecampsController, type: :controller do
   let!(:worlds) { spawn_worlds }
   let!(:basecamps) { spawn_basecamps(world1: worlds[0], world2: worlds[1]) }
   let!(:users) { spawn_users }
-  let(:auth_tokens) { sign_in users[:edd]}
+  let(:user) { users[:edd] }
+  let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)}
 
   describe "GET #index" do
@@ -144,15 +145,27 @@ describe Api::V2::BasecampsController, type: :controller do
   end
 
   describe "PATCH/PUT #update" do
+    let(:updater) { "OmegaStageThr33" }
     let(:updated_basecamp) { { world_id: worlds[0].id,
                                id: basecamps[1].id,
-                               basecamp: {terrain_hue_1: 512 } } }
+                               basecamp: {terrain_hue_1: 512,
+                                          updater: updater} } }
     context "updating a basecamp" do
       before { put :update, updated_basecamp, auth_tokens }
       let(:basecamp) { Basecamp.find(basecamps[1].id)}
       it { expect(response).to have_http_status(204) }
       it { expect(basecamp.name).to be == "FGE BC2" }
       it { expect(basecamp.terrain_hue_1).to be 512 }
+      it { expect(basecamp.updater).to be == "OmegaStageThr33" }
+    end
+    
+    context "as a normal user" do
+      let(:user) { users[:marlon] }
+      before { put :update, updated_basecamp, auth_tokens }
+      before { basecamps[1].reload }
+      
+      it { expect(response).to have_http_status(204) }
+      it { expect(basecamps[1].updater).to be == "Marlon Blake" }
     end
 
     context "note nested" do
@@ -191,9 +204,9 @@ describe Api::V2::BasecampsController, type: :controller do
       it { expect(json["errors"]).to include "Authorized users only." }
     end
 
-    context "unauthorized basic user" do
+    context "unauthorized banned user" do
       let(:id) { basecamps[0].id }
-      let(:auth_tokens) { sign_in users[:marlon]}
+      let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }

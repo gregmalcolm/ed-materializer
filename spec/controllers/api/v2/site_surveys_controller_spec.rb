@@ -16,7 +16,8 @@ describe Api::V2::SiteSurveysController, type: :controller do
   let!(:basecamps) { spawn_basecamps(world1: worlds[0], world2: worlds[1]) }
   let!(:site_surveys) { spawn_site_surveys(basecamp1: basecamps[0], basecamp2: basecamps[2]) }
   let!(:users) { spawn_users }
-  let(:auth_tokens) { sign_in users[:edd]}
+  let(:user) { users[:edd] }
+  let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)}
 
   describe "GET #index" do
@@ -114,15 +115,26 @@ describe Api::V2::SiteSurveysController, type: :controller do
   end
 
   describe "PATCH/PUT #update" do
+    let(:commander) { "Coldglider" }
     let(:updated_site_survey) { { basecamp_id: basecamps[0].id,
                                   id: site_surveys[1].id,
-                                  site_survey: {mercury: 51 } } }
+                                  site_survey: {mercury: 51,
+                                                commander: commander} } }
     context "updating a site_survey" do
       before { put :update, updated_site_survey, auth_tokens }
       let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
       it { expect(response).to have_http_status(204) }
-      it { expect(site_survey.commander).to be == "Mwerle" }
+      it { expect(site_survey.commander).to be == "Coldglider" }
       it { expect(site_survey.mercury).to be 51 }
+    end
+    
+    context "as a normal user" do
+      let(:user) { users[:marlon] }
+      before { put :update, updated_site_survey, auth_tokens }
+      before { site_surveys[1].reload }
+      
+      it { expect(response).to have_http_status(204) }
+      it { expect(site_surveys[1].commander).to be == "Marlon Blake" }
     end
 
     context "not nested" do
@@ -160,9 +172,9 @@ describe Api::V2::SiteSurveysController, type: :controller do
       it { expect(json["errors"]).to include "Authorized users only." }
     end
 
-    context "unauthorized basic user" do
+    context "unauthorized banned user" do
       let(:id) { site_surveys[0].id }
-      let(:auth_tokens) { sign_in users[:marlon]}
+      let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {basecamp_id: basecamps[0].id,
                                  id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }

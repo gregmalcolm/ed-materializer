@@ -146,9 +146,9 @@ describe Api::V1::StarSurveysController, type: :controller do
       it { expect(json["errors"]).to include "Authorized users only." }
     end
 
-    context "unauthorized basic user" do
+    context "unauthorized banned user" do
       let(:id) { surveys[0].id }
-      let(:auth_tokens) { sign_in users[:marlon]}
+      let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }

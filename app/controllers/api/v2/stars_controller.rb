@@ -1,7 +1,7 @@
 module Api
   module V2
     class StarsController < ApplicationController
-      before_action :authorize_application!, except: [:index, :show]
+      before_action :authorize_user!, except: [:index, :show]
       before_action :set_star, only: [:show, :update, :destroy]
 
       def index
@@ -49,6 +49,9 @@ module Api
       end
 
       def star_params
+        if current_user.role == "user"
+          params[:star][:updater] = current_user.name
+        end
         params.require(:star)
               .permit(:system,
                       :updater,
