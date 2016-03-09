@@ -1,11 +1,9 @@
 class Star < ActiveRecord::Base
+  include Updater
   has_paper_trail
   
-  before_validation :set_creator
-
   scope :by_system,     ->(system)  { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
   scope :by_star,       ->(star)    { where("COALESCE(UPPER(TRIM(star)),'')=?", star.to_s.upcase.strip ) if star }
-  scope :by_updater,    ->(updater) { where("UPPER(TRIM(updater))=?", updater.to_s.upcase.strip ) if updater }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
 
@@ -15,16 +13,8 @@ class Star < ActiveRecord::Base
   validates :updater, :system, presence: true
   validate :key_fields_must_be_unique
 
-  def creator
-    updaters.first if updaters
-  end
-
   private
-
-  def set_creator
-    self.updaters = [updater] if updater
-  end
-
+  
   def key_fields_must_be_unique
     if Star.by_system(self.system)
            .by_star(self.star)
