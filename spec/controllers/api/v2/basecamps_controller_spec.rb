@@ -187,12 +187,35 @@ describe Api::V2::BasecampsController, type: :controller do
   end
 
   describe "DELETE #destroy" do
-    context "authorized power user" do
-      let(:id) { basecamps[0].id }
-      before { delete :destroy, {world_id: worlds[0].id,
-                                 id: id}, auth_tokens }
-      it { expect(response).to have_http_status(204) }
-      it { expect(Basecamp.where(id: id).any?).to be false }
+    context "as application user" do
+      context "without child surveys" do
+        let(:id) { basecamps[0].id }
+        before { delete :destroy, {world_id: worlds[0].id,
+                                   id: id}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(Basecamp.where(id: id).any?).to be false }
+      end
+      
+      context "with child surveys" do
+        let!(:site_survey) { create(:site_survey, basecamp: basecamps[0]) }
+        let(:id) { basecamps[0].id }
+        before { delete :destroy, {world_id: worlds[0].id,
+                                   id: id}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+    end
+    
+    context "as admin" do
+      let(:user) { users[:admin] }
+      context "disregard children" do
+        let!(:site_survey) { create(:site_survey, basecamp: basecamps[0]) }
+        let(:id) { basecamps[0].id }
+        before { delete :destroy, {world_id: worlds[0].id,
+                                   id: id}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(Basecamp.where(id: id).any?).to be false }
+        it { expect(SiteSurvey.where(id: site_survey.id).any?).to be false }
+      end
     end
     
     context "unauthenticated" do

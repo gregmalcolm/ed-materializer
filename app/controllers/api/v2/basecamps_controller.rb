@@ -39,9 +39,12 @@ module Api
       end
 
       def destroy
-        @basecamp.destroy
-
-        head :no_content
+        if admin? || !@basecamp.has_children?
+          @basecamp.destroy
+          head :no_content
+        else
+          render json: {errors: ["Forbidden because of dependencies."]}, status: 403
+        end
       end
 
       private

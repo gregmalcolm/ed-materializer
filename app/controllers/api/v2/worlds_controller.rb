@@ -37,9 +37,12 @@ module Api
       end
 
       def destroy
-        @world.destroy
-
-        head :no_content
+        if admin? || !@world.has_children?
+          @world.destroy
+          head :no_content
+        else
+          render json: {errors: ["Forbidden because of dependencies."]}, status: 403
+        end
       end
 
       private

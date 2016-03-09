@@ -16,6 +16,10 @@ class Basecamp < ActiveRecord::Base
   validates :updater, :name, :world, presence: true
   validate :key_fields_must_be_unique
 
+  def has_children?
+    site_surveys.any?
+  end
+
   private
 
   def key_fields_must_be_unique

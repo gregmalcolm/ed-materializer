@@ -1,13 +1,14 @@
-ED Materializer
-===============
+Materializer
+============
 
 [![Build Status](https://travis-ci.org/gregmalcolm/ed-materializer.svg)](https://travis-ci.org/gregmalcolm/ed-materializer)
 
-This is a simple API for storing Elite Dangerous exploration data on Worlds.
-Prospecting materials and the like.
+This is a simple API for storing material prospecting data for the Elite Dangerous computer game.
 
 Primarily implemented so that [EDDiscovery](https://github.com/EDDiscovery/EDDiscovery)
 can have a place to store prospecting materials data.
+
+There are also plans to develop a web frontend
 
 Setup
 -----
@@ -28,12 +29,15 @@ rake db:create
 rake db:migrate
 ```
 
-5) Optional, seeds sample data in the db:
-```rake db:seed```
+5) Optional, pull down data from the “monster” prospecting spreadsheet:
+```
+rake import:spreadsheet
+```
 
 6) Start the rails server on port 3000:
-
-```rails s```
+```
+rails s
+```
 
 Schema
 ------

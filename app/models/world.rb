@@ -16,6 +16,10 @@ class World < ActiveRecord::Base
 
   validates :updater, :system, :world, presence: true
   validate :key_fields_must_be_unique
+  
+  def has_children?
+    world_survey.present? || basecamps.any?
+  end
 
   private
 

@@ -11,7 +11,7 @@ module Authorization
   def authorize_change!(owner, app_user)
     unless admin?
       unless changer(app_user) == owner
-        render json: {errors: ["Unauthorized change."]}, status: 401
+        render json: {errors: ["Forbidden change."]}, status: 403
         return false
       end
     end

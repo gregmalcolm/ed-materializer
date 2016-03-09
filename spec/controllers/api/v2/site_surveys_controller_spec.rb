@@ -133,7 +133,7 @@ describe Api::V2::SiteSurveysController, type: :controller do
         before { put :update, updated_site_survey, auth_tokens }
         let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
         
-        it { expect(response).to have_http_status(401) }
+        it { expect(response).to have_http_status(403) }
       end
     end
     
@@ -153,7 +153,7 @@ describe Api::V2::SiteSurveysController, type: :controller do
         before { put :update, updated_site_survey, auth_tokens }
         let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
         
-        it { expect(response).to have_http_status(401) }
+        it { expect(response).to have_http_status(403) }
       end
     end
     
@@ -204,13 +204,13 @@ describe Api::V2::SiteSurveysController, type: :controller do
         before { delete :destroy, {basecamp_id: basecamps[0].id,
                                    id: id,
                                    user: "Coldglider"}, auth_tokens }
-        it { expect(response).to have_http_status(401) }
+        it { expect(response).to have_http_status(403) }
       end
       
       context "deleting with no user record" do
         before { delete :destroy, {basecamp_id: basecamps[0].id,
                                    id: id}, auth_tokens }
-        it { expect(response).to have_http_status(401) }
+        it { expect(response).to have_http_status(403) }
       end
     end
 
@@ -227,7 +227,7 @@ describe Api::V2::SiteSurveysController, type: :controller do
         let(:user) { create(:user, name: "Coldglider") }
         before { delete :destroy, {basecamp_id: basecamps[0].id,
                                    id: id}, auth_tokens }
-        it { expect(response).to have_http_status(401) }
+        it { expect(response).to have_http_status(403) }
       end
     end
     

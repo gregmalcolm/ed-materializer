@@ -15,4 +15,23 @@ describe World do
     it { expect(SiteSurvey.by_commander("Coldglider").count).to be == 0 }
     it { expect(WorldSurvey.by_updater("Akira Masakari").count).to be == 0 }
   end
+  
+  describe "#has_children?" do
+    context "with no children" do
+      let(:children) { subject.has_children? }
+      it { expect( children ).to be false }
+    end
+    
+    context "with a world_survey" do
+      let!(:world_survey) { create(:world_survey, world: subject) }
+      let(:children) { subject.has_children? }
+      it { expect( children ).to be true }
+    end
+    
+    context "with a basecamp" do
+      let!(:world_survey) { create(:basecamp, world: subject) }
+      let(:children) { subject.has_children? }
+      it { expect( children ).to be true }
+    end
+  end
 end
