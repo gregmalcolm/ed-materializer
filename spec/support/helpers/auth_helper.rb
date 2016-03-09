@@ -9,7 +9,8 @@ module AuthHelper
       cruento: create(:user, name: "Cruento Mucrone", email: "cruento@example.com"),
       finwen: create(:user, name: "Finwen", email: "finwen@example.com"),
       edd: create(:user, :application, name: "EDDiscovery", email: "edd@example.com"),
-      banned: create(:user, :banned, name: "Blackbeard", email: "yarr@example.com")
+      banned: create(:user, :banned, name: "Blackbeard", email: "yarr@example.com"),
+      admin: create(:user, :admin, name: "Dangermouse", email: "danger@example.com")
     }
   end
 end

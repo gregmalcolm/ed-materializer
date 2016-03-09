@@ -115,32 +115,67 @@ describe Api::V2::SiteSurveysController, type: :controller do
   end
 
   describe "PATCH/PUT #update" do
-    let(:commander) { "Coldglider" }
+    let(:commander) { "Mwerle" }
     let(:updated_site_survey) { { basecamp_id: basecamps[0].id,
                                   id: site_surveys[1].id,
                                   site_survey: {mercury: 51,
                                                 commander: commander} } }
-    context "updating a site_survey" do
-      before { put :update, updated_site_survey, auth_tokens }
-      let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
-      it { expect(response).to have_http_status(204) }
-      it { expect(site_survey.commander).to be == "Coldglider" }
-      it { expect(site_survey.mercury).to be 51 }
+    context "as an application user" do
+      context "updating a site_survey" do
+        before { put :update, updated_site_survey, auth_tokens }
+        let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
+        it { expect(response).to have_http_status(204) }
+        it { expect(site_survey.commander).to be == "Mwerle" }
+        it { expect(site_survey.mercury).to be 51 }
+      end
+      context "changing someone elses record" do
+        let(:commander) { "Coldglider" }
+        before { put :update, updated_site_survey, auth_tokens }
+        let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
+        
+        it { expect(response).to have_http_status(401) }
+      end
     end
     
     context "as a normal user" do
-      let(:user) { users[:marlon] }
-      before { put :update, updated_site_survey, auth_tokens }
-      before { site_surveys[1].reload }
+      let(:user) { create(:user, name: "Mwerle") }
       
-      it { expect(response).to have_http_status(204) }
-      it { expect(site_surveys[1].commander).to be == "Marlon Blake" }
+      context "changing own record" do
+        before { put :update, updated_site_survey, auth_tokens }
+        let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
+        
+        it { expect(response).to have_http_status(204) }
+        it { expect(site_survey.commander).to be == "Mwerle" }
+      end
+      
+      context "changing someone elses record" do
+        let(:user) { users[:marlon] }
+        before { put :update, updated_site_survey, auth_tokens }
+        let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
+        
+        it { expect(response).to have_http_status(401) }
+      end
+    end
+    
+    context "as an admin" do
+      let(:user) { users[:admin] }
+      let(:commander) { "Coldglider" }
+      
+      context "changing someone elses record" do
+        before { put :update, updated_site_survey, auth_tokens }
+        let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
+        
+        it { expect(response).to have_http_status(204) }
+        it { expect(site_survey.commander).to be == "Coldglider" }
+        it { expect(site_survey.mercury).to be 51 }
+      end
     end
 
     context "not nested" do
       let(:updated_site_survey) { { id: site_surveys[1].id,
                                     site_survey: { basecamp_id: basecamps[0].id, 
-                                                   polonium: 5 } } }
+                                                   polonium: 5,
+                                                   commander: "Mwerle" } } }
       before { put :update, updated_site_survey, auth_tokens }
       let(:site_survey) { SiteSurvey.find(site_surveys[1].id)}
       it { expect(response).to have_http_status(204) }
@@ -155,17 +190,55 @@ describe Api::V2::SiteSurveysController, type: :controller do
   end
 
   describe "DELETE #destroy" do
-    context "authorized power user" do
-      let(:id) { site_surveys[0].id }
+    let(:id) { site_surveys[0].id }
+    context "as an application user" do
+      context "deleting own record" do
+        before { delete :destroy, {basecamp_id: basecamps[0].id,
+                                   id: id,
+                                   user: "Eoran"}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(SiteSurvey.where(id: id).any?).to be false }
+      end
+      
+      context "deleting someone elses record" do
+        before { delete :destroy, {basecamp_id: basecamps[0].id,
+                                   id: id,
+                                   user: "Coldglider"}, auth_tokens }
+        it { expect(response).to have_http_status(401) }
+      end
+      
+      context "deleting with no user record" do
+        before { delete :destroy, {basecamp_id: basecamps[0].id,
+                                   id: id}, auth_tokens }
+        it { expect(response).to have_http_status(401) }
+      end
+    end
+
+    context "as a normal user" do
+      context "deleting own record" do
+        let(:user) { create(:user, name: "Eoran") }
+        before { delete :destroy, {basecamp_id: basecamps[0].id,
+                                   id: id}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(SiteSurvey.where(id: id).any?).to be false }
+      end
+      
+      context "deleting someone elses record" do
+        let(:user) { create(:user, name: "Coldglider") }
+        before { delete :destroy, {basecamp_id: basecamps[0].id,
+                                   id: id}, auth_tokens }
+        it { expect(response).to have_http_status(401) }
+      end
+    end
+    
+    context "as an admin" do
+      let(:user) { users[:admin] }
       before { delete :destroy, {basecamp_id: basecamps[0].id,
                                  id: id}, auth_tokens }
       it { expect(response).to have_http_status(204) }
-      it { expect(SiteSurvey.where(id: id).any?).to be false }
     end
 
     context "unauthenticated" do
-      let(:id) { site_surveys[0].id }
-
       before { delete :destroy, {basecamp_id: basecamps[0].id,
                                  id: id} }
       it { expect(response).to have_http_status(401) }
@@ -173,7 +246,6 @@ describe Api::V2::SiteSurveysController, type: :controller do
     end
 
     context "unauthorized banned user" do
-      let(:id) { site_surveys[0].id }
       let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {basecamp_id: basecamps[0].id,
                                  id: id}, auth_tokens }

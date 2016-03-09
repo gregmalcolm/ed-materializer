@@ -1,9 +1,19 @@
 module Api
   module V2
     class SiteSurveysController < ApplicationController
-      before_action :authorize_user!, except: [:index, :show]
       before_action :set_site_survey, only: [:show, :update, :destroy]
       before_action :set_basecamp, only: [:index, :show, :update, :destroy]
+      
+      before_action :authorize_user!, except: [:index, :show]
+      before_action only: [:update] {
+        authorize_change!(@site_survey.commander,
+                          params[:site_survey][:commander])
+      }
+      before_action only: [:destroy] {
+        authorize_change!(@site_survey.commander,
+                          params[:user])
+      }
+
 
       def index
         @site_surveys = filtered.page(page).
@@ -18,7 +28,7 @@ module Api
       end
 
       def create
-        @site_survey = SiteSurvey.new(site_survey_params)
+        @site_survey = SiteSurvey.new(new_site_survey_params)
 
         if @site_survey.save
           render json: @site_survey, status: :created, 
@@ -31,7 +41,7 @@ module Api
       def update
         @site_survey = SiteSurvey.find(params[:id])
 
-        if @site_survey.update(safe_site_survey_params)
+        if @site_survey.update(edit_site_survey_params)
           head :no_content
         else
           render json: @site_survey.errors, status: :unprocessable_entity
@@ -58,10 +68,7 @@ module Api
                     end
       end
 
-      def safe_site_survey_params
-        if current_user.role == "user"
-          params[:site_survey][:commander] = current_user.name
-        end
+      def site_survey_params
         params.require(:site_survey)
               .permit(:basecamp_id,
                       :commander,
@@ -95,8 +102,17 @@ module Api
                       :yttrium)
       end
 
-      def site_survey_params
-        {basecamp_id: params[:basecamp_id]}.merge(safe_site_survey_params)
+      def new_site_survey_params
+        {
+          basecamp_id: params[:basecamp_id],
+          commander: params[:commander]
+        }.merge(site_survey_params)
+      end
+      
+      def edit_site_survey_params
+        params = site_survey_params
+        params[:site_survey].delete(:commander) if params[:site_survey]
+        params
       end
 
       def filtered
