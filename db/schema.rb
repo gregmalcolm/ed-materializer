@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160303171721) do
+ActiveRecord::Schema.define(version: 20160309171047) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,10 +31,12 @@ ActiveRecord::Schema.define(version: 20160303171721) do
     t.string   "image_url"
     t.datetime "created_at",                      null: false
     t.datetime "updated_at",                      null: false
+    t.string   "updaters",                                     array: true
   end
 
   add_index "basecamps", ["updated_at"], name: "index_basecamps_on_updated_at", using: :btree
   add_index "basecamps", ["updater"], name: "index_basecamps_on_updater", using: :btree
+  add_index "basecamps", ["updaters"], name: "index_basecamps_on_updaters", using: :gin
   add_index "basecamps", ["world_id", "updater", "updated_at"], name: "index_basecamps_on_wor_updr_upd", using: :btree
   add_index "basecamps", ["world_id"], name: "index_basecamps_on_world_id", using: :btree
 
@@ -120,6 +122,7 @@ ActiveRecord::Schema.define(version: 20160303171721) do
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
     t.string   "image_url"
+    t.string   "updaters",                                  array: true
   end
 
   add_index "stars", ["star"], name: "index_stars_on_star", using: :btree
@@ -127,6 +130,7 @@ ActiveRecord::Schema.define(version: 20160303171721) do
   add_index "stars", ["system"], name: "index_stars_on_system", using: :btree
   add_index "stars", ["updated_at"], name: "index_stars_on_updated_at", using: :btree
   add_index "stars", ["updater"], name: "index_stars_on_updater", using: :btree
+  add_index "stars", ["updaters"], name: "index_stars_on_updaters", using: :gin
 
   create_table "users", force: :cascade do |t|
     t.string   "provider",               default: "email", null: false
@@ -262,10 +266,12 @@ ActiveRecord::Schema.define(version: 20160303171721) do
     t.boolean  "yttrium"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string   "updaters",                array: true
   end
 
   add_index "world_surveys", ["updated_at"], name: "index_world_surveys_on_updated_at", using: :btree
   add_index "world_surveys", ["updater"], name: "index_world_surveys_on_updater", using: :btree
+  add_index "world_surveys", ["updaters"], name: "index_world_surveys_on_updaters", using: :gin
   add_index "world_surveys", ["world_id", "updater", "updated_at"], name: "index_world_surveys_on_wor_upr_upd", using: :btree
   add_index "world_surveys", ["world_id"], name: "index_world_surveys_on_world", using: :btree
 
@@ -295,12 +301,14 @@ ActiveRecord::Schema.define(version: 20160303171721) do
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
     t.string   "image_url"
+    t.string   "updaters",                                   array: true
   end
 
   add_index "worlds", ["system", "world", "updated_at"], name: "index_worlds_on_sys_sta_upd", using: :btree
   add_index "worlds", ["system"], name: "index_worlds_on_system", using: :btree
   add_index "worlds", ["updated_at"], name: "index_worlds_on_updated_at", using: :btree
   add_index "worlds", ["updater"], name: "index_worlds_on_updater", using: :btree
+  add_index "worlds", ["updaters"], name: "index_worlds_on_updaters", using: :gin
   add_index "worlds", ["world"], name: "index_worlds_on_star", using: :btree
 
 end
