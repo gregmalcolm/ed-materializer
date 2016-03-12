@@ -5,8 +5,7 @@ module Api
       before_action :set_world, only: [:show, :update, :destroy]
       before_action only: [:destroy] {
         authorize_change!(@world.creator,
-                          params[:user])
-      }
+                          params[:user]) }
 
       def index
         @worlds = filtered.page(page)
