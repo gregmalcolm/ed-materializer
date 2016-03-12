@@ -27,6 +27,7 @@ class WorldSurveySerializer < ActiveModel::Serializer
              :technetium,
              :tellurium,
              :yttrium,
+             :creator,
              :updated_at,
              :created_at
 end

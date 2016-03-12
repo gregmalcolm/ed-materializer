@@ -23,6 +23,7 @@ class WorldSerializer < ActiveModel::Serializer
              :atmosphere_type,
              :notes,
              :image_url,
+             :creator,
              :updated_at,
              :created_at
 end
