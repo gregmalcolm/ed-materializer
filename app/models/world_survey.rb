@@ -1,10 +1,10 @@
 class WorldSurvey < ActiveRecord::Base
+  include Updater
   has_paper_trail
 
   belongs_to :world
 
   scope :by_world_id,   ->(world_id) { where(world_id: world_id) if world_id }
-  scope :by_updater,    ->(updater) { where("UPPER(TRIM(updater))=?", updater.to_s.upcase.strip ) if updater }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
 

@@ -2,7 +2,7 @@ module Updater
   extend ActiveSupport::Concern
   
   included do
-    before_validation :set_creator
+    before_validation :update_updaters
     
     scope :by_updater, ->(updater) { where("UPPER(TRIM(updater))=?", updater.to_s.upcase.strip ) if updater }
   end
@@ -13,7 +13,11 @@ module Updater
 
   private 
 
-  def set_creator
-    self.updaters = [updater] if updater
+  def update_updaters
+    self.updaters = [self.updater] if self.updaters.blank?
+
+    unless self.updaters.include?(self.updater)
+      self.updaters << self.updater
+    end
   end
 end

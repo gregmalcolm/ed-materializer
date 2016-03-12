@@ -1,4 +1,5 @@
 class Basecamp < ActiveRecord::Base
+  include Updater
   has_paper_trail
 
   belongs_to :world
@@ -6,7 +7,6 @@ class Basecamp < ActiveRecord::Base
 
   scope :by_world_id,   ->(world_id) { where(world_id: world_id) if world_id }
   scope :by_name,       ->(name)  { where("UPPER(TRIM(name))=?", name.to_s.upcase.strip ) if name }
-  scope :by_updater,    ->(updater) { where("UPPER(TRIM(updater))=?", updater.to_s.upcase.strip ) if updater }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
 
