@@ -4,6 +4,10 @@ module Api
       before_action :authorize_user!, except: [:index, :show]
       before_action :set_basecamp, only: [:show, :update, :destroy]
       before_action :set_world, only: [:index, :show, :update, :destroy]
+      before_action only: [:destroy] {
+        authorize_change!(@basecamp.creator,
+                          params[:user]) 
+      }
 
       def index
         @basecamps = filtered.page(page).

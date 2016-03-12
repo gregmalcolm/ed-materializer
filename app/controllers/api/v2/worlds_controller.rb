@@ -3,6 +3,10 @@ module Api
     class WorldsController < ApplicationController
       before_action :authorize_user!, except: [:index, :show]
       before_action :set_world, only: [:show, :update, :destroy]
+      before_action only: [:destroy] {
+        authorize_change!(@world.creator,
+                          params[:user])
+      }
 
       def index
         @worlds = filtered.page(page)

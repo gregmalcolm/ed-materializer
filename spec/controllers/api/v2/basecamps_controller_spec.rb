@@ -187,20 +187,47 @@ describe Api::V2::BasecampsController, type: :controller do
   end
 
   describe "DELETE #destroy" do
+    let(:id) { basecamps[0].id }
     context "as application user" do
       context "without child surveys" do
-        let(:id) { basecamps[0].id }
         before { delete :destroy, {world_id: worlds[0].id,
-                                   id: id}, auth_tokens }
+                                   id: id,
+                                   user: "Nexolek"}, auth_tokens }
         it { expect(response).to have_http_status(204) }
         it { expect(Basecamp.where(id: id).any?).to be false }
       end
       
       context "with child surveys" do
         let!(:site_survey) { create(:site_survey, basecamp: basecamps[0]) }
-        let(:id) { basecamps[0].id }
         before { delete :destroy, {world_id: worlds[0].id,
-                                   id: id}, auth_tokens }
+                                   id: id,
+                                   user: "Nexolek"}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+      
+      context "deleting when not the creator" do
+        before { delete :destroy, {id: id,
+                                   user: "Olivia Vespera"}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+      
+      context "deleting with no user record" do
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+    end
+    
+    context "as a normal user" do
+      context "deleting own record" do
+        let(:user) { create(:user, name: "Nexolek") }
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(WorldSurvey.where(id: id).any?).to be false }
+      end
+      
+      context "deleting someone elses record" do
+        let(:user) { create(:user, name: "Olivia Vespera") }
+        before { delete :destroy, {id: id}, auth_tokens }
         it { expect(response).to have_http_status(403) }
       end
     end
@@ -209,7 +236,6 @@ describe Api::V2::BasecampsController, type: :controller do
       let(:user) { users[:admin] }
       context "disregard children" do
         let!(:site_survey) { create(:site_survey, basecamp: basecamps[0]) }
-        let(:id) { basecamps[0].id }
         before { delete :destroy, {world_id: worlds[0].id,
                                    id: id}, auth_tokens }
         it { expect(response).to have_http_status(204) }
@@ -219,8 +245,6 @@ describe Api::V2::BasecampsController, type: :controller do
     end
     
     context "unauthenticated" do
-      let(:id) { basecamps[0].id }
-
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id} }
       it { expect(response).to have_http_status(401) }
@@ -228,7 +252,6 @@ describe Api::V2::BasecampsController, type: :controller do
     end
 
     context "unauthorized banned user" do
-      let(:id) { basecamps[0].id }
       let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id}, auth_tokens }

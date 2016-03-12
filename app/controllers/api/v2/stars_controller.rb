@@ -3,6 +3,10 @@ module Api
     class StarsController < ApplicationController
       before_action :authorize_user!, except: [:index, :show]
       before_action :set_star, only: [:show, :update, :destroy]
+      before_action only: [:destroy] {
+        authorize_change!(@star.creator,
+                          params[:user])
+      }
 
       def index
         @stars = filtered.page(page).

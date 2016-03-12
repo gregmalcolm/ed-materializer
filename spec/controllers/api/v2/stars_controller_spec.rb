@@ -172,18 +172,52 @@ describe Api::V2::StarsController, type: :controller do
   end
 
   describe "DELETE #destroy" do
+    let(:id) { stars[0].id }
+    context "as an application user" do
+      context "deleting as creator" do
+        before { delete :destroy, {id: id,
+                                   user: "Cruento Mucrone"}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(Star.where(id: id).any?).to be false }
+      end
+      
+      context "deleting when not the creator" do
+        before { delete :destroy, {id: id,
+                                   user: "Dr. Kaii"}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+      
+      context "deleting with no user record" do
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+    end
+    
+    context "as a normal user" do
+      context "deleting own record" do
+        let(:user) { create(:user, name: "Cruento Mucrone") }
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(Star.where(id: id).any?).to be false }
+      end
+      
+      context "deleting someone elses record" do
+        let(:user) { create(:user, name: "Dr. Kaii") }
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+    end
+
     context "unauthenticated" do
-      let(:id) { stars[0].id }
       before { delete :destroy, {id: id} }
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }
     end
-
-    context "authorized power user" do
-      let(:id) { stars[0].id }
+    
+    context "as an admin" do
+      let(:user) { users[:admin] }
       before { delete :destroy, {id: id}, auth_tokens }
       it { expect(response).to have_http_status(204) }
-      it { expect(Star.where(id: id).any?).to be false }
     end
   end
 end

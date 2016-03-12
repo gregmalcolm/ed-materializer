@@ -152,17 +152,44 @@ describe Api::V2::WorldsController, type: :controller do
   end
 
   describe "DELETE #destroy" do
+    let(:id) { worlds[0].id }
     context "as application user" do
       context "without child surveys" do
-        let(:id) { worlds[0].id }
-        before { delete :destroy, {id: id}, auth_tokens }
+        before { delete :destroy, {id: id,
+                                   user: "Marlon Blake"}, auth_tokens }
         it { expect(response).to have_http_status(204) }
         it { expect(World.where(id: id).any?).to be false }
       end
       
       context "with linked data" do
         let!(:world_survey) { create(:world_survey, world: worlds[0]) }
-        let(:id) { worlds[0].id }
+        before { delete :destroy, {id: id,
+                                   user: "Marlon Blake"}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+      
+      context "deleting when not the creator" do
+        before { delete :destroy, {id: id,
+                                   user: "Kancro Vantas"}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+      
+      context "deleting with no user record" do
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+    end
+    
+    context "as a normal user" do
+      context "deleting own record" do
+        let(:user) { create(:user, name: "Marlon Blake") }
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(World.where(id: id).any?).to be false }
+      end
+      
+      context "deleting someone elses record" do
+        let(:user) { create(:user, name: "Kancro Vantos") }
         before { delete :destroy, {id: id}, auth_tokens }
         it { expect(response).to have_http_status(403) }
       end
@@ -172,7 +199,6 @@ describe Api::V2::WorldsController, type: :controller do
       let(:user) { users[:admin] }
       context "disregard child links" do
         let!(:world_survey) { create(:world_survey, world: worlds[0]) }
-        let(:id) { worlds[0].id }
         before { delete :destroy, {world_id: worlds[0].id,
                                    id: id}, auth_tokens }
         it { expect(response).to have_http_status(204) }

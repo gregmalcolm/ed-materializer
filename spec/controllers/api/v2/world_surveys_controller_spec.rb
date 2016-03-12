@@ -176,17 +176,43 @@ describe Api::V2::WorldSurveysController, type: :controller do
   end
 
   describe "DELETE #destroy" do
-    context "authorized power user" do
-      let(:id) { world_surveys[0].id }
-      before { delete :destroy, {world_id: worlds[0].id,
-                                 id: id}, auth_tokens }
-      it { expect(response).to have_http_status(204) }
-      it { expect(WorldSurvey.where(id: id).any?).to be false }
+    let(:id) { world_surveys[0].id }
+    context "as an application user" do
+      context "deleting as creator" do
+        before { delete :destroy, {id: id,
+                                   user: "Marlon Blake"}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(WorldSurvey.where(id: id).any?).to be false }
+      end
+      
+      context "deleting when not the creator" do
+        before { delete :destroy, {id: id,
+                                   user: "John Rutherford"}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+      
+      context "deleting with no user record" do
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
+    end
+    
+    context "as a normal user" do
+      context "deleting own record" do
+        let(:user) { create(:user, name: "Marlon Blake") }
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(204) }
+        it { expect(WorldSurvey.where(id: id).any?).to be false }
+      end
+      
+      context "deleting someone elses record" do
+        let(:user) { create(:user, name: "John Rutherford") }
+        before { delete :destroy, {id: id}, auth_tokens }
+        it { expect(response).to have_http_status(403) }
+      end
     end
     
     context "unauthenticated" do
-      let(:id) { world_surveys[0].id }
-
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id} }
       it { expect(response).to have_http_status(401) }
@@ -194,7 +220,6 @@ describe Api::V2::WorldSurveysController, type: :controller do
     end
 
     context "unauthorized banned user" do
-      let(:id) { world_surveys[0].id }
       let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id}, auth_tokens }
