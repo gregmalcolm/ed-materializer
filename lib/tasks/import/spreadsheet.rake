@@ -134,7 +134,7 @@ namespace :import do
       end
     end
 
-    def insert_primary_stars_v2
+    def insert_primary_stars
       @worlds_arr.each do |world|
         system    = world["System name"] if world
         star = ""
@@ -143,17 +143,13 @@ namespace :import do
         end
 
         if system
-          item = Star.where("UPPER(TRIM(system)) = :system AND
-                             COALESCE(UPPER(TRIM(star)),'') = :star",
-                             { system:  system.upcase.strip,
-                               star:    star.upcase.strip,
-                               updater: updater_tag })
-          prefix = "Inserting Star #{system} #{star}:"
+          item = Star.by_system(system)
+          prefix = "Inserting Primary Star for #{system}:"
           if item.blank?
             log "#{prefix} creating..."
             Star.create(system: system, star: star, updater: updater_tag)
           else
-            log "#{prefix} already exists"
+            log "#{prefix} already has a star"
           end
         else
           log "Unable to find key fields for #{system} #{star}"
@@ -161,7 +157,7 @@ namespace :import do
       end
     end
 
-    def update_star_data_v2
+    def update_star_data
       @systems_arr.each do |data|
         system = data["System Name"].to_s.upcase.strip
         if system.present?
@@ -177,8 +173,7 @@ namespace :import do
                          notes: data["Notes"],
                          surface_temp: number(data["Surf. T [K]"])
                        }
-          item = Star.where("UPPER(TRIM(system)) = :system",
-                            { system: system }).first
+          item = Star.by_system(system).first
           if item.present?
             if item.updater == updater_tag
               log "#{prefix} Updating"
@@ -193,7 +188,7 @@ namespace :import do
       end
     end
     
-    def insert_worlds_v2
+    def insert_worlds
       @worlds_arr.each do |data|
         system = data["System name"] if data
         world  = data["Body"] if data
@@ -408,8 +403,8 @@ namespace :import do
       task :stars => "import:dw_spreadsheet:prepare" do
         log "Updating Stars table"
       
-        insert_primary_stars_v2
-        update_star_data_v2
+        insert_primary_stars
+        update_star_data
       
         log "Done! Star count is now at #{Star.count}"
       end
@@ -417,7 +412,7 @@ namespace :import do
       task :worlds => "import:dw_spreadsheet:prepare" do
         log "Updating Worlds table"
 
-        insert_worlds_v2
+        insert_worlds
       
         log "Done! World count is now at #{World.count}"
       end
