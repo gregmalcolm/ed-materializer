@@ -32,6 +32,14 @@ test:
 #   production:
 #     url: <%= ENV['DATABASE_URL'] %>
 #
+qa:
+  <<: *default
+  database: <%= ENV['RDS_DB_NAME'] || "ed_materializer_qa" %>
+  username: <%= ENV['RDS_USERNAME'] || "ed_materializer" %>
+  password: <%= ENV['RDS_PASSWORD'] || ENV['ED_MATERIALIZER_DATABASE_PASSWORD'] %>
+  host: <%= ENV['RDS_HOSTNAME'] %>
+  port: <%= ENV['RDS_PORT'] %>
+
 production:
   <<: *default
   database: <%= ENV['RDS_DB_NAME'] || "ed_materializer_production" %>

@@ -17,7 +17,7 @@
 !/log/.keep
 /tmp
 .byebug_history
-.secret/*
+.secrets
 *.xlsx
 imports/*csv*
 .DS_Store
