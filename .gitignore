@@ -22,4 +22,4 @@
 imports/*csv*
 .DS_Store
 config/application.yml
-/exports/snapshots/*
+/exports/snapshots/*json*
