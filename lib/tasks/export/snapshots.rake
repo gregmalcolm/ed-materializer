@@ -22,7 +22,7 @@ namespace :export do
       adapter = ActiveModel::Serializer::Adapter.create(array_serializer)
       
       filename = "#{model_name.underscore.dasherize}s.json"
-      full_filename = "#{Rails.root}/public/snapshots/#{filename}"
+      full_filename = "#{Rails.root}/exports/snapshots/#{filename}"
       zip_filename = "#{full_filename}.zip"
       md5_filename = "#{full_filename}.md5"
       tmp_filename = "#{Rails.root}/tmp/#{filename}"

@@ -2,7 +2,12 @@ Rails.application.routes.draw do
   mount_devise_token_auth_for 'User', at: 'auth'
   scope :api, module: :api do
     scope :v2, module: :v2 do
-      resources :stars, except: [:new, :edit]
+      resources :stars, except: [:new, :edit] do
+        collection do
+          get :download
+          get :md5
+        end
+      end
       resources :worlds, except: [:new, :edit] do
         resources :basecamps, except: [:new, :edit]
         resources :world_surveys, except: [:new, :edit]

@@ -1,7 +1,9 @@
 module Api
   module V2
     class WorldSurveysController < ApplicationController
-      before_action :authorize_user!, except: [:index, :show]
+      include DataDumpActions
+      
+      before_action :authorize_user!, except: [:index, :show, :download, :md5]
       before_action :set_world_survey, only: [:show, :update, :destroy]
       before_action :set_world, only: [:index, :show, :update, :destroy]
       before_action only: [:destroy] {

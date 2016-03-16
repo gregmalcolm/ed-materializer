@@ -1,10 +1,12 @@
 module Api
   module V2
     class SiteSurveysController < ApplicationController
+      include DataDumpActions
+      before_action :authorize_user!, except: [:index, :show, :download, :md5]
+      
       before_action :set_site_survey, only: [:show, :update, :destroy]
       before_action :set_basecamp, only: [:index, :show, :update, :destroy]
       
-      before_action :authorize_user!, except: [:index, :show]
       before_action only: [:update] {
         authorize_change!(@site_survey.commander,
                           params[:site_survey][:commander])
