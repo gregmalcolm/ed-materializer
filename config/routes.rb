@@ -9,15 +9,47 @@ Rails.application.routes.draw do
         end
       end
       resources :worlds, except: [:new, :edit] do
-        resources :basecamps, except: [:new, :edit]
-        resources :world_surveys, except: [:new, :edit]
+        collection do
+          get :download
+          get :md5
+        end
+        resources :basecamps, except: [:new, :edit] do
+          collection do
+            get :download
+            get :md5
+          end
+        end
+        resources :world_surveys, except: [:new, :edit] do
+          collection do
+            get :download
+            get :md5
+          end
+        end
       end
       resources :basecamps, except: [:new, :edit] do
-        resources :site_surveys, except: [:new, :edit]
+        collection do
+          get :download
+          get :md5
+        end
+        resources :site_surveys, except: [:new, :edit] do
+          collection do
+            get :download
+            get :md5
+          end
+        end
       end
-      resources :site_surveys, except: [:new, :edit]
-      resources :world_surveys, except: [:new, :edit]
-      get :site_surveys, to: "site_surveys#index"
+      resources :site_surveys, except: [:new, :edit] do
+        collection do
+          get :download
+          get :md5
+        end
+      end
+      resources :world_surveys, except: [:new, :edit] do
+        collection do
+          get :download
+          get :md5
+        end
+      end
       get :change_logs, to: "change_logs#index"
     end
   end
