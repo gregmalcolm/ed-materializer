@@ -8,7 +8,7 @@ This is a simple API for storing material prospecting data for the Elite Dangero
 Primarily implemented so that [EDDiscovery](https://github.com/EDDiscovery/EDDiscovery)
 can have a place to store prospecting materials data.
 
-There are also plans to develop a web frontend
+There are also plans to develop a [web frontend](https://github.com/gregmalcolm/ed-materializer-frontend).
 
 Setup
 -----
