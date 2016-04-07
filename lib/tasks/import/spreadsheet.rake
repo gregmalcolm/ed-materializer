@@ -134,6 +134,34 @@ namespace :import do
       end
     end
 
+    def update_systems
+      @systems_arr.each do |data|
+        system = data["System"] if data
+        if system
+          item = System.by_system(system).first_or_initialize
+          prefix = item.id ? "Updating " : "Inserting"
+          prefix << " System record for #{system}"
+          if item.updater && item.updater != updater_tag 
+            log "#{prefix}: has been changed outside of the spreadsheet, ignoring"
+          else
+            item.system = system
+            item.updater = updater_tag
+            item.x = data["X"]
+            item.y = data["Y"]
+            item.z = data["Z"]
+            item.tags = [data["DWE/POI Location"]] if data["DWE/POI Location"]
+            item.notes = data["Notes"]
+
+            if item.save
+              log "#{prefix}: Success"  
+            else
+              log "#{prefix}: Failed"  
+            end
+          end
+        end
+      end
+    end
+    
     def insert_primary_stars
       @worlds_arr.each do |world|
         system    = world["System name"] if world
@@ -391,6 +419,7 @@ namespace :import do
       log "Updating Database V2 with DW Spreadsheet data..."
       # Taking advantage of the CSVs being small. This will of course not to
       # be refined if the sitation changes
+      Rake::Task["import:dw_spreadsheet:update:systems"].invoke
       Rake::Task["import:dw_spreadsheet:update:stars"].invoke
       Rake::Task["import:dw_spreadsheet:update:worlds"].invoke
       Rake::Task["import:dw_spreadsheet:update:basecamps"].invoke
@@ -400,6 +429,14 @@ namespace :import do
     end
 
     namespace :update do
+      task :systems => "import:dw_spreadsheet:prepare" do
+        log "Updating Systems table"
+      
+        update_systems
+      
+        log "Done! Systems count is now at #{System.count}"
+      end
+      
       task :stars => "import:dw_spreadsheet:prepare" do
         log "Updating Stars table"
       
