@@ -11,9 +11,9 @@ module Api
       }
 
       def index
-        @stars = filtered.page(page).
-                               per(per_page).
-                               order("updated_at")
+        @stars = filtered.page(page)
+                         .per(per_page)
+                         .order("updated_at")
         render json: @stars, serializer: PaginatedSerializer,
                              each_serializer: StarSerializer
       end
@@ -82,6 +82,10 @@ module Api
             .updated_before(params[:updated_before])
             .updated_after(params[:updated_after])
       end
+    end
+
+    def per_page
+      params[:per_page] || 100
     end
   end
 end

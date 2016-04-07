@@ -6,6 +6,6 @@ class ApplicationController < ActionController::API
   end
 
   def per_page
-    params[:per_page] || 100
+    params[:per_page] || 20
   end
 end

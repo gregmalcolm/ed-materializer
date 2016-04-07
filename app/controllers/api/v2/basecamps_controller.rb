@@ -98,6 +98,10 @@ module Api
                 .updated_before(params[:updated_before])
                 .updated_after(params[:updated_after])
       end
+      
+      def per_page
+        params[:per_page] || 100
+      end
     end
   end
 end

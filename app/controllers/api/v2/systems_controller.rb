@@ -1,0 +1,83 @@
+module Api
+  module V2
+    class SystemsController < ApplicationController
+      before_action :authorize_user!, except: [:index, :show, :download, :md5]
+      before_action :set_system, only: [:show, :update, :destroy]
+      before_action only: [:destroy] {
+        authorize_change!(@system.creator,
+                          params[:user])
+      }
+
+      def index
+        @systems = filtered.page(page)
+                           .per(per_page)
+                           .order("updated_at")
+        render json: @systems, serializer: PaginatedSerializer,
+                               each_serializer: SystemSerializer
+      end
+
+      def show
+        render json: @system
+      end
+
+      def create
+        @system = System.new(system_params)
+
+        if @system.save
+          render json: @system, status: :created, location: @system
+        else
+          render json: @system.errors, status: :unprocessable_entity
+        end
+      end
+
+      def update
+        @system = System.find(params[:id])
+
+        if @system.update(system_params)
+          head :no_content
+        else
+          render json: @system.errors, status: :unprocessable_entity
+        end
+      end
+
+      def destroy
+        if admin? || !@system.has_children?
+          @system.destroy
+
+          head :no_content
+        else
+          render json: {errors: ["Forbidden because of dependencies."]}, status: 403
+        end
+      end
+
+      private
+
+      def set_system
+        @system = System.find(params[:id])
+      end
+
+      def system_params
+        if current_user.role == "user"
+          params[:system][:updater] = current_user.name
+        end
+        params.require(:system)
+              .permit(:system,
+                      :updater,
+                      :x,
+                      :y,
+                      :z,
+                      :poi_name,
+                      :notes,
+                      :image_url,
+                      :tags)
+      end
+
+      def filtered
+        System.by_system(params[:system])
+              .by_updater(params[:updater])
+              .updated_before(params[:updated_before])
+              .updated_after(params[:updated_after])
+      end
+    end
+  end
+end

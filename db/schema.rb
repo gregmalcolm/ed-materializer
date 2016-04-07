@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160313233041) do
+ActiveRecord::Schema.define(version: 20160407012711) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,12 +73,14 @@ ActiveRecord::Schema.define(version: 20160313233041) do
     t.datetime "updated_at",             null: false
     t.text     "notes"
     t.string   "image_url"
+    t.string   "surveyed_by",                         array: true
   end
 
   add_index "site_surveys", ["basecamp_id", "commander", "resource", "updated_at"], name: "index_ssurveys_on_bc_com_res_upd", using: :btree
   add_index "site_surveys", ["basecamp_id"], name: "index_site_surveys_on_basecamp_id", using: :btree
   add_index "site_surveys", ["commander"], name: "index_site_surveys_on_commander", using: :btree
   add_index "site_surveys", ["resource"], name: "index_site_surveys_on_resource", using: :btree
+  add_index "site_surveys", ["surveyed_by"], name: "index_site_surveys_on_surveyed_by", using: :gin
   add_index "site_surveys", ["updated_at"], name: "index_site_surveys_on_updated_at", using: :btree
 
   create_table "stars", force: :cascade do |t|
@@ -107,6 +109,27 @@ ActiveRecord::Schema.define(version: 20160313233041) do
   add_index "stars", ["updated_at"], name: "index_stars_on_updated_at", using: :btree
   add_index "stars", ["updater"], name: "index_stars_on_updater", using: :btree
   add_index "stars", ["updaters"], name: "index_stars_on_updaters", using: :gin
+
+  create_table "systems", force: :cascade do |t|
+    t.string   "system"
+    t.string   "updater"
+    t.float    "x"
+    t.float    "y"
+    t.float    "z"
+    t.string   "poi_name"
+    t.string   "notes"
+    t.string   "image_url"
+    t.string   "tags",                    array: true
+    t.string   "updaters",                array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "systems", ["system", "updated_at"], name: "index_systems_on_nam_upd", using: :btree
+  add_index "systems", ["system", "x", "y", "z"], name: "index_systems_on_nam_xyz", using: :btree
+  add_index "systems", ["system"], name: "index_systems_on_system", using: :btree
+  add_index "systems", ["updater"], name: "index_systems_on_updater", using: :btree
+  add_index "systems", ["updaters"], name: "index_systems_on_updaters", using: :gin
 
   create_table "users", force: :cascade do |t|
     t.string   "provider",               default: "email", null: false
@@ -182,11 +205,13 @@ ActiveRecord::Schema.define(version: 20160313233041) do
     t.boolean  "technetium"
     t.boolean  "tellurium"
     t.boolean  "yttrium"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string   "updaters",                array: true
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.string   "updaters",                 array: true
+    t.string   "surveyed_by",              array: true
   end
 
+  add_index "world_surveys", ["surveyed_by"], name: "index_world_surveys_on_surveyed_by", using: :gin
   add_index "world_surveys", ["updated_at"], name: "index_world_surveys_on_updated_at", using: :btree
   add_index "world_surveys", ["updater"], name: "index_world_surveys_on_updater", using: :btree
   add_index "world_surveys", ["updaters"], name: "index_world_surveys_on_updaters", using: :gin
