@@ -16,6 +16,14 @@ class System < ActiveRecord::Base
     World.by_system(self.system).any? || Star.by_system(self.system).any?
   end
 
+  def worlds
+    World.by_system(system)
+  end
+  
+  def stars
+    Star.by_system(system)
+  end
+
   private
   
   def key_fields_must_be_unique

@@ -2,6 +2,8 @@ class World < ActiveRecord::Base
   include Updater
   has_paper_trail
 
+  before_save :update_system
+
   has_many :basecamps, dependent: :destroy
   has_one :world_survey, dependent: :destroy
   has_many :site_surveys, through: :basecamps
@@ -21,6 +23,10 @@ class World < ActiveRecord::Base
     world_survey.present? || basecamps.any?
   end
 
+  def parent_system
+    System.by_system(system).first
+  end
+
   private
 
   def key_fields_must_be_unique
@@ -29,6 +35,16 @@ class World < ActiveRecord::Base
             .not_me(self.id)
             .any?
       errors.add(:world, "has already been taken for this system")
+    end
+  end
+
+  def update_system
+    parent = parent_system
+    attributes = { system: self.system, updater: self.updater }
+    if parent
+      parent.update(attributes)
+    else
+      System.create(attributes)
     end
   end
 end

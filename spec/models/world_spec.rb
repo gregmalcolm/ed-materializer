@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe World do
   subject { create :world }
-  describe "Cascading deletes" do
+  describe "cascading deletes" do
     let!(:world_survey) { create :world_survey, world: subject, 
                                                 updater: "Akira Masakari"}
     let!(:basecamp) { create :basecamp, world: subject, 
@@ -14,6 +14,23 @@ describe World do
     it { expect(Basecamp.by_updater("Baroness Galaxy").count).to be == 0 }
     it { expect(SiteSurvey.by_commander("Coldglider").count).to be == 0 }
     it { expect(WorldSurvey.by_updater("Akira Masakari").count).to be == 0 }
+  end
+
+  describe "updating the parent system" do
+    context "when the system not exist" do
+      subject! { create :world, system: "Cybertron" }
+      let(:system) { System.where(system: "Cybertron").first }
+      it { expect(system).to be_present }
+      it { expect(system.updater).to be == "Jameson"  }
+    end
+
+    context "when a compatible system exists" do
+      before { create :system, system: "CYBERTRON", updater: "Wishblend" }
+      subject! { create :world, system: "Cybertron" }
+      let(:system) { System.where(system: "Cybertron").first }
+      it { expect(system.system).to be == "Cybertron" }
+      it { expect(system.updater).to be == "Jameson"  }
+    end
   end
   
   describe "#has_children?" do

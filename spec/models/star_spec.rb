@@ -25,4 +25,21 @@ describe Star do
       it { expect(subject.updaters).to be == ["Katejina", "Erimus"] }
     end
   end
+  
+  describe "updating the parent system" do
+    context "when the system not exist" do
+      subject! { create :star, system: "Dagabah" }
+      let(:system) { System.where(system: "Dagabah").first }
+      it { expect(system).to be_present }
+      it { expect(system.updater).to be == "Jameson"  }
+    end
+
+    context "when a compatible system exists" do
+      before { create :system, system: "Dagabah", updater: "Corbain Moran" }
+      subject! { create :star, system: "Dagabah" }
+      let(:system) { System.where(system: "Dagabah").first }
+      it { expect(system.system).to be == "Dagabah" }
+      it { expect(system.updater).to be == "Jameson"  }
+    end
+  end
 end

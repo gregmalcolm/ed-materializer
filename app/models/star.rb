@@ -2,6 +2,8 @@ class Star < ActiveRecord::Base
   include Updater
   has_paper_trail
   
+  before_save :update_system
+  
   scope :by_system,     ->(system)  { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
   scope :by_star,       ->(star)    { where("COALESCE(UPPER(TRIM(star)),'')=?", star.to_s.upcase.strip ) if star }
 
@@ -12,6 +14,10 @@ class Star < ActiveRecord::Base
 
   validates :updater, :system, presence: true
   validate :key_fields_must_be_unique
+  
+  def parent_system
+    System.by_system(system).first
+  end
 
   private
   
@@ -21,6 +27,16 @@ class Star < ActiveRecord::Base
            .not_me(self.id)
            .any?
       errors.add(:star, "has already been taken for this system")
+    end
+  end
+  
+  def update_system
+    parent = parent_system
+    attributes = { system: self.system, updater: self.updater }
+    if parent
+      parent.update(attributes)
+    else
+      System.create(attributes)
     end
   end
 end
