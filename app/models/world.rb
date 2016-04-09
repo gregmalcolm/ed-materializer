@@ -8,15 +8,17 @@ class World < ActiveRecord::Base
   has_one :world_survey, dependent: :destroy
   has_many :site_surveys, through: :basecamps
 
-  scope :by_system,     ->(system)  { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
-  scope :by_world,      ->(world)   { where("UPPER(TRIM(world))=?", world.to_s.upcase.strip ) if world }
+  scope :by_system,     ->(system_name) { where("UPPER(TRIM(system_name))=?", 
+                                                system_name.to_s.upcase.strip ) if system_name }
+  scope :by_world,      ->(world)       { where("UPPER(TRIM(world))=?", 
+                                                world.to_s.upcase.strip ) if world }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
 
   scope :updated_before, ->(time) { where("updated_at<?", time ) if Time.parse(time) rescue false }
   scope :updated_after,  ->(time) { where("updated_at>?", time ) if Time.parse(time) rescue false }
 
-  validates :updater, :system, :world, presence: true
+  validates :updater, :system_name, :world, presence: true
   validate :key_fields_must_be_unique
   
   def has_children?
@@ -24,13 +26,13 @@ class World < ActiveRecord::Base
   end
 
   def parent_system
-    System.by_system(system).first
+    System.by_system(system_name).first
   end
 
   private
 
   def key_fields_must_be_unique
-    if World.by_system(self.system)
+    if World.by_system(self.system_name)
             .by_world(self.world)
             .not_me(self.id)
             .any?
@@ -40,7 +42,7 @@ class World < ActiveRecord::Base
 
   def update_system
     parent = parent_system
-    attributes = { system: self.system, updater: self.updater }
+    attributes = { system: self.system_name, updater: self.updater }
     if parent
       parent.update(attributes)
     else

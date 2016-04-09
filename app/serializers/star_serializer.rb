@@ -1,7 +1,7 @@
 class StarSerializer < ActiveModel::Serializer
-  attributes :id,
-             :system,
-             :updater,
+  attribute  :id
+  attribute  :system_name, key: :system
+  attributes :updater,
              :star,
              :spectral_class,
              :spectral_subclass,

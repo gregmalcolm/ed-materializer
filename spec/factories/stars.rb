@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :star do
-    system "Betalgeuse"
+    system_name "Betalgeuse"
     updater "Jameson"
     star "A"
 

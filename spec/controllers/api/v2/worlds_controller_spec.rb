@@ -68,21 +68,27 @@ describe Api::V2::WorldsController, type: :controller do
   end
 
   describe "POST #create" do
-    let(:world) { json["world"] }
-    let(:new_world) { { world:
-      { system: "Magrathea", updater: "Arthur Dent", world: "B 2", gravity: 1.3 } }
-    }
+    let(:world_json) { json["world"] }
+    let(:new_world_json) { { world:
+                              { system: "Magrathea", 
+                                updater: "Arthur Dent", 
+                                world: "B 2", 
+                                gravity: 1.3 } }
+                           }
+    let(:new_world) { world = new_world_json[:world]
+                      world[:system_name] = world.delete(:system) 
+                      world }
 
     context "adding a world" do
-      before { post :create, new_world, auth_tokens }
+      before { post :create, new_world_json, auth_tokens }
       it { expect(response).to have_http_status(201) }
-      it { expect(world["system"]).to be == "Magrathea" }
-      it { expect(World.last.system).to be == "Magrathea" }
+      it { expect(world_json["system"]).to be == "Magrathea" }
+      it { expect(World.last.system_name).to be == "Magrathea" }
     end
 
     context "allows one world per updater per world" do
-      before { create :world, new_world[:world] }
-      before { post :create, new_world, auth_tokens }
+      before { create :world, new_world }
+      before { post :create, new_world_json, auth_tokens }
       it { expect(response).to have_http_status(422) }
       it { expect(json["world"]).to include "has already been taken for this system" }
     end
@@ -91,16 +97,8 @@ describe Api::V2::WorldsController, type: :controller do
       before { post :create, {world: {terrain_difficulty: 3}}, auth_tokens }
       it { expect(response).to have_http_status(422) }
       it { expect(json["updater"]).to include "can't be blank" }
-      it { expect(json["system"]).to include "can't be blank" }
+      it { expect(json["system_name"]).to include "can't be blank" }
       it { expect(json["world"]).to include "can't be blank" }
-    end
-
-    context "adding a world updates every field" do
-      let(:full_attributes) { attributes_for(:world, :full) }
-      let(:new_world) { {world: full_attributes} }
-      before { post :create, new_world, auth_tokens }
-      it { expect(response).to have_http_status(201) }
-      it { expect(world.values).to_not include be_blank }
     end
 
     context "when checking for clashing systems, take into account casing" do
@@ -108,14 +106,14 @@ describe Api::V2::WorldsController, type: :controller do
         { system: "MAGRATHEA", updater: "ARTHUR DENT", world: "b 2", gravity: 0.22 } }
       }
 
-      before { create :world, new_world[:world] }
+      before { create :world, new_world }
       before { post :create, clashing_world, auth_tokens }
       it { expect(response).to have_http_status(422) }
       it { expect(json["world"]).to include "has already been taken for this system" }
     end
 
     context "unauthorized" do
-      before { post :create, new_world }
+      before { post :create, new_world_json }
       it { expect(response).to have_http_status(401) }
       it { expect(json["errors"]).to include "Authorized users only." }
     end
@@ -130,7 +128,7 @@ describe Api::V2::WorldsController, type: :controller do
       before { put :update, updated_world, auth_tokens }
       let(:world) { World.find(worlds[1].id)}
       it { expect(response).to have_http_status(204) }
-      it { expect(world.system).to be == "NGANJI" }
+      it { expect(world.system_name).to be == "NGANJI" }
       it { expect(world.gravity).to be 0.43}
       it { expect(world.updater).to be == "Myshka" }
     end

@@ -136,7 +136,7 @@ describe Api::V2::SystemsController, type: :controller do
       end
       
       context "when the is a world associated with the system" do
-        let!(:world) { create(:world, system: "Shinrarta Dezhra") }
+        let!(:world) { create(:world, system_name: "Shinrarta Dezhra") }
         before { delete :destroy, {id: id,
                                    user: "Marlon Blake"}, auth_tokens }
         it { expect(response).to have_http_status(403) }

@@ -3,7 +3,7 @@ module WorldsHelper
     time = Time.now
     [
       create(:world,
-             system: "SHINRARTA DEZHRA",
+             system_name: "SHINRARTA DEZHRA",
              updater: "Marlon Blake",
              world: "A 5",
              world_type: "High Metal Content",
@@ -13,7 +13,7 @@ module WorldsHelper
              updated_at: time - 10.days,
              created_at: time - 10.days),
       create(:world,
-             system: "NGANJI",
+             system_name: "NGANJI",
              updater: "Finwen",
              world: "B 3",
              world_type: "High Metal Content",
@@ -23,7 +23,7 @@ module WorldsHelper
              updated_at: time - 5.days,
              created_at: time - 5.days),
       create(:world,
-             system: "STUEMEAE AA-A D5464",
+             system_name: "STUEMEAE AA-A D5464",
              updater: "Dommaarraa", 
              world: "A 5",
              world_type: "High Metal Content",

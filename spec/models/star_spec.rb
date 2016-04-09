@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Star do
-  subject { create :star, updater: "Katejina", system: "Yarnio" }
+  subject { create :star, updater: "Katejina", system_name: "Yarnio" }
 
   describe "creator and updaters" do
     context "after initialization" do
@@ -28,7 +28,7 @@ describe Star do
   
   describe "updating the parent system" do
     context "when the system not exist" do
-      subject! { create :star, system: "Dagabah" }
+      subject! { create :star, system_name: "Dagabah" }
       let(:system) { System.where(system: "Dagabah").first }
       it { expect(system).to be_present }
       it { expect(system.updater).to be == "Jameson"  }
@@ -36,7 +36,7 @@ describe Star do
 
     context "when a compatible system exists" do
       before { create :system, system: "Dagabah", updater: "Corbain Moran" }
-      subject! { create :star, system: "Dagabah" }
+      subject! { create :star, system_name: "Dagabah" }
       let(:system) { System.where(system: "Dagabah").first }
       it { expect(system.system).to be == "Dagabah" }
       it { expect(system.updater).to be == "Jameson"  }

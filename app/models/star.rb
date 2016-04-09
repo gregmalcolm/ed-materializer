@@ -4,7 +4,8 @@ class Star < ActiveRecord::Base
   
   before_save :update_system
   
-  scope :by_system,     ->(system)  { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
+  scope :by_system,     ->(system_name){ where("UPPER(TRIM(system_name))=?", 
+                                               system_name.to_s.upcase.strip ) if system_name }
   scope :by_star,       ->(star)    { where("COALESCE(UPPER(TRIM(star)),'')=?", star.to_s.upcase.strip ) if star }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
@@ -12,17 +13,17 @@ class Star < ActiveRecord::Base
   scope :updated_before, ->(time) { where("updated_at<?", time ) if Time.parse(time) rescue false }
   scope :updated_after,  ->(time) { where("updated_at>?", time ) if Time.parse(time) rescue false }
 
-  validates :updater, :system, presence: true
+  validates :updater, :system_name, presence: true
   validate :key_fields_must_be_unique
   
   def parent_system
-    System.by_system(system).first
+    System.by_system(system_name).first
   end
 
   private
   
   def key_fields_must_be_unique
-    if Star.by_system(self.system)
+    if Star.by_system(self.system_name)
            .by_star(self.star)
            .not_me(self.id)
            .any?
@@ -32,7 +33,7 @@ class Star < ActiveRecord::Base
   
   def update_system
     parent = parent_system
-    attributes = { system: self.system, updater: self.updater }
+    attributes = { system: self.system_name, updater: self.updater }
     if parent
       parent.update(attributes)
     else

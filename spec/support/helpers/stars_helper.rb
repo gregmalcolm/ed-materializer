@@ -3,7 +3,7 @@ module StarsHelper
     time = Time.now
     [
       create(:star,
-             system: "Alderaan",
+             system_name: "Alderaan",
              updater: "Cruento Mucrone",
              star: "A",
              spectral_class: "F",
@@ -13,7 +13,7 @@ module StarsHelper
              updated_at: time - 10.days,
              created_at: time - 10.days),
       create(:star,
-             system: "Hoth",
+             system_name: "Hoth",
              updater: "Zed",
              star: "",
              spectral_class: "F",
@@ -23,7 +23,7 @@ module StarsHelper
              updated_at: time - 5.days,
              created_at: time - 5.days),
       create(:star,
-             system: "ALDERAAN",
+             system_name: "ALDERAAN",
              updater: "robbyxp1",
              star: "B",
              spectral_class: "B",

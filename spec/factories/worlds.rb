@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :world do
-    system "Betalgeuse"
+    system_name "Betalgeuse"
     updater "Jameson"
     world "A 1"
 

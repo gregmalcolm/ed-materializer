@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160407012711) do
+ActiveRecord::Schema.define(version: 20160409212409) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -84,7 +84,7 @@ ActiveRecord::Schema.define(version: 20160407012711) do
   add_index "site_surveys", ["updated_at"], name: "index_site_surveys_on_updated_at", using: :btree
 
   create_table "stars", force: :cascade do |t|
-    t.string   "system",            limit: 50
+    t.string   "system_name",       limit: 50
     t.string   "updater",           limit: 50
     t.string   "star",              limit: 50
     t.string   "spectral_class"
@@ -104,8 +104,8 @@ ActiveRecord::Schema.define(version: 20160407012711) do
   end
 
   add_index "stars", ["star"], name: "index_stars_on_star", using: :btree
-  add_index "stars", ["system", "star", "updated_at"], name: "index_stars_on_sys_sta_upd", using: :btree
-  add_index "stars", ["system"], name: "index_stars_on_system", using: :btree
+  add_index "stars", ["system_name", "star", "updated_at"], name: "index_stars_on_sys_sta_upd", using: :btree
+  add_index "stars", ["system_name"], name: "index_stars_on_system_name", using: :btree
   add_index "stars", ["updated_at"], name: "index_stars_on_updated_at", using: :btree
   add_index "stars", ["updater"], name: "index_stars_on_updater", using: :btree
   add_index "stars", ["updaters"], name: "index_stars_on_updaters", using: :gin
@@ -219,7 +219,7 @@ ActiveRecord::Schema.define(version: 20160407012711) do
   add_index "world_surveys", ["world_id"], name: "index_world_surveys_on_world", using: :btree
 
   create_table "worlds", force: :cascade do |t|
-    t.string   "system",             limit: 50
+    t.string   "system_name",        limit: 50
     t.string   "updater",            limit: 50
     t.string   "world",              limit: 50
     t.string   "world_type"
@@ -247,8 +247,8 @@ ActiveRecord::Schema.define(version: 20160407012711) do
     t.string   "updaters",                                   array: true
   end
 
-  add_index "worlds", ["system", "world", "updated_at"], name: "index_worlds_on_sys_sta_upd", using: :btree
-  add_index "worlds", ["system"], name: "index_worlds_on_system", using: :btree
+  add_index "worlds", ["system_name", "world", "updated_at"], name: "index_worlds_on_sys_sta_upd", using: :btree
+  add_index "worlds", ["system_name"], name: "index_worlds_on_system_name", using: :btree
   add_index "worlds", ["updated_at"], name: "index_worlds_on_updated_at", using: :btree
   add_index "worlds", ["updater"], name: "index_worlds_on_updater", using: :btree
   add_index "worlds", ["updaters"], name: "index_worlds_on_updaters", using: :gin

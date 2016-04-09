@@ -58,8 +58,11 @@ module Api
         if current_user.role == "user"
           params[:star][:updater] = current_user.name
         end
+        if params[:star] && params[:star][:system]
+          params[:star][:system_name] = params[:star].delete(:system)
+        end
         params.require(:star)
-              .permit(:system,
+              .permit(:system_name,
                       :updater,
                       :star,
                       :spectral_class,

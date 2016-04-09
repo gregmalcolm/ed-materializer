@@ -60,8 +60,11 @@ module Api
         if current_user.role == "user"
           params[:world][:updater] = current_user.name
         end
+        if params[:world] && params[:world][:system]
+          params[:world][:system_name] = params[:world].delete(:system)
+        end
         params.require(:world)
-              .permit(:system,
+              .permit(:system_name,
                       :updater,
                       :world,
                       :world_type,

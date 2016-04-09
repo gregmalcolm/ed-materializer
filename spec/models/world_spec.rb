@@ -18,7 +18,7 @@ describe World do
 
   describe "updating the parent system" do
     context "when the system not exist" do
-      subject! { create :world, system: "Cybertron" }
+      subject! { create :world, system_name: "Cybertron" }
       let(:system) { System.where(system: "Cybertron").first }
       it { expect(system).to be_present }
       it { expect(system.updater).to be == "Jameson"  }
@@ -26,7 +26,7 @@ describe World do
 
     context "when a compatible system exists" do
       before { create :system, system: "CYBERTRON", updater: "Wishblend" }
-      subject! { create :world, system: "Cybertron" }
+      subject! { create :world, system_name: "Cybertron" }
       let(:system) { System.where(system: "Cybertron").first }
       it { expect(system.system).to be == "Cybertron" }
       it { expect(system.updater).to be == "Jameson"  }
