@@ -377,6 +377,7 @@ namespace :import do
               materials.each do |m|
                 ws[m] = true if survey[m].to_i > 0
               end
+              ws["updaters"] = [survey.commander] if survey.commander
             end
             if ws.save
               log "#{prefix}: Success"  

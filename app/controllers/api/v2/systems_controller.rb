@@ -1,6 +1,8 @@
 module Api
   module V2
     class SystemsController < ApplicationController
+      include DataDumpActions
+
       before_action :authorize_user!, except: [:index, :show, :download, :md5]
       before_action :set_system, only: [:show, :update, :destroy]
       before_action only: [:destroy] {

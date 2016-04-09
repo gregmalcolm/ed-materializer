@@ -43,3 +43,18 @@ Schema
 ------
 
 Documented in the schema [wiki](https://github.com/gregmalcolm/ed-materializer/wiki/Schema)
+
+Contributing
+------------
+
+An app can either register commanders through the API (or my frontend app). In special cases I can offer an app level account.
+
+Contributions to the project are welcome, though Issues and Pull Request.
+
+You can discuss details on the Elite Dangerous forum here:
+
+https://forums.frontier.co.uk/showthread.php?t=242152&p=3754329#post3754329
+
+You also ping me (As @Marlon Blake)on Discord chat server:
+
+https://discord.gg/0wESJJF3brcAk9Za
