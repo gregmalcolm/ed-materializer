@@ -40,8 +40,10 @@ class System < ActiveRecord::Base
   end
   
   def update_children_system_names
-    Star.where(system_id: self.id).update_all(system_name: self.system)
-    World.where(system_id: self.id).update_all(system_name: self.system)
+    if self.id
+      Star.where(system_id: self.id).update_all(system_name: self.system)
+      World.where(system_id: self.id).update_all(system_name: self.system)
+    end
   end
 end
 

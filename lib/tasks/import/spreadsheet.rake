@@ -164,32 +164,32 @@ namespace :import do
     
     def insert_primary_stars
       @worlds_arr.each do |world|
-        system    = world["System name"] if world
+        system_name = world["System name"] if world
         star = ""
         if world["Body"].to_s.strip.downcase =~ /^[a-z]/
           star = "A"
         end
 
-        if system
-          item = Star.by_system(system)
-          prefix = "Inserting Primary Star for #{system}:"
+        if system_name
+          item = Star.by_system(system_name)
+          prefix = "Inserting Primary Star for #{system_name}:"
           if item.blank?
             log "#{prefix} creating..."
-            Star.create(system: system, star: star, updater: updater_tag)
+            Star.create(system_name: system_name, star: star, updater: updater_tag)
           else
             log "#{prefix} already has a star"
           end
         else
-          log "Unable to find key fields for #{system} #{star}"
+          log "Unable to find key fields for #{system_name} #{star}"
         end
       end
     end
 
     def update_star_data
       @systems_arr.each do |data|
-        system = data["System Name"].to_s.upcase.strip
-        if system.present?
-          prefix =  "Updating star data for #{system}:"
+        system_name = data["System Name"].to_s.upcase.strip
+        if system_name.present?
+          prefix =  "Updating star data for #{system_name}:"
           attributes = { spectral_class: data["Spectral Class"],
                          spectral_subclass: (data["Spectral Subclass"].to_i if data["Spectral Subclass"].present?),
                          solar_mass: number(data["Mass [Sol M]"]),
@@ -201,7 +201,7 @@ namespace :import do
                          notes: data["Notes"],
                          surface_temp: number(data["Surf. T [K]"])
                        }
-          item = Star.by_system(system).first
+          item = Star.by_system(system_name).first
           if item.present?
             if item.updater == updater_tag
               log "#{prefix} Updating"
@@ -218,16 +218,16 @@ namespace :import do
     
     def insert_worlds
       @worlds_arr.each do |data|
-        system = data["System name"] if data
+        system_name = data["System name"] if data
         world  = data["Body"] if data
 
-        if system && world
-          item = World.where("UPPER(TRIM(system)) = :system AND
+        if system_name && world
+          item = World.where("UPPER(TRIM(system_name)) = :system_name AND
                              UPPER(TRIM(world)) = :world",
-                             { system:  system.upcase.strip,
+                             { system_name:  system_name.upcase.strip,
                                world:   world.upcase.strip }).first
-          prefix = "World #{system} #{world}:"
-          attributes = { system: system, 
+          prefix = "World #{system_name} #{world}:"
+          attributes = { system_name: system_name, 
                          world: world, 
                          updater: updater_tag,
                          world_type: data["World Type"],
@@ -259,14 +259,14 @@ namespace :import do
             end
           end
         else
-          log "Unable to find key fields for #{system} #{world}"
+          log "Unable to find key fields for #{system_name} #{world}"
         end
       end
     end
 
     def insert_basecamps_data
       @surveys_arr.each do |data|
-        world = World.where("UPPER(system || ' ' || world) = ?", data["World"].to_s.upcase)
+        world = World.where("UPPER(system_name || ' ' || world) = ?", data["World"].to_s.upcase)
                      .first
         if world
           prefix = "Inserting Basecamp for #{ data['World']} at #{
@@ -310,7 +310,7 @@ namespace :import do
           commander = survey["Surveyed By"]
           resource = data["Resource"] || "AGGREGATED"
           
-          world = World.where("upper(system || ' ' || world) = ?", full_system.to_s.upcase)
+          world = World.where("upper(system_name || ' ' || world) = ?", full_system.to_s.upcase)
                        .first
           bc = Basecamp.by_world_id(world.try(:id))
                        .where("landing_zone_lat": survey["Landing Zone Latitude"])

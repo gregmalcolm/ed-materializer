@@ -59,7 +59,7 @@ describe Api::V2::SystemsController, type: :controller do
       before { create :system, new_system[:system] }
       before { post :create, new_system, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["system"]).to include "has already been taken for this system" }
+      it { expect(json["system"]).to include "name has already been taken for this system" }
     end
 
     context "when checking for clashing systems, take into account casing" do
@@ -70,7 +70,7 @@ describe Api::V2::SystemsController, type: :controller do
       before { create :system, new_system[:system] }
       before { post :create, clashing_system, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["system"]).to include "has already been taken for this system" }
+      it { expect(json["system"]).to include "name has already been taken for this system" }
     end
 
     context "as a normal user" do

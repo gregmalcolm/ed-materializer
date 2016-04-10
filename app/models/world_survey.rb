@@ -3,6 +3,9 @@ class WorldSurvey < ActiveRecord::Base
   has_paper_trail
 
   belongs_to :world
+  belongs_to :system
+
+  before_validation :update_system_id
 
   scope :by_world_id,   ->(world_id) { where(world_id: world_id) if world_id }
 
@@ -21,6 +24,12 @@ class WorldSurvey < ActiveRecord::Base
                   .not_me(self.id)
                   .any?
       errors.add(:world_survey, "has already been taken for this name for this world")
+    end
+  end
+
+  def update_system_id
+    if self.system_id.blank? and self.world
+      self.system_id = self.world.system_id if self.world
     end
   end
 end

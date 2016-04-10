@@ -2,7 +2,10 @@ class SiteSurvey < ActiveRecord::Base
   has_paper_trail
   
   after_initialize :default_values  
+  before_validation :update_system_id
+  
   belongs_to :basecamp
+  belongs_to :system
   delegate :world, :to => :basecamp, :allow_nil => true
 
   scope :by_world_id, ->(world_id) { joins(:basecamp).where("basecamps.world_id = ?", world_id) if world_id }
@@ -21,6 +24,12 @@ class SiteSurvey < ActiveRecord::Base
 
   def default_values
     self.resource ||= "AGGREGATED"
+  end
+  
+  def update_system_id
+    if self.system_id.blank? and self.world
+      self.system_id = self.world.system_id if self.world
+    end
   end
 end
 
