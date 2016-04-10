@@ -142,6 +142,15 @@ describe Api::V2::WorldsController, type: :controller do
       it { expect(worlds[1].updater).to be == "Marlon Blake" }
     end
 
+    context "attempting to rename a system name" do
+      let(:user) { users[:marlon] }
+      before { updated_world[:world][:system_name] = "Basingstoke" }
+      before { put :update, updated_world, auth_tokens }
+      
+      it { expect(response).to have_http_status(422) }
+      it { expect(json["system_name"]).to include "cannot be renamed this way" }
+    end
+
     context "unauthenticated" do
       before { put :update, updated_world }
       it { expect(response).to have_http_status(401) }

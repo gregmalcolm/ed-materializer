@@ -4,6 +4,7 @@ class World < ActiveRecord::Base
 
   before_save :update_system
 
+  belongs_to :system
   has_many :basecamps, dependent: :destroy
   has_one :world_survey, dependent: :destroy
   has_many :site_surveys, through: :basecamps
@@ -46,8 +47,9 @@ class World < ActiveRecord::Base
     if parent
       parent.update(attributes)
     else
-      System.create(attributes)
+      parent = System.create(attributes)
     end
+    self.system_id = parent.id
   end
 end
 

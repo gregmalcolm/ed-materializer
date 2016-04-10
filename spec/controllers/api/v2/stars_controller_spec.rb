@@ -156,6 +156,15 @@ describe Api::V2::StarsController, type: :controller do
       it { expect(response).to have_http_status(204) }
       it { expect(stars[1].updater).to be == "Marlon Blake" }
     end
+    
+    context "attempting to rename a system name" do
+      let(:user) { users[:marlon] }
+      before { updated_star[:star][:system_name] = "David Braben" }
+      before { put :update, updated_star, auth_tokens }
+      
+      it { expect(response).to have_http_status(422) }
+      it { expect(json["system_name"]).to include "cannot be renamed this way" }
+    end
 
     context "unauthenticated" do
       before { put :update, updated_star }

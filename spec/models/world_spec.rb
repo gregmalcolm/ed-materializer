@@ -22,6 +22,7 @@ describe World do
       let(:system) { System.where(system: "Cybertron").first }
       it { expect(system).to be_present }
       it { expect(system.updater).to be == "Jameson"  }
+      it { expect(subject.system).to be == system  }
     end
 
     context "when a compatible system exists" do
@@ -30,6 +31,7 @@ describe World do
       let(:system) { System.where(system: "Cybertron").first }
       it { expect(system.system).to be == "Cybertron" }
       it { expect(system.updater).to be == "Jameson"  }
+      it { expect(subject.system).to be == system  }
     end
   end
   

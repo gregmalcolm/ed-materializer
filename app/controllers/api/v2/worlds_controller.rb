@@ -33,8 +33,9 @@ module Api
 
       def update
         @world = World.find(params[:id])
+        validate_system_name
 
-        if @world.update(world_params)
+        if @world.errors.blank? && @world.update(world_params)
           head :no_content
         else
           render json: @world.errors, status: :unprocessable_entity
@@ -99,6 +100,13 @@ module Api
 
       def per_page
         params[:per_page] || 100
+      end
+
+      def validate_system_name
+        if world_params[:system_name] &&
+        world_params[:system_name].to_s.upcase != @world.system_name.to_s.upcase
+          @world.errors.add(:system_name, "cannot be renamed this way")
+        end   
       end
     end
   end

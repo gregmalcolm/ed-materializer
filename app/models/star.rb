@@ -4,6 +4,8 @@ class Star < ActiveRecord::Base
   
   before_save :update_system
   
+  belongs_to :system
+  
   scope :by_system,     ->(system_name){ where("UPPER(TRIM(system_name))=?", 
                                                system_name.to_s.upcase.strip ) if system_name }
   scope :by_star,       ->(star)    { where("COALESCE(UPPER(TRIM(star)),'')=?", star.to_s.upcase.strip ) if star }
@@ -37,8 +39,9 @@ class Star < ActiveRecord::Base
     if parent
       parent.update(attributes)
     else
-      System.create(attributes)
+      parent = System.create(attributes)
     end
+    self.system_id = parent.id
   end
 end
 

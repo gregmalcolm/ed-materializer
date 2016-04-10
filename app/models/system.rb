@@ -2,6 +2,11 @@ class System < ActiveRecord::Base
   include Updater
   has_paper_trail
   
+  has_many :stars
+  has_many :worlds
+
+  before_save :update_children_system_names
+
   scope :by_system, ->(system) { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
@@ -30,8 +35,13 @@ class System < ActiveRecord::Base
     if System.by_system(self.system)
              .not_me(self.id)
              .any?
-      errors.add(:system, "has already been taken for this system")
+      errors.add(:system, "name has already been taken for this system")
     end
+  end
+  
+  def update_children_system_names
+    Star.where(system_id: self.id).update_all(system_name: self.system)
+    World.where(system_id: self.id).update_all(system_name: self.system)
   end
 end
 

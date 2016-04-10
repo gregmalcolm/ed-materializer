@@ -34,8 +34,9 @@ module Api
 
       def update
         @star = Star.find(params[:id])
+        validate_system_name
 
-        if @star.update(star_params)
+        if @star.errors.blank? && @star.update(star_params)
           head :no_content
         else
           render json: @star.errors, status: :unprocessable_entity
@@ -85,10 +86,17 @@ module Api
             .updated_before(params[:updated_before])
             .updated_after(params[:updated_after])
       end
-    end
 
-    def per_page
-      params[:per_page] || 100
+      def per_page
+        params[:per_page] || 100
+      end
+
+      def validate_system_name
+        if star_params[:system_name] &&
+        star_params[:system_name].to_s.upcase != @star.system_name.to_s.upcase
+          @star.errors.add(:system_name, "cannot be renamed this way")
+        end   
+      end
     end
   end
 end
