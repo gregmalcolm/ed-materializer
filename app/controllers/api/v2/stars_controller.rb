@@ -80,7 +80,8 @@ module Api
       end
 
       def filtered
-        Star.by_system(params[:system])
+        Star.by_system_id(params[:system_id])
+            .by_system(params[:system])
             .by_updater(params[:updater])
             .by_star(params[:star])
             .updated_before(params[:updated_before])

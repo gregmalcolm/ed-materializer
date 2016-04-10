@@ -9,6 +9,7 @@ class World < ActiveRecord::Base
   has_one :world_survey, dependent: :destroy
   has_many :site_surveys, through: :basecamps
 
+  scope :by_system_id,  ->(system_id) { where(system_id: system_id) if system_id }
   scope :by_system,     ->(system_name) { where("UPPER(TRIM(system_name))=?", 
                                                 system_name.to_s.upcase.strip ) if system_name }
   scope :by_world,      ->(world)       { where("UPPER(TRIM(world))=?", 

@@ -7,6 +7,18 @@ Rails.application.routes.draw do
           get :download
           get :md5
         end
+        resources :stars, except: [:new, :edit] do
+          collection do
+            get :download
+            get :md5
+          end
+        end
+        resources :worlds, except: [:new, :edit] do
+          collection do
+            get :download
+            get :md5
+          end
+        end
       end
       resources :stars, except: [:new, :edit] do
         collection do

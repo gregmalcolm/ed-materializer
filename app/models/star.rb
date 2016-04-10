@@ -6,6 +6,7 @@ class Star < ActiveRecord::Base
   
   belongs_to :system
   
+  scope :by_system_id,  ->(system_id) { where(system_id: system_id) if system_id }
   scope :by_system,     ->(system_name){ where("UPPER(TRIM(system_name))=?", 
                                                system_name.to_s.upcase.strip ) if system_name }
   scope :by_star,       ->(star)    { where("COALESCE(UPPER(TRIM(star)),'')=?", star.to_s.upcase.strip ) if star }

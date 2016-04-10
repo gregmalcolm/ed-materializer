@@ -91,7 +91,8 @@ module Api
       end
 
       def filtered
-        World.by_system(params[:system])
+        World.by_system_id(params[:system_id])
+             .by_system(params[:system])
              .by_updater(params[:updater])
              .by_world(params[:world])
              .updated_before(params[:updated_before])
