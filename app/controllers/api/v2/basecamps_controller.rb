@@ -12,9 +12,9 @@ module Api
       }
 
       def index
-        @basecamps = filtered.page(page).
-                              per(per_page).
-                              order("updated_at")
+        @basecamps = filtered.page(page)
+                             .per(per_page)
+                             .order(ordering)
         render json: @basecamps, serializer: PaginatedSerializer,
                                  each_serializer: BasecampSerializer
       end

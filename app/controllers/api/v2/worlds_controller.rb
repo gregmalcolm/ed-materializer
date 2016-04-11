@@ -12,7 +12,7 @@ module Api
       def index
         @worlds = filtered.page(page)
                           .per(per_page)
-                          .order("updated_at")
+                          .order(ordering)
         render json: @worlds, serializer: PaginatedSerializer,
                               each_serializer: WorldSerializer
       end

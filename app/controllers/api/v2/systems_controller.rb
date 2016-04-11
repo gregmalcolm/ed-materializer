@@ -13,7 +13,7 @@ module Api
       def index
         @systems = filtered.page(page)
                            .per(per_page)
-                           .order("updated_at")
+                           .order(ordering)
         render json: @systems, serializer: PaginatedSerializer,
                                each_serializer: SystemSerializer
       end

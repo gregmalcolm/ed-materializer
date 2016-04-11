@@ -16,11 +16,10 @@ module Api
                           params[:user])
       }
 
-
       def index
         @site_surveys = filtered.page(page).
                                  per(per_page).
-                                 order("updated_at")
+                                 order(ordering)
         render json: @site_surveys, serializer: PaginatedSerializer,
                                     each_serializer: SiteSurveySerializer
       end
