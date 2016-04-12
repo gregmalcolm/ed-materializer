@@ -5,6 +5,7 @@ class SiteSurveySerializer < ActiveModel::Serializer
              :resource,
              :notes,
              :image_url,
+             :surveyed_by,
              :carbon,
              :iron,
              :nickel,

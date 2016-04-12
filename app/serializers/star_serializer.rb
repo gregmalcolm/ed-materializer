@@ -14,6 +14,7 @@ class StarSerializer < ActiveModel::Serializer
              :luminosity,
              :notes,
              :image_url,
+             :updaters,
              :creator,
              :updated_at,
              :created_at

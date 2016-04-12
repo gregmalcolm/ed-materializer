@@ -327,6 +327,7 @@ namespace :import do
           ss.assign_attributes(basecamp_id: bc.try(:id),
                                commander: commander,
                                resource: resource,
+                               surveyed_by: [commander],
                                carbon: data["C"],
                                iron: data["Fe"],
                                nickel: data["Ni"],
@@ -379,7 +380,10 @@ namespace :import do
               materials.each do |m|
                 ws[m] = true if survey[m].to_i > 0
               end
-              ws["updaters"] = [survey.commander] if survey.commander
+              if survey.commander
+                ws.surveyed_by = survey.surveyed_by
+                ws.updaters = [survey.commander] 
+              end
             end
             if ws.save
               log "#{prefix}: Success"  

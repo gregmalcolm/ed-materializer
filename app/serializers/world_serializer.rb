@@ -1,7 +1,8 @@
 class WorldSerializer < ActiveModel::Serializer
   attribute  :id
   attribute  :system_name, key: :system
-  attributes :updater,
+  attributes :system_id,
+             :updater,
              :world,
              :world_type,
              :mass,
@@ -23,6 +24,7 @@ class WorldSerializer < ActiveModel::Serializer
              :atmosphere_type,
              :notes,
              :image_url,
+             :updaters,
              :creator,
              :updated_at,
              :created_at

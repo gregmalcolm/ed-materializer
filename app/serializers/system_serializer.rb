@@ -9,6 +9,7 @@ class SystemSerializer < ActiveModel::Serializer
              :notes,
              :image_url,
              :tags,
+             :updaters,
              :creator,
              :updated_at,
              :created_at

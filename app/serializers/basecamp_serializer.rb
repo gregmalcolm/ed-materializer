@@ -12,6 +12,7 @@ class BasecampSerializer < ActiveModel::Serializer
              :landing_zone_lon,
              :notes,
              :image_url,
+             :updaters,
              :creator,
              :updated_at,
              :created_at
