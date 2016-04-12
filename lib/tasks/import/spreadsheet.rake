@@ -136,7 +136,7 @@ namespace :import do
 
     def update_systems
       @systems_arr.each do |data|
-        system = data["System"] if data
+        system = data["System Name"] if data
         if system
           item = System.by_system(system).first_or_initialize
           prefix = item.id ? "Updating " : "Inserting"
@@ -158,6 +158,8 @@ namespace :import do
               log "#{prefix}: Failed"  
             end
           end
+        else
+          log "System missing: #{data.inspect}"
         end
       end
     end
