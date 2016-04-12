@@ -57,4 +57,4 @@ https://forums.frontier.co.uk/showthread.php?t=242152&p=3754329#post3754329
 
 You also ping me (As @Marlon Blake)on Discord chat server:
 
-https://discord.gg/0wESJJF3brcAk9Za
+https://discord.gg/0wESJJF3brdY0NVK
