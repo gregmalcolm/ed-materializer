@@ -361,39 +361,6 @@ namespace :import do
         end
       end
     end
-    
-    def insert_world_surveys_data
-      @worlds_arr.each do |data|
-        world = World.by_system(data["System name"])
-                     .by_world(data["Body"])
-                     .first
-        if world
-          ws = WorldSurvey.by_world_id(world.id).first_or_initialize
-          prefix = ws.id ? "Updating " : "Inserting"
-          prefix << " WorldSurvey record for #{data["World Name"]}"
-          if ws.updater && ws.updater != updater_tag 
-            log "#{prefix}: has been changed outside of the spreadsheet, ignoring"
-          else
-            ws.updater = updater_tag
-            ss= world.surveys
-            ss.each do |survey|
-              materials.each do |m|
-                ws[m] = true if survey[m].to_i > 0
-              end
-              if survey.commander
-                ws.surveyed_by = survey.surveyed_by
-                ws.updaters = [survey.commander] 
-              end
-            end
-            if ws.save
-              log "#{prefix}: Success"  
-            else
-              log "#{prefix}: Failed"  
-            end
-          end
-        end
-      end
-    end
 
     task :download => :environment do
       log "Downloading Distant Worlds Spreadsheet..."
@@ -431,7 +398,6 @@ namespace :import do
       Rake::Task["import:dw_spreadsheet:update:worlds"].invoke
       Rake::Task["import:dw_spreadsheet:update:basecamps"].invoke
       Rake::Task["import:dw_spreadsheet:update:surveys"].invoke
-      Rake::Task["import:dw_spreadsheet:update:world_surveys"].invoke
       log "Done!"
     end
 
@@ -475,14 +441,6 @@ namespace :import do
         insert_surveys_data
       
         log "Done! SiteSurvey count is now at #{SiteSurvey.count}"
-      end
-      
-      task :world_surveys => "import:dw_spreadsheet:prepare" do
-        log "Updating World Surveys table"
-      
-        insert_world_surveys_data
-      
-        log "Done! WorldSurvey count is now at #{WorldSurvey.count}"
       end
     end
 

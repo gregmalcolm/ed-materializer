@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160413013607) do
+ActiveRecord::Schema.define(version: 20160413015858) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -71,8 +71,8 @@ ActiveRecord::Schema.define(version: 20160413013607) do
 
   create_table "surveys", force: :cascade do |t|
     t.integer  "basecamp_id"
-    t.string   "commander",   limit: 50
-    t.string   "resource",    limit: 20
+    t.string   "commander",         limit: 50
+    t.string   "resource",          limit: 20
     t.integer  "carbon"
     t.integer  "iron"
     t.integer  "nickel"
@@ -98,12 +98,16 @@ ActiveRecord::Schema.define(version: 20160413013607) do
     t.integer  "technetium"
     t.integer  "tellurium"
     t.integer  "yttrium"
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
     t.text     "notes"
     t.string   "image_url"
-    t.string   "surveyed_by",                         array: true
+    t.string   "surveyed_by",                               array: true
     t.integer  "system_id"
+    t.integer  "world_id"
+    t.datetime "surveyed_at"
+    t.boolean  "error_flag"
+    t.text     "error_description"
   end
 
   add_index "surveys", ["basecamp_id", "commander", "resource", "updated_at"], name: "index_ssurveys_on_bc_com_res_upd", using: :btree
@@ -113,6 +117,7 @@ ActiveRecord::Schema.define(version: 20160413013607) do
   add_index "surveys", ["surveyed_by"], name: "index_surveys_on_surveyed_by", using: :gin
   add_index "surveys", ["system_id"], name: "index_surveys_on_system_id", using: :btree
   add_index "surveys", ["updated_at"], name: "index_surveys_on_updated_at", using: :btree
+  add_index "surveys", ["world_id"], name: "index_surveys_on_world_id", using: :btree
 
   create_table "systems", force: :cascade do |t|
     t.string   "system"

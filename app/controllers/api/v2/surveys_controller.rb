@@ -118,11 +118,11 @@ module Api
 
       def filtered
         Survey.by_world_id(params[:world_id])
-                  .by_basecamp_id(params[:basecamp_id])
-                  .by_resource(params[:resource])
-                  .by_commander(params[:commander])
-                  .updated_before(params[:updated_before])
-                  .updated_after(params[:updated_after])
+              .by_basecamp_id(params[:basecamp_id])
+              .by_resource(params[:resource])
+              .by_commander(params[:commander])
+              .updated_before(params[:updated_before])
+              .updated_after(params[:updated_after])
       end
       
       def per_page
