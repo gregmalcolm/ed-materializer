@@ -306,54 +306,56 @@ namespace :import do
 
     def insert_surveys_data
       @survey_logs_arr.each do |data|
-        survey = @surveys_dict[data["Survey / World"]]
-        if survey
-          full_system = survey["World"]
-          commander = survey["Surveyed By"]
+        survey_data = @surveys_dict[data["Survey / World"]]
+        if survey_data
+          full_system = survey_data["World"]
+          commander = survey_data["Surveyed By"]
           resource = data["Resource"] || "AGGREGATED"
           
           world = World.where("upper(system_name || ' ' || world) = ?", full_system.to_s.upcase)
                        .first
           bc = Basecamp.by_world_id(world.try(:id))
-                       .where("landing_zone_lat": survey["Landing Zone Latitude"])
-                       .where("landing_zone_lon": survey["Landing Zone Longitude"])
+                       .where("landing_zone_lat": survey_data["Landing Zone Latitude"])
+                       .where("landing_zone_lon": survey_data["Landing Zone Longitude"])
                        .first
-          ss = SiteSurvey.by_basecamp_id(bc.try(:id))
+          survey = Survey.by_basecamp_id(bc.try(:id))
                          .by_commander(commander)
                          .by_resource(resource)
                          .first_or_initialize
-          prefix = ss.id ? "Updating " : "Inserting "
-          prefix << " SiteSurvey record for #{full_system} (bc:#{bc.try(:id)} cmdr:#{commander} res:#{resource.to_s}):"
-          ss.assign_attributes(basecamp_id: bc.try(:id),
-                               commander: commander,
-                               resource: resource,
-                               surveyed_by: [commander],
-                               carbon: data["C"],
-                               iron: data["Fe"],
-                               nickel: data["Ni"],
-                               phosphorus: data["P"],
-                               sulphur: data["S"],
-                               arsenic: data["As"],
-                               chromium: data["Cr"],
-                               germanium: data["Ge"],
-                               manganese: data["Mn"],
-                               selenium: data["Se"],
-                               vanadium: data["V"],
-                               zinc: data["Zn"],
-                               zirconium: data["Zr"],
-                               cadmium: data["Cd"],
-                               mercury: data["Hg"],
-                               molybdenum: data["Mo"],
-                               niobium: data["Nb"],
-                               tin: data["Sn"],
-                               tungsten: data["W"],
-                               antimony: data["Sb"],
-                               polonium: data["Po"],
-                               ruthenium: data["Ru"],
-                               technetium: data["Tc"],
-                               tellurium: data["Te"],
-                               yttrium: data["Y"])
-          if ss.save
+          prefix = survey.id ? "Updating " : "Inserting "
+          prefix << " Survey record for #{full_system} (bc:#{bc.try(:id)} cmdr:#{commander} res:#{resource.to_s}):"
+          survey.assign_attributes(basecamp_id: bc.try(:id),
+                                   world_id: world.try(:id),
+                                   commander: commander,
+                                   resource: resource,
+                                   surveyed_by: [commander],
+                                   surveyed_at: survey_data["Date"],
+                                   carbon: data["C"],
+                                   iron: data["Fe"],
+                                   nickel: data["Ni"],
+                                   phosphorus: data["P"],
+                                   sulphur: data["S"],
+                                   arsenic: data["As"],
+                                   chromium: data["Cr"],
+                                   germanium: data["Ge"],
+                                   manganese: data["Mn"],
+                                   selenium: data["Se"],
+                                   vanadium: data["V"],
+                                   zinc: data["Zn"],
+                                   zirconium: data["Zr"],
+                                   cadmium: data["Cd"],
+                                   mercury: data["Hg"],
+                                   molybdenum: data["Mo"],
+                                   niobium: data["Nb"],
+                                   tin: data["Sn"],
+                                   tungsten: data["W"],
+                                   antimony: data["Sb"],
+                                   polonium: data["Po"],
+                                   ruthenium: data["Ru"],
+                                   technetium: data["Tc"],
+                                   tellurium: data["Te"],
+                                   yttrium: data["Y"])
+          if survey.save
             log "#{prefix}: Success"  
           else
             log "#{prefix}: Failed"  
@@ -436,11 +438,11 @@ namespace :import do
       end
       
       task :surveys => "import:dw_spreadsheet:prepare" do
-        log "Updating Site Surveys table"
+        log "Updating Surveys table"
       
         insert_surveys_data
       
-        log "Done! SiteSurvey count is now at #{SiteSurvey.count}"
+        log "Done! Survey count is now at #{Survey.count}"
       end
     end
 

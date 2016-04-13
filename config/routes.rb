@@ -43,6 +43,12 @@ Rails.application.routes.draw do
             get :md5
           end
         end
+        resources :surveys, except: [:new, :edit] do
+          collection do
+            get :download
+            get :md5
+          end
+        end
       end
       resources :basecamps, except: [:new, :edit] do
         collection do

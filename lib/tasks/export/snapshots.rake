@@ -10,6 +10,7 @@ namespace :export do
     Rake::Task["export:snapshot:world_surveys"].invoke
     Rake::Task["export:snapshot:basecamps"].invoke
     Rake::Task["export:snapshot:surveys"].invoke
+    Rake::Task["export:snapshot:systems"].invoke
     
     log "Done!" 
   end
@@ -61,8 +62,13 @@ namespace :export do
     end
     
     task :surveys => :environment do
-      log "Site Surveys..."
-      make_snapshot("SiteSurvey")
+      log "Surveys..."
+      make_snapshot("Survey")
+    end
+    
+    task :systems => :environment do
+      log "Systems..."
+      make_snapshot("System")
     end
   end
 end
