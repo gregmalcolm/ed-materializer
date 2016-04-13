@@ -1,76 +1,76 @@
 module Api
   module V2
-    class SiteSurveysController < ApplicationController
+    class SurveysController < ApplicationController
       include DataDumpActions
       before_action :authorize_user!, except: [:index, :show, :download, :md5]
       
-      before_action :set_site_survey, only: [:show, :update, :destroy]
+      before_action :set_survey, only: [:show, :update, :destroy]
       before_action :set_basecamp, only: [:index, :show, :update, :destroy]
       
       before_action only: [:update] {
-        authorize_change!(@site_survey.commander,
-                          params[:site_survey][:commander])
+        authorize_change!(@survey.commander,
+                          params[:survey][:commander])
       }
       before_action only: [:destroy] {
-        authorize_change!(@site_survey.commander,
+        authorize_change!(@survey.commander,
                           params[:user])
       }
 
       def index
-        @site_surveys = filtered.page(page).
+        @surveys = filtered.page(page).
                                  per(per_page).
                                  order(ordering)
-        render json: @site_surveys, serializer: PaginatedSerializer,
-                                    each_serializer: SiteSurveySerializer
+        render json: @surveys, serializer: PaginatedSerializer,
+                                    each_serializer: SurveySerializer
       end
 
       def show
-        render json: @site_survey
+        render json: @survey
       end
 
       def create
-        @site_survey = SiteSurvey.new(new_site_survey_params)
+        @survey = Survey.new(new_survey_params)
 
-        if @site_survey.save
-          render json: @site_survey, status: :created, 
-                                     location: @site_survey
+        if @survey.save
+          render json: @survey, status: :created, 
+                                     location: @survey
         else
-          render json: @site_survey.errors, status: :unprocessable_entity
+          render json: @survey.errors, status: :unprocessable_entity
         end
       end
 
       def update
-        @site_survey = SiteSurvey.find(params[:id])
+        @survey = Survey.find(params[:id])
 
-        if @site_survey.update(edit_site_survey_params)
+        if @survey.update(edit_survey_params)
           head :no_content
         else
-          render json: @site_survey.errors, status: :unprocessable_entity
+          render json: @survey.errors, status: :unprocessable_entity
         end
       end
 
       def destroy
-        @site_survey.destroy
+        @survey.destroy
 
         head :no_content
       end
 
       private
 
-      def set_site_survey
-        @site_survey = SiteSurvey.find(params[:id])
+      def set_survey
+        @survey = Survey.find(params[:id])
       end
       
       def set_basecamp
         @basecamp = if params[:basecamp_id]
                       Basecamp.find(params[:basecamp_id]) 
                     else
-                      @site_survey.basecamp if @site_survey
+                      @survey.basecamp if @survey
                     end
       end
 
-      def site_survey_params
-        params.require(:site_survey)
+      def survey_params
+        params.require(:survey)
               .permit(:basecamp_id,
                       :commander,
                       :resource, 
@@ -103,21 +103,21 @@ module Api
                       :yttrium)
       end
 
-      def new_site_survey_params
+      def new_survey_params
         {
           basecamp_id: params[:basecamp_id],
           commander: params[:commander]
-        }.merge(site_survey_params)
+        }.merge(survey_params)
       end
       
-      def edit_site_survey_params
-        params = site_survey_params
-        params[:site_survey].delete(:commander) if params[:site_survey]
+      def edit_survey_params
+        params = survey_params
+        params[:survey].delete(:commander) if params[:survey]
         params
       end
 
       def filtered
-        SiteSurvey.by_world_id(params[:world_id])
+        Survey.by_world_id(params[:world_id])
                   .by_basecamp_id(params[:basecamp_id])
                   .by_resource(params[:resource])
                   .by_commander(params[:commander])

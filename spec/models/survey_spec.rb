@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe SiteSurvey do
-  subject { create :site_survey, commander: "Maia Posidana", basecamp: basecamp }
+describe Survey do
+  subject { create :survey, commander: "Maia Posidana", basecamp: basecamp }
  
   let!(:system) { create :system, system: "Potataho" }
   let(:world) { create :world, system_name: "Potataho", world: "Spudworld" }

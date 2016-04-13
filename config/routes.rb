@@ -49,14 +49,14 @@ Rails.application.routes.draw do
           get :download
           get :md5
         end
-        resources :site_surveys, except: [:new, :edit] do
+        resources :surveys, except: [:new, :edit] do
           collection do
             get :download
             get :md5
           end
         end
       end
-      resources :site_surveys, except: [:new, :edit] do
+      resources :surveys, except: [:new, :edit] do
         collection do
           get :download
           get :md5

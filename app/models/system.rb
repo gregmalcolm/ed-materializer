@@ -6,7 +6,7 @@ class System < ActiveRecord::Base
   has_many :worlds
   has_many :basecamps, through: :worlds
   has_many :world_surveys, through: :worlds
-  has_many :site_surveys, through: :basecamps
+  has_many :surveys, through: :basecamps
 
   before_save :update_children_system_names
 

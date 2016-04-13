@@ -7,7 +7,7 @@ class World < ActiveRecord::Base
   belongs_to :system
   has_many :basecamps, dependent: :destroy
   has_one :world_survey, dependent: :destroy
-  has_many :site_surveys, through: :basecamps
+  has_many :surveys, through: :basecamps
 
   scope :by_system_id,  ->(system_id) { where(system_id: system_id) if system_id }
   scope :by_system,     ->(system_name) { where("UPPER(TRIM(system_name))=?", 

@@ -304,7 +304,7 @@ namespace :import do
       end
     end
 
-    def insert_site_surveys_data
+    def insert_surveys_data
       @survey_logs_arr.each do |data|
         survey = @surveys_dict[data["Survey / World"]]
         if survey
@@ -375,7 +375,7 @@ namespace :import do
             log "#{prefix}: has been changed outside of the spreadsheet, ignoring"
           else
             ws.updater = updater_tag
-            ss= world.site_surveys
+            ss= world.surveys
             ss.each do |survey|
               materials.each do |m|
                 ws[m] = true if survey[m].to_i > 0
@@ -430,7 +430,7 @@ namespace :import do
       Rake::Task["import:dw_spreadsheet:update:stars"].invoke
       Rake::Task["import:dw_spreadsheet:update:worlds"].invoke
       Rake::Task["import:dw_spreadsheet:update:basecamps"].invoke
-      Rake::Task["import:dw_spreadsheet:update:site_surveys"].invoke
+      Rake::Task["import:dw_spreadsheet:update:surveys"].invoke
       Rake::Task["import:dw_spreadsheet:update:world_surveys"].invoke
       log "Done!"
     end
@@ -469,10 +469,10 @@ namespace :import do
         log "Done! Basecamp count is now at #{Basecamp.count}"
       end
       
-      task :site_surveys => "import:dw_spreadsheet:prepare" do
+      task :surveys => "import:dw_spreadsheet:prepare" do
         log "Updating Site Surveys table"
       
-        insert_site_surveys_data
+        insert_surveys_data
       
         log "Done! SiteSurvey count is now at #{SiteSurvey.count}"
       end

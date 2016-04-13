@@ -1,4 +1,4 @@
-class SiteSurvey < ActiveRecord::Base
+class Survey < ActiveRecord::Base
   has_paper_trail
   
   after_initialize :default_values  

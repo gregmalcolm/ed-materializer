@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :site_survey do
+  factory :survey do
     basecamp
     commander "Jameson"
     resource "Outcrop 2"

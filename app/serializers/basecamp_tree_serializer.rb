@@ -1,3 +1,3 @@
 class BasecampTreeSerializer < BasecampSerializer
-  has_many :site_surveys
+  has_many :surveys
 end

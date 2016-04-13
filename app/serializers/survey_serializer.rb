@@ -1,4 +1,4 @@
-class SiteSurveySerializer < ActiveModel::Serializer
+class SurveySerializer < ActiveModel::Serializer
   attributes :id,
              :basecamp_id,
              :commander,

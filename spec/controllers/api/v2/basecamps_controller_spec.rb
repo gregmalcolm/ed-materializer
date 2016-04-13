@@ -198,7 +198,7 @@ describe Api::V2::BasecampsController, type: :controller do
       end
       
       context "with child surveys" do
-        let!(:site_survey) { create(:site_survey, basecamp: basecamps[0]) }
+        let!(:survey) { create(:survey, basecamp: basecamps[0]) }
         before { delete :destroy, {world_id: worlds[0].id,
                                    id: id,
                                    user: "Nexolek"}, auth_tokens }
@@ -235,12 +235,12 @@ describe Api::V2::BasecampsController, type: :controller do
     context "as admin" do
       let(:user) { users[:admin] }
       context "disregard children" do
-        let!(:site_survey) { create(:site_survey, basecamp: basecamps[0]) }
+        let!(:survey) { create(:survey, basecamp: basecamps[0]) }
         before { delete :destroy, {world_id: worlds[0].id,
                                    id: id}, auth_tokens }
         it { expect(response).to have_http_status(204) }
         it { expect(Basecamp.where(id: id).any?).to be false }
-        it { expect(SiteSurvey.where(id: site_survey.id).any?).to be false }
+        it { expect(Survey.where(id: survey.id).any?).to be false }
       end
     end
     

@@ -1,5 +1,5 @@
-module SiteSurveysHelper
-  def spawn_site_surveys(basecamp1: nil, basecamp2:nil)
+module SurveysHelper
+  def spawn_surveys(basecamp1: nil, basecamp2:nil)
     unless basecamp1
       world1 = create(:world, system: "BYEIA EUQ FB-O E6-3")
       basecamp1 = create(:basecamp1, world: world1, name: "FGE BC1")
@@ -11,7 +11,7 @@ module SiteSurveysHelper
 
     time = Time.now
     [
-      create(:site_survey,
+      create(:survey,
              basecamp: basecamp1,
              commander: "Eoran",
              resource: "Bronzite Chondrite",
@@ -20,7 +20,7 @@ module SiteSurveysHelper
              polonium: 4,
              updated_at: time - 10.days,
              created_at: time - 10.days),
-      create(:site_survey,
+      create(:survey,
              basecamp: basecamp1,
              commander: "Mwerle",
              resource: "Metallic Meteorite",
@@ -31,7 +31,7 @@ module SiteSurveysHelper
              polonium: 2,
              updated_at: time - 5.days,
              created_at: time - 5.days),
-      create(:site_survey,
+      create(:survey,
              basecamp: basecamp2,
              commander: "Michael Darkmoor",
              resource: "AGGREGATED",
