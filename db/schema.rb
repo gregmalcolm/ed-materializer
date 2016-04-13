@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160409225114) do
+ActiveRecord::Schema.define(version: 20160413013607) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,7 +40,36 @@ ActiveRecord::Schema.define(version: 20160409225114) do
   add_index "basecamps", ["world_id", "updater", "updated_at"], name: "index_basecamps_on_wor_updr_upd", using: :btree
   add_index "basecamps", ["world_id"], name: "index_basecamps_on_world_id", using: :btree
 
-  create_table "site_surveys", force: :cascade do |t|
+  create_table "stars", force: :cascade do |t|
+    t.string   "system_name",       limit: 50
+    t.string   "updater",           limit: 50
+    t.string   "star",              limit: 50
+    t.string   "spectral_class"
+    t.string   "spectral_subclass"
+    t.float    "solar_mass"
+    t.float    "solar_radius"
+    t.float    "star_age"
+    t.float    "orbit_period"
+    t.float    "arrival_point"
+    t.string   "luminosity"
+    t.text     "notes"
+    t.integer  "surface_temp"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.string   "image_url"
+    t.string   "updaters",                                  array: true
+    t.integer  "system_id"
+  end
+
+  add_index "stars", ["star"], name: "index_stars_on_star", using: :btree
+  add_index "stars", ["system_id"], name: "index_stars_on_system_id", using: :btree
+  add_index "stars", ["system_name", "star", "updated_at"], name: "index_stars_on_sys_sta_upd", using: :btree
+  add_index "stars", ["system_name"], name: "index_stars_on_system_name", using: :btree
+  add_index "stars", ["updated_at"], name: "index_stars_on_updated_at", using: :btree
+  add_index "stars", ["updater"], name: "index_stars_on_updater", using: :btree
+  add_index "stars", ["updaters"], name: "index_stars_on_updaters", using: :gin
+
+  create_table "surveys", force: :cascade do |t|
     t.integer  "basecamp_id"
     t.string   "commander",   limit: 50
     t.string   "resource",    limit: 20
@@ -77,42 +106,13 @@ ActiveRecord::Schema.define(version: 20160409225114) do
     t.integer  "system_id"
   end
 
-  add_index "site_surveys", ["basecamp_id", "commander", "resource", "updated_at"], name: "index_ssurveys_on_bc_com_res_upd", using: :btree
-  add_index "site_surveys", ["basecamp_id"], name: "index_site_surveys_on_basecamp_id", using: :btree
-  add_index "site_surveys", ["commander"], name: "index_site_surveys_on_commander", using: :btree
-  add_index "site_surveys", ["resource"], name: "index_site_surveys_on_resource", using: :btree
-  add_index "site_surveys", ["surveyed_by"], name: "index_site_surveys_on_surveyed_by", using: :gin
-  add_index "site_surveys", ["system_id"], name: "index_site_surveys_on_system_id", using: :btree
-  add_index "site_surveys", ["updated_at"], name: "index_site_surveys_on_updated_at", using: :btree
-
-  create_table "stars", force: :cascade do |t|
-    t.string   "system_name",       limit: 50
-    t.string   "updater",           limit: 50
-    t.string   "star",              limit: 50
-    t.string   "spectral_class"
-    t.string   "spectral_subclass"
-    t.float    "solar_mass"
-    t.float    "solar_radius"
-    t.float    "star_age"
-    t.float    "orbit_period"
-    t.float    "arrival_point"
-    t.string   "luminosity"
-    t.text     "notes"
-    t.integer  "surface_temp"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-    t.string   "image_url"
-    t.string   "updaters",                                  array: true
-    t.integer  "system_id"
-  end
-
-  add_index "stars", ["star"], name: "index_stars_on_star", using: :btree
-  add_index "stars", ["system_id"], name: "index_stars_on_system_id", using: :btree
-  add_index "stars", ["system_name", "star", "updated_at"], name: "index_stars_on_sys_sta_upd", using: :btree
-  add_index "stars", ["system_name"], name: "index_stars_on_system_name", using: :btree
-  add_index "stars", ["updated_at"], name: "index_stars_on_updated_at", using: :btree
-  add_index "stars", ["updater"], name: "index_stars_on_updater", using: :btree
-  add_index "stars", ["updaters"], name: "index_stars_on_updaters", using: :gin
+  add_index "surveys", ["basecamp_id", "commander", "resource", "updated_at"], name: "index_ssurveys_on_bc_com_res_upd", using: :btree
+  add_index "surveys", ["basecamp_id"], name: "index_surveys_on_basecamp_id", using: :btree
+  add_index "surveys", ["commander"], name: "index_surveys_on_commander", using: :btree
+  add_index "surveys", ["resource"], name: "index_surveys_on_resource", using: :btree
+  add_index "surveys", ["surveyed_by"], name: "index_surveys_on_surveyed_by", using: :gin
+  add_index "surveys", ["system_id"], name: "index_surveys_on_system_id", using: :btree
+  add_index "surveys", ["updated_at"], name: "index_surveys_on_updated_at", using: :btree
 
   create_table "systems", force: :cascade do |t|
     t.string   "system"
