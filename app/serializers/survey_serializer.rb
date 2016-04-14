@@ -7,6 +7,7 @@ class SurveySerializer < ActiveModel::Serializer
              :notes,
              :image_url,
              :surveyed_by,
+             :surveyed_at,
              :carbon,
              :iron,
              :nickel,
