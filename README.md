@@ -55,6 +55,6 @@ You can discuss details on the Elite Dangerous forum here:
 
 https://forums.frontier.co.uk/showthread.php?t=242152&p=3754329#post3754329
 
-You also ping me (As @Marlon Blake)on Discord chat server:
+You also ping me (as @Marlon Blake) on Discord chat server:
 
 https://discord.gg/0wESJJF3brdY0NVK
