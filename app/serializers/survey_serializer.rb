@@ -1,5 +1,6 @@
 class SurveySerializer < ActiveModel::Serializer
   attributes :id,
+             :world_id,
              :basecamp_id,
              :commander,
              :resource,
