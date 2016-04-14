@@ -1,5 +1,6 @@
 FactoryGirl.define do
   factory :world_survey do
+    basecamp
     world
     updater "Jameson"
     carbon true

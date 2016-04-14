@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160413015858) do
+ActiveRecord::Schema.define(version: 20160414024347) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -214,14 +214,12 @@ ActiveRecord::Schema.define(version: 20160413015858) do
     t.boolean  "technetium"
     t.boolean  "tellurium"
     t.boolean  "yttrium"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
-    t.string   "updaters",                 array: true
-    t.string   "surveyed_by",              array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string   "updaters",                array: true
     t.integer  "system_id"
   end
 
-  add_index "world_surveys", ["surveyed_by"], name: "index_world_surveys_on_surveyed_by", using: :gin
   add_index "world_surveys", ["system_id"], name: "index_world_surveys_on_system_id", using: :btree
   add_index "world_surveys", ["updated_at"], name: "index_world_surveys_on_updated_at", using: :btree
   add_index "world_surveys", ["updater"], name: "index_world_surveys_on_updater", using: :btree

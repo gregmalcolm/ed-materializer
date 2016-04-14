@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :basecamp do
-    world
+    world 
     name "Beagle Landing"
     updater "Jameson"
     terrain_hue_1 255
