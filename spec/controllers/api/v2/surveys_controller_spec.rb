@@ -99,7 +99,7 @@ describe Api::V2::SurveysController, type: :controller do
     }
 
     context "adding a survey" do
-      before { get :create, { basecamp_id: basecamps[1].id, 
+      before { get :create, { world_id: worlds[0].id, 
                               survey: new_survey }, auth_tokens }
       it { expect(response).to have_http_status(201) }
       it { expect(survey_json["resource"]).to be == "Outcrop 1" }

@@ -37,7 +37,7 @@ Rails.application.routes.draw do
             get :md5
           end
         end
-        resources :world_surveys, except: [:new, :edit] do
+        resources :world_surveys, only: [:index, :show] do
           collection do
             get :download
             get :md5
@@ -55,12 +55,6 @@ Rails.application.routes.draw do
           get :download
           get :md5
         end
-        resources :surveys, except: [:new, :edit] do
-          collection do
-            get :download
-            get :md5
-          end
-        end
       end
       resources :surveys, except: [:new, :edit] do
         collection do
@@ -68,7 +62,7 @@ Rails.application.routes.draw do
           get :md5
         end
       end
-      resources :world_surveys, except: [:new, :edit] do
+      resources :world_surveys, only: [:index, :show] do
         collection do
           get :download
           get :md5

@@ -13,6 +13,7 @@ module SurveysHelper
     [
       create(:survey,
              basecamp: basecamp1,
+             world: basecamp1.world,
              commander: "Eoran",
              resource: "Bronzite Chondrite",
              carbon: 32,
@@ -22,6 +23,7 @@ module SurveysHelper
              created_at: time - 10.days),
       create(:survey,
              basecamp: basecamp1,
+             world: basecamp1.world,
              commander: "Mwerle",
              resource: "Metallic Meteorite",
              carbon: 2,
@@ -33,6 +35,7 @@ module SurveysHelper
              created_at: time - 5.days),
       create(:survey,
              basecamp: basecamp2,
+             world: basecamp2.world,
              commander: "Michael Darkmoor",
              resource: "AGGREGATED",
              iron: 23,

@@ -8,8 +8,9 @@ describe World do
     let!(:basecamp) { create :basecamp, world: subject, 
                                         name: "Camp Rock Rat",
                                         updater: "Baroness Galaxy"}
-    let!(:surveys) { create_list :survey, 2, basecamp: basecamp,
-                                                       commander: "Coldglider"}
+    let!(:surveys) { create_list :survey, 2, world: subject,
+                                             basecamp: basecamp,
+                                             commander: "Coldglider"}
     before { subject.destroy }
     it { expect(Basecamp.by_updater("Baroness Galaxy").count).to be == 0 }
     it { expect(Survey.by_commander("Coldglider").count).to be == 0 }
@@ -39,6 +40,12 @@ describe World do
     context "with no children" do
       let(:children) { subject.has_children? }
       it { expect( children ).to be false }
+    end
+    
+    context "with a survey" do
+      let!(:survey) { create(:survey, world: subject) }
+      let(:children) { subject.has_children? }
+      it { expect( children ).to be true }
     end
     
     context "with a world_survey" do

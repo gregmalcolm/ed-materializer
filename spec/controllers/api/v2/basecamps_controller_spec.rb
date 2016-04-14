@@ -197,12 +197,12 @@ describe Api::V2::BasecampsController, type: :controller do
         it { expect(Basecamp.where(id: id).any?).to be false }
       end
       
-      context "with child surveys" do
-        let!(:survey) { create(:survey, basecamp: basecamps[0]) }
+      context "with surveys" do
+        let!(:survey) { create(:survey, world: worlds[0]) }
         before { delete :destroy, {world_id: worlds[0].id,
                                    id: id,
                                    user: "Nexolek"}, auth_tokens }
-        it { expect(response).to have_http_status(403) }
+        it { expect(response).to have_http_status(204) }
       end
       
       context "deleting when not the creator" do
@@ -229,18 +229,6 @@ describe Api::V2::BasecampsController, type: :controller do
         let(:user) { create(:user, name: "Olivia Vespera") }
         before { delete :destroy, {id: id}, auth_tokens }
         it { expect(response).to have_http_status(403) }
-      end
-    end
-    
-    context "as admin" do
-      let(:user) { users[:admin] }
-      context "disregard children" do
-        let!(:survey) { create(:survey, basecamp: basecamps[0]) }
-        before { delete :destroy, {world_id: worlds[0].id,
-                                   id: id}, auth_tokens }
-        it { expect(response).to have_http_status(204) }
-        it { expect(Basecamp.where(id: id).any?).to be false }
-        it { expect(Survey.where(id: survey.id).any?).to be false }
       end
     end
     

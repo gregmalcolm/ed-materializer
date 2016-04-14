@@ -43,14 +43,11 @@ module Api
           render json: @basecamp.errors, status: :unprocessable_entity
         end
       end
-
+      
       def destroy
-        if admin? || !@basecamp.has_children?
-          @basecamp.destroy
-          head :no_content
-        else
-          render json: {errors: ["Forbidden because of dependencies."]}, status: 403
-        end
+        @basecamp.destroy
+        
+        head :no_content
       end
 
       private

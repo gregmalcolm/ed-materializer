@@ -5,7 +5,7 @@ module Api
       before_action :authorize_user!, except: [:index, :show, :download, :md5]
       
       before_action :set_survey, only: [:show, :update, :destroy]
-      before_action :set_basecamp, only: [:index, :show, :update, :destroy]
+      before_action :set_world, only: [:index, :show, :update, :destroy]
       
       before_action only: [:update] {
         authorize_change!(@survey.commander,
@@ -33,7 +33,7 @@ module Api
 
         if @survey.save
           render json: @survey, status: :created, 
-                                     location: @survey
+                                location: @survey
         else
           render json: @survey.errors, status: :unprocessable_entity
         end
@@ -61,17 +61,18 @@ module Api
         @survey = Survey.find(params[:id])
       end
       
-      def set_basecamp
-        @basecamp = if params[:basecamp_id]
-                      Basecamp.find(params[:basecamp_id]) 
-                    else
-                      @survey.basecamp if @survey
-                    end
+      def set_world
+        @world = if params[:world_id]
+                   World.find(params[:world_id]) 
+                 else
+                   @survey.world if @survey
+                 end
       end
 
       def survey_params
         params.require(:survey)
-              .permit(:basecamp_id,
+              .permit(:world_id,
+                      :basecamp_id,
                       :commander,
                       :resource, 
                       :notes,
@@ -105,7 +106,7 @@ module Api
 
       def new_survey_params
         {
-          basecamp_id: params[:basecamp_id],
+          world_id: params[:world_id],
           commander: params[:commander]
         }.merge(survey_params)
       end

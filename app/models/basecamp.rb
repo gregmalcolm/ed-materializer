@@ -3,7 +3,7 @@ class Basecamp < ActiveRecord::Base
   has_paper_trail
 
   belongs_to :world
-  has_many :surveys, dependent: :destroy
+  has_many :surveys
 
   scope :by_world_id,   ->(world_id) { where(world_id: world_id) if world_id }
   scope :by_name,       ->(name)  { where("UPPER(TRIM(name))=?", name.to_s.upcase.strip ) if name }
@@ -15,10 +15,6 @@ class Basecamp < ActiveRecord::Base
 
   validates :updater, :name, :world, presence: true
   validate :key_fields_must_be_unique
-
-  def has_children?
-    surveys.any?
-  end
 
   private
 

@@ -1,7 +1,5 @@
 FactoryGirl.define do
   factory :survey do
-    #basecamp
-    #world { (basecamp && basecamp.world) ? basecamp.world : world }
     commander "Jameson"
     resource "Outcrop 2"
 
