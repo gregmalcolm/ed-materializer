@@ -20,6 +20,8 @@ class Survey < ActiveRecord::Base
   scope :updated_before, ->(time) { where("updated_at<?", time ) if Time.parse(time) rescue false }
   scope :updated_after,  ->(time) { where("updated_at>?", time ) if Time.parse(time) rescue false }
 
+  scope :error_free, -> { where(error_flag: false) }
+
   validates :commander, :world, :resource, presence: true
 
   private
@@ -35,7 +37,9 @@ class Survey < ActiveRecord::Base
   end
 
   def update_world_surveys
-    surveys = Survey.by_world_id(self.world_id).all
+    surveys = Survey.by_world_id(self.world_id)
+                    .error_free
+                    .all
     if surveys.any?
       world_survey = WorldSurvey.by_world_id(self.world_id).first_or_initialize
       world_survey.assign_attributes({

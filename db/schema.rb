@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160414024347) do
+ActiveRecord::Schema.define(version: 20160417195328) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -98,16 +98,17 @@ ActiveRecord::Schema.define(version: 20160414024347) do
     t.integer  "technetium"
     t.integer  "tellurium"
     t.integer  "yttrium"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
     t.text     "notes"
     t.string   "image_url"
-    t.string   "surveyed_by",                               array: true
+    t.string   "surveyed_by",                                               array: true
     t.integer  "system_id"
     t.integer  "world_id"
     t.datetime "surveyed_at"
-    t.boolean  "error_flag"
+    t.boolean  "error_flag",                   default: false
     t.text     "error_description"
+    t.string   "error_updater"
   end
 
   add_index "surveys", ["basecamp_id", "commander", "resource", "updated_at"], name: "index_ssurveys_on_bc_com_res_upd", using: :btree
@@ -117,6 +118,7 @@ ActiveRecord::Schema.define(version: 20160414024347) do
   add_index "surveys", ["surveyed_by"], name: "index_surveys_on_surveyed_by", using: :gin
   add_index "surveys", ["system_id"], name: "index_surveys_on_system_id", using: :btree
   add_index "surveys", ["updated_at"], name: "index_surveys_on_updated_at", using: :btree
+  add_index "surveys", ["world_id", "error_flag"], name: "index_surveys_on_world_id_and_error_flag", using: :btree
   add_index "surveys", ["world_id"], name: "index_surveys_on_world_id", using: :btree
 
   create_table "systems", force: :cascade do |t|
@@ -189,34 +191,34 @@ ActiveRecord::Schema.define(version: 20160414024347) do
   create_table "world_surveys", force: :cascade do |t|
     t.integer  "world_id"
     t.string   "updater"
-    t.boolean  "carbon"
-    t.boolean  "iron"
-    t.boolean  "nickel"
-    t.boolean  "phosphorus"
-    t.boolean  "sulphur"
-    t.boolean  "arsenic"
-    t.boolean  "chromium"
-    t.boolean  "germanium"
-    t.boolean  "manganese"
-    t.boolean  "selenium"
-    t.boolean  "vanadium"
-    t.boolean  "zinc"
-    t.boolean  "zirconium"
-    t.boolean  "cadmium"
-    t.boolean  "mercury"
-    t.boolean  "molybdenum"
-    t.boolean  "niobium"
-    t.boolean  "tin"
-    t.boolean  "tungsten"
-    t.boolean  "antimony"
-    t.boolean  "polonium"
-    t.boolean  "ruthenium"
-    t.boolean  "technetium"
-    t.boolean  "tellurium"
-    t.boolean  "yttrium"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string   "updaters",                array: true
+    t.boolean  "carbon",     default: false
+    t.boolean  "iron",       default: false
+    t.boolean  "nickel",     default: false
+    t.boolean  "phosphorus", default: false
+    t.boolean  "sulphur",    default: false
+    t.boolean  "arsenic",    default: false
+    t.boolean  "chromium",   default: false
+    t.boolean  "germanium",  default: false
+    t.boolean  "manganese",  default: false
+    t.boolean  "selenium",   default: false
+    t.boolean  "vanadium",   default: false
+    t.boolean  "zinc",       default: false
+    t.boolean  "zirconium",  default: false
+    t.boolean  "cadmium",    default: false
+    t.boolean  "mercury",    default: false
+    t.boolean  "molybdenum", default: false
+    t.boolean  "niobium",    default: false
+    t.boolean  "tin",        default: false
+    t.boolean  "tungsten",   default: false
+    t.boolean  "antimony",   default: false
+    t.boolean  "polonium",   default: false
+    t.boolean  "ruthenium",  default: false
+    t.boolean  "technetium", default: false
+    t.boolean  "tellurium",  default: false
+    t.boolean  "yttrium",    default: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.string   "updaters",                                array: true
     t.integer  "system_id"
   end
 

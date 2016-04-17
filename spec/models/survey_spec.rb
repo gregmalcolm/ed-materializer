@@ -60,5 +60,12 @@ describe Survey do
       let(:world_survey) { WorldSurvey.where(world_id: world.id).first }
       it { expect(world_survey).to be nil }
     end
+    
+    context "Ignores surveys flagged with errors" do
+      before { survey3.update(error_flag: true, error_description: "Wrong, do it again!") }
+      let(:world_survey) { WorldSurvey.where(world_id: world.id).first }
+      it { expect(world_survey.zinc).to be nil }
+      it { expect(world_survey.germanium).to be true }
+    end
   end
 end
