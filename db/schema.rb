@@ -106,7 +106,7 @@ ActiveRecord::Schema.define(version: 20160417195328) do
     t.integer  "system_id"
     t.integer  "world_id"
     t.datetime "surveyed_at"
-    t.boolean  "error_flag",                   default: false
+    t.boolean  "error_flag",                   default: false, null: false
     t.text     "error_description"
     t.string   "error_updater"
   end
@@ -191,31 +191,31 @@ ActiveRecord::Schema.define(version: 20160417195328) do
   create_table "world_surveys", force: :cascade do |t|
     t.integer  "world_id"
     t.string   "updater"
-    t.boolean  "carbon",     default: false
-    t.boolean  "iron",       default: false
-    t.boolean  "nickel",     default: false
-    t.boolean  "phosphorus", default: false
-    t.boolean  "sulphur",    default: false
-    t.boolean  "arsenic",    default: false
-    t.boolean  "chromium",   default: false
-    t.boolean  "germanium",  default: false
-    t.boolean  "manganese",  default: false
-    t.boolean  "selenium",   default: false
-    t.boolean  "vanadium",   default: false
-    t.boolean  "zinc",       default: false
-    t.boolean  "zirconium",  default: false
-    t.boolean  "cadmium",    default: false
-    t.boolean  "mercury",    default: false
-    t.boolean  "molybdenum", default: false
-    t.boolean  "niobium",    default: false
-    t.boolean  "tin",        default: false
-    t.boolean  "tungsten",   default: false
-    t.boolean  "antimony",   default: false
-    t.boolean  "polonium",   default: false
-    t.boolean  "ruthenium",  default: false
-    t.boolean  "technetium", default: false
-    t.boolean  "tellurium",  default: false
-    t.boolean  "yttrium",    default: false
+    t.boolean  "carbon",     default: false, null: false
+    t.boolean  "iron",       default: false, null: false
+    t.boolean  "nickel",     default: false, null: false
+    t.boolean  "phosphorus", default: false, null: false
+    t.boolean  "sulphur",    default: false, null: false
+    t.boolean  "arsenic",    default: false, null: false
+    t.boolean  "chromium",   default: false, null: false
+    t.boolean  "germanium",  default: false, null: false
+    t.boolean  "manganese",  default: false, null: false
+    t.boolean  "selenium",   default: false, null: false
+    t.boolean  "vanadium",   default: false, null: false
+    t.boolean  "zinc",       default: false, null: false
+    t.boolean  "zirconium",  default: false, null: false
+    t.boolean  "cadmium",    default: false, null: false
+    t.boolean  "mercury",    default: false, null: false
+    t.boolean  "molybdenum", default: false, null: false
+    t.boolean  "niobium",    default: false, null: false
+    t.boolean  "tin",        default: false, null: false
+    t.boolean  "tungsten",   default: false, null: false
+    t.boolean  "antimony",   default: false, null: false
+    t.boolean  "polonium",   default: false, null: false
+    t.boolean  "ruthenium",  default: false, null: false
+    t.boolean  "technetium", default: false, null: false
+    t.boolean  "tellurium",  default: false, null: false
+    t.boolean  "yttrium",    default: false, null: false
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
     t.string   "updaters",                                array: true

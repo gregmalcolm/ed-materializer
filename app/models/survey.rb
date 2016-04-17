@@ -47,7 +47,7 @@ class Survey < ActiveRecord::Base
         world_id: self.world_id
       })
       Material.all.map(&:name).each do |mat|
-          world_survey.assign_attributes(mat => nil) 
+          world_survey.assign_attributes(mat => false) 
       end
       surveys.each do |survey|
         Material.all.map(&:name).reduce(world_survey) do |acc, mat|

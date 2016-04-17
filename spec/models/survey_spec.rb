@@ -36,22 +36,22 @@ describe Survey do
       it { expect(world_survey.germanium).to be true }
       it { expect(world_survey.mercury).to be true }
       it { expect(world_survey.zinc).to be true }
-      it { expect(world_survey.yttrium).to be nil }
+      it { expect(world_survey.yttrium).to be false }
       it { expect(world_survey.updaters).to be == %w[Mindwipe Dobbo Leiawen] }
     end
 
     context "updating a survey" do
-      before { survey2.update({ruthenium: nil, polonium: 4, germanium: 0}) }
+      before { survey2.update({ruthenium: false, polonium: 4, germanium: 0}) }
       let(:world_survey) { WorldSurvey.where(world_id: world.id).first }
       it { expect(world_survey.polonium).to be true }
-      it { expect(world_survey.ruthenium).to be nil }
+      it { expect(world_survey.ruthenium).to be false }
       it { expect(world_survey.germanium).to be true }
     end
     
     context "destroying a survey" do
       before { survey2.destroy }
       let(:world_survey) { WorldSurvey.where(world_id: world.id).first }
-      it { expect(world_survey.mercury).to be nil }
+      it { expect(world_survey.mercury).to be false }
       it { expect(world_survey.germanium).to be true }
     end
     
@@ -62,10 +62,27 @@ describe Survey do
     end
     
     context "Ignores surveys flagged with errors" do
-      before { survey3.update(error_flag: true, error_description: "Wrong, do it again!") }
+      before { survey3.update(error_flag: true, 
+                              error_description: "Wrong, do it again!",
+                              error_updater: "Nexolek") }
       let(:world_survey) { WorldSurvey.where(world_id: world.id).first }
-      it { expect(world_survey.zinc).to be nil }
+      it { expect(world_survey.zinc).to be false }
       it { expect(world_survey.germanium).to be true }
+    end
+  end
+  describe "updating world_surveys for a single survey" do
+    let!(:survey) { create :survey, world: world, 
+                                    commander: "iDragox",
+                                    niobium: 1,
+                                    germanium: 1,
+                                    arsenic: 2 }
+
+    context "All surveys are bad" do
+      before { survey.update(error_flag: true, 
+                             error_description: "Nope!",
+                             error_updater: "Greytest") }
+      let(:world_survey) { WorldSurvey.where(world_id: world.id).first }
+      it { expect(world_survey).to be nil }
     end
   end
 end
