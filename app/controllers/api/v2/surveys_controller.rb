@@ -8,8 +8,10 @@ module Api
       before_action :set_world, only: [:index, :show, :update, :destroy]
       
       before_action only: [:update] {
-        authorize_change!(@survey.commander,
-                          params[:survey][:commander])
+        unless error_flag_update?
+          authorize_change!(@survey.commander,
+                            params[:survey][:commander])
+        end
       }
       before_action only: [:destroy] {
         authorize_change!(@survey.commander,
@@ -77,6 +79,9 @@ module Api
                       :resource, 
                       :notes,
                       :image_url,
+                      :error_flag,
+                      :error_description,
+                      :error_updater,
                       :carbon,
                       :iron,
                       :nickel,
@@ -128,6 +133,11 @@ module Api
       
       def per_page
         params[:per_page] || 100
+      end
+
+      def error_flag_update?
+        survey_params.keys.include?("error_flag") &&
+          !survey_params.keys.detect { |survey| !(survey =~ /^error_/) }
       end
     end
   end

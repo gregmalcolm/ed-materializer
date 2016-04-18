@@ -128,12 +128,34 @@ describe Api::V2::SurveysController, type: :controller do
         it { expect(survey.commander).to be == "Mwerle" }
         it { expect(survey.mercury).to be 51 }
       end
-      context "changing someone elses record" do
-        let(:commander) { "Coldglider" }
-        before { put :update, updated_survey, auth_tokens }
-        let(:survey) { Survey.find(surveys[1].id)}
-        
-        it { expect(response).to have_http_status(403) }
+      context "updating as a normal user" do
+        context "changing someone elses record" do
+          let(:commander) { "Coldglider" }
+          before { put :update, updated_survey, auth_tokens }
+          let(:survey) { Survey.find(surveys[1].id)}
+          
+          it { expect(response).to have_http_status(403) }
+        end
+        context "changing the error status" do
+          let(:error_fields) { {error_flag: true,
+                                error_description: "There is no tungsten here",
+                                error_updater: "Allitnil" } }
+          let(:updated_survey) { { id: surveys[2], survey: error_fields } }
+
+          context "do not have to be the commander" do
+            before { put :update, updated_survey, auth_tokens }
+            it { expect(response).to have_http_status(204) }
+            let(:survey) { Survey.find(surveys[2].id)}
+            it { expect(survey.commander).to be == "Michael Darkmoor" }
+            it { expect(survey.error_flag).to be true }
+          end
+          
+          context "non commander cannot touch other fields" do
+            before { error_fields["yttrium"] = true }
+            before { put :update, updated_survey, auth_tokens }
+            it { expect(response).to have_http_status(403) }
+          end
+        end
       end
     end
     

@@ -23,6 +23,7 @@ class Survey < ActiveRecord::Base
   scope :error_free, -> { where(error_flag: false) }
 
   validates :commander, :world, :resource, presence: true
+  validate :error_field_validations, on: :update
 
   private
 
@@ -60,6 +61,15 @@ class Survey < ActiveRecord::Base
       world_survey.save
     else
       WorldSurvey.by_world_id(self.world_id).destroy_all
+    end
+  end
+
+  def error_field_validations
+    if self.error_flag_changed?
+      if self.error_flag
+        errors.add(:error_description, "not updated") unless self.error_description_changed?
+      end
+      errors.add(:error_updater, "not updated") unless self.error_updater_changed?
     end
   end
 end

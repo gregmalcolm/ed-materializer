@@ -85,4 +85,20 @@ describe Survey do
       it { expect(world_survey).to be nil }
     end
   end
+  describe "error fields" do
+    context "flagging an error" do
+      before { subject.update(error_flag: true)}
+      it { expect(subject.errors[:error_description]).to include "not updated" }
+      it { expect(subject.errors[:error_updater]).to include "not updated" }
+    end
+    
+    context "unflagging an error" do
+      before { subject.update(error_flag: true, 
+                              error_description: "That's not right", 
+                              error_updater: "Shellstrom")}
+      before { subject.update(error_flag: false)}
+      it { expect(subject.errors[:error_description]).to_not include "not updated" }
+      it { expect(subject.errors[:error_updater]).to include "not updated" }
+    end
+  end
 end
