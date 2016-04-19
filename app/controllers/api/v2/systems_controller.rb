@@ -75,7 +75,8 @@ module Api
       end
 
       def filtered
-        System.by_system(params[:system])
+        System.by_query(params[:q])
+              .by_system(params[:system])
               .by_updater(params[:updater])
               .updated_before(params[:updated_before])
               .updated_after(params[:updated_after])

@@ -11,6 +11,7 @@ class System < ActiveRecord::Base
   before_save :update_children_system_names
 
   scope :by_system, ->(system) { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
+  scope :by_query, ->(query) { where("UPPER(TRIM(system)) like ?", "%#{query.to_s.upcase.strip}%" ) if query }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
 

@@ -30,6 +30,12 @@ describe Api::V2::SystemsController, type: :controller do
         it { expect(systems_json[0]["updater"]).to be == "Finwen" }
         it { expect(systems_json.size).to be == 1 }
       end
+
+      context "search queries" do
+        before { get :index, {q: "e"} }
+        it { expect(systems_json[0]["system"]).to be == "SHINRARTA DEZHRA" }
+        it { expect(systems_json.size).to be == 2 }
+      end
     end
   end
 
