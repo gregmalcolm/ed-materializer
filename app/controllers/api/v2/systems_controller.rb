@@ -19,7 +19,7 @@ module Api
       end
 
       def show
-        render json: @system, serializer: SystemTreeSerializer
+        render json: @system
       end
 
       def create
