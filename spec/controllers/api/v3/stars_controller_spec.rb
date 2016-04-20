@@ -11,78 +11,76 @@ describe Api::V3::StarsController, type: :controller do
   let!(:users) { spawn_users }
   let(:user) { users[:edd] }
   let(:auth_tokens) { sign_in user}
-  let(:json) { JSON.parse(response.body)}
+  let(:json) { JSON.parse(response.body)["data"]}
+  let(:json_errors) { JSON.parse(response.body) }
 
   describe "GET #index" do
-    let(:stars_json) { json["stars"] }
-    let(:updaters) { stars_json.map { |j| j["updater"] } }
+    let(:updaters) { json.map { |j| j["attributes"]["updater"] } }
 
     context "drinking from the firehouse" do
       before { get :index, {} }
       it { expect(response).to have_http_status(200) }
-      it { expect(stars_json[1]["system"]).to be == "Hoth" }
-      it { expect(stars_json.size).to be >= 3 }
+      it { expect(json[1]["attributes"]["system-name"]).to be == "Hoth" }
+      it { expect(json.size).to be >= 3 }
     end
 
     describe "filtering" do
-      context "on system" do
+      context "on system-name" do
         before { get :index, {system: " hoth "} }
-        it { expect(stars_json[0]["system"]).to be == "Hoth" }
-        it { expect(stars_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["system-name"]).to be == "Hoth" }
+        it { expect(json.size).to be == 1 }
       end
 
       context "on updater" do
         before { get :index, {updater: "  robbyxp1"} }
-        it { expect(stars_json[0]["system"]).to be == "ALDERAAN" }
-        it { expect(stars_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["system-name"]).to be == "ALDERAAN" }
+        it { expect(json.size).to be == 1 }
       end
 
       context "on star" do
         before { get :index, {star: "b"} }
-        it { expect(stars_json[0]["system"]).to be == "ALDERAAN" }
-        it { expect(stars_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["system-name"]).to be == "ALDERAAN" }
+        it { expect(json.size).to be == 1 }
       end
 
       context "on updated_before" do
         before { get :index, {updated_before: Time.now - 3.days} }
         it { expect(updaters).to include "Cruento Mucrone" }
         it { expect(updaters).to include "Zed" }
-        it { expect(stars_json.size).to be == 2 }
+        it { expect(json.size).to be == 2 }
       end
 
       context "on updated_after" do
         before { get :index, {updated_after: Time.now - 3.days} }
         it { expect(updaters).to include "robbyxp1" }
-        it { expect(stars_json.size).to be == 1 }
+        it { expect(json.size).to be == 1 }
       end
     end
   end
 
   describe "GET #show" do
-    let(:star_json) { json["star"] }
+    let(:star_json) { json["attributes"] }
 
     before { get :show, {id: stars[2].id} }
     it { expect(response).to have_http_status(200) }
-    it { expect(star_json["system"]).to be == "ALDERAAN" }
+    it { expect(star_json["system-name"]).to be == "ALDERAAN" }
     it { expect(star_json["updater"]).to be == "robbyxp1" }
   end
 
   describe "POST #create" do
-    let(:star_json) { json["star"] }
+    let(:star_json) { json["attributes"] }
     let(:new_star_json) { { star:
-                            { system: "Magrathea", 
+                            { system_name: "Magrathea", 
                               updater: "Ford Prefect", 
                               star: "", 
                               star_age: 50000.5 } }
                         }
-    let(:new_star) { star = new_star_json[:star]
-                     star[:system_name] = star.delete(:system) 
-                     star }
+    let(:new_star) { new_star_json[:star] }
 
     context "adding a star" do
       before { post :create, new_star_json, auth_tokens }
       it { expect(response).to have_http_status(201) }
-      it { expect(star_json["system"]).to be == "Magrathea" }
+      it { expect(star_json["system-name"]).to be == "Magrathea" }
       it { expect(Star.last.system_name).to be == "Magrathea" }
       it { expect(Star.last.updater).to be == "Ford Prefect" }
     end
@@ -91,15 +89,15 @@ describe Api::V3::StarsController, type: :controller do
       before { create :star, new_star }
       before { post :create, new_star_json, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["star"]).to include "has already been taken for this system" }
+      it { expect(json_errors["star"]).to include "has already been taken for this system" }
     end
 
     context "rejects blanks in key fields" do
       before { post :create, {star: {surface_temp: 44}}, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["updater"]).to include "can't be blank" }
-      it { expect(json["system_name"]).to include "can't be blank" }
-      it { expect(json["star"]).to_not include "can't be blank" }
+      it { expect(json_errors["updater"]).to include "can't be blank" }
+      it { expect(json_errors["system_name"]).to include "can't be blank" }
+      it { expect(json_errors["star"]).to_not include "can't be blank" }
     end
 
     context "when checking for clashing systems, take into account casing" do
@@ -113,7 +111,7 @@ describe Api::V3::StarsController, type: :controller do
       before { create :star, new_star }
       before { post :create, clashing_star, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["star"]).to include "has already been taken for this system" }
+      it { expect(json_errors["star"]).to include "has already been taken for this system" }
     end
 
     context "as a normal user" do
@@ -128,7 +126,7 @@ describe Api::V3::StarsController, type: :controller do
     context "unauthorized" do
       before { post :create, new_star_json }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -163,13 +161,13 @@ describe Api::V3::StarsController, type: :controller do
       before { put :update, updated_star, auth_tokens }
       
       it { expect(response).to have_http_status(422) }
-      it { expect(json["system_name"]).to include "cannot be renamed this way" }
+      it { expect(json_errors["system_name"]).to include "cannot be renamed this way" }
     end
 
     context "unauthenticated" do
       before { put :update, updated_star }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
     
     context "as a banned user" do
@@ -177,7 +175,7 @@ describe Api::V3::StarsController, type: :controller do
       before { put :update, updated_star, auth_tokens }
       
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -221,7 +219,7 @@ describe Api::V3::StarsController, type: :controller do
     context "unauthenticated" do
       before { delete :destroy, {id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
     
     context "as an admin" do
