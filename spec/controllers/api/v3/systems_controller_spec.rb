@@ -11,44 +11,44 @@ describe Api::V3::SystemsController, type: :controller do
   let!(:users) { spawn_users }
   let(:user) { users[:edd] }
   let(:auth_tokens) { sign_in user}
-  let(:json) { JSON.parse(response.body)}
+  let(:json) { JSON.parse(response.body)["data"]}
+  let(:json_errors) { JSON.parse(response.body) }
 
   describe "GET #index" do
-    let(:systems_json) { json["systems"] }
-    let(:updaters) { systems_json.map { |j| j["updater"] } }
+    let(:updaters) { json.map { |j| j["attributes"]["updater"] } }
 
     context "drinking from the firehouse" do
       before { get :index, {} }
       it { expect(response).to have_http_status(200) }
-      it { expect(systems_json[2]["system"]).to be == "CEECKIA ZQ-L C24-0" }
-      it { expect(systems_json.size).to be >= 3 }
+      it { expect(json[2]["attributes"]["system"]).to be == "CEECKIA ZQ-L C24-0" }
+      it { expect(json.size).to be >= 3 }
     end
 
     describe "filtering" do
       context "on system" do
         before { get :index, {system: "NGANJI"} }
-        it { expect(systems_json[0]["updater"]).to be == "Finwen" }
-        it { expect(systems_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["updater"]).to be == "Finwen" }
+        it { expect(json.size).to be == 1 }
       end
 
       context "search queries" do
         before { get :index, {q: "e"} }
-        it { expect(systems_json[0]["system"]).to be == "SHINRARTA DEZHRA" }
-        it { expect(systems_json.size).to be == 2 }
+        it { expect(json[0]["attributes"]["system"]).to be == "SHINRARTA DEZHRA" }
+        it { expect(json.size).to be == 2 }
       end
     end
   end
 
   describe "GET #show" do
-    let(:system) { json["system"] }
+    let(:system) { json["attributes"] }
 
     before { get :show, {id: systems[2].id} }
     it { expect(response).to have_http_status(200) }
-    it { expect(system["poi_name"]).to be == "Beagle Point" }
+    it { expect(system["poi-name"]).to be == "Beagle Point" }
   end
 
   describe "POST #create" do
-    let(:system) { json["system"] }
+    let(:system) { json["attributes"] }
     let(:new_system) { { system:
       { system: "Magrathea", updater: "Slartibartfast", tags: ["Home"]} }
     }
@@ -65,7 +65,7 @@ describe Api::V3::SystemsController, type: :controller do
       before { create :system, new_system[:system] }
       before { post :create, new_system, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["system"]).to include "name has already been taken for this system" }
+      it { expect(json_errors["system"]).to include "name has already been taken for this system" }
     end
 
     context "when checking for clashing systems, take into account casing" do
@@ -76,7 +76,7 @@ describe Api::V3::SystemsController, type: :controller do
       before { create :system, new_system[:system] }
       before { post :create, clashing_system, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["system"]).to include "name has already been taken for this system" }
+      it { expect(json_errors["system"]).to include "name has already been taken for this system" }
     end
 
     context "as a normal user" do
@@ -91,7 +91,7 @@ describe Api::V3::SystemsController, type: :controller do
     context "unauthorized" do
       before { post :create, new_system }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -112,7 +112,7 @@ describe Api::V3::SystemsController, type: :controller do
     context "unauthenticated" do
       before { put :update, updated_system }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
     
     context "as a banned user" do
@@ -120,7 +120,7 @@ describe Api::V3::SystemsController, type: :controller do
       before { put :update, updated_system, auth_tokens }
       
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -152,7 +152,7 @@ describe Api::V3::SystemsController, type: :controller do
     context "unauthenticated" do
       before { delete :destroy, {id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
     
     context "as an admin" do

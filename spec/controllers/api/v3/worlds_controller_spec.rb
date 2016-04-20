@@ -11,64 +11,64 @@ describe Api::V3::WorldsController, type: :controller do
   let!(:users) { spawn_users }
   let(:user) { users[:edd] }
   let(:auth_tokens) { sign_in user}
-  let(:json) { JSON.parse(response.body)}
+  let(:json) { JSON.parse(response.body)["data"]}
+  let(:json_errors) { JSON.parse(response.body) }
 
   describe "GET #index" do
-    let(:worlds_json) { json["worlds"] }
-    let(:updaters) { worlds_json.map { |j| j["updater"] } }
+    let(:updaters) { json.map { |j| j["attributes"]["updater"] } }
 
     context "drinking from the firehouse" do
       before { get :index, {} }
       it { expect(response).to have_http_status(200) }
-      it { expect(worlds_json[1]["system"]).to be == "NGANJI" }
-      it { expect(worlds_json.size).to be >= 3 }
+      it { expect(json[1]["attributes"]["system-name"]).to be == "NGANJI" }
+      it { expect(json.size).to be >= 3 }
     end
 
     describe "filtering" do
       context "on system" do
         before { get :index, {system: " nganjI "} }
-        it { expect(worlds_json[0]["system"]).to be == "NGANJI" }
-        it { expect(worlds_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["system-name"]).to be == "NGANJI" }
+        it { expect(json.size).to be == 1 }
       end
 
       context "on updater" do
         before { get :index, {updater: "  DOMMAARRAA"} }
-        it { expect(worlds_json[0]["system"]).to be == "STUEMEAE AA-A D5464" }
-        it { expect(worlds_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["system-name"]).to be == "STUEMEAE AA-A D5464" }
+        it { expect(json.size).to be == 1 }
       end
 
       context "on world" do
         before { get :index, {world: "a 5 "} }
-        it { expect(worlds_json[0]["system"]).to be == "SHINRARTA DEZHRA" }
-        it { expect(worlds_json.size).to be == 2 }
+        it { expect(json[0]["attributes"]["system-name"]).to be == "SHINRARTA DEZHRA" }
+        it { expect(json.size).to be == 2 }
       end
 
       context "on updated_before" do
         before { get :index, {updated_before: Time.now - 3.days} }
         it { expect(updaters).to include "Finwen" }
         it { expect(updaters).to include "Marlon Blake" }
-        it { expect(worlds_json.size).to be == 2 }
+        it { expect(json.size).to be == 2 }
       end
 
       context "on updated_after" do
         before { get :index, {updated_after: Time.now - 3.days} }
         it { expect(updaters).to include "Dommaarraa" }
-        it { expect(worlds_json.size).to be == 1 }
+        it { expect(json.size).to be == 1 }
       end
     end
   end
 
   describe "GET #show" do
-    let(:world) { json["world"] }
+    let(:world) { json["attributes"] }
 
     before { get :show, {id: worlds[2].id} }
     it { expect(response).to have_http_status(200) }
-    it { expect(world["system"]).to be == "STUEMEAE AA-A D5464" }
+    it { expect(world["system-name"]).to be == "STUEMEAE AA-A D5464" }
     it { expect(world["updater"]).to be == "Dommaarraa" }
   end
 
   describe "POST #create" do
-    let(:world_json) { json["world"] }
+    let(:world_json) { json["attributes"] }
     let(:new_world_json) { { world:
                               { system: "Magrathea", 
                                 updater: "Arthur Dent", 
@@ -82,7 +82,7 @@ describe Api::V3::WorldsController, type: :controller do
     context "adding a world" do
       before { post :create, new_world_json, auth_tokens }
       it { expect(response).to have_http_status(201) }
-      it { expect(world_json["system"]).to be == "Magrathea" }
+      it { expect(world_json["system-name"]).to be == "Magrathea" }
       it { expect(World.last.system_name).to be == "Magrathea" }
     end
 
@@ -90,15 +90,15 @@ describe Api::V3::WorldsController, type: :controller do
       before { create :world, new_world }
       before { post :create, new_world_json, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["world"]).to include "has already been taken for this system" }
+      it { expect(json_errors["world"]).to include "has already been taken for this system" }
     end
 
     context "rejects blanks in key fields" do
       before { post :create, {world: {terrain_difficulty: 3}}, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["updater"]).to include "can't be blank" }
-      it { expect(json["system_name"]).to include "can't be blank" }
-      it { expect(json["world"]).to include "can't be blank" }
+      it { expect(json_errors["updater"]).to include "can't be blank" }
+      it { expect(json_errors["system_name"]).to include "can't be blank" }
+      it { expect(json_errors["world"]).to include "can't be blank" }
     end
 
     context "when checking for clashing systems, take into account casing" do
@@ -109,13 +109,13 @@ describe Api::V3::WorldsController, type: :controller do
       before { create :world, new_world }
       before { post :create, clashing_world, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["world"]).to include "has already been taken for this system" }
+      it { expect(json_errors["world"]).to include "has already been taken for this system" }
     end
 
     context "unauthorized" do
       before { post :create, new_world_json }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -148,13 +148,13 @@ describe Api::V3::WorldsController, type: :controller do
       before { put :update, updated_world, auth_tokens }
       
       it { expect(response).to have_http_status(422) }
-      it { expect(json["system_name"]).to include "cannot be renamed this way" }
+      it { expect(json_errors["system_name"]).to include "cannot be renamed this way" }
     end
 
     context "unauthenticated" do
       before { put :update, updated_world }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -218,7 +218,7 @@ describe Api::V3::WorldsController, type: :controller do
       let(:id) { worlds[0].id }
       before { delete :destroy, {id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
 
     context "unauthorized banned user" do
@@ -226,7 +226,7 @@ describe Api::V3::WorldsController, type: :controller do
       let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
 
   end

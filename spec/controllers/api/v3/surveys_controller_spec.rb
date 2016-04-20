@@ -18,63 +18,63 @@ describe Api::V3::SurveysController, type: :controller do
   let!(:users) { spawn_users }
   let(:user) { users[:edd] }
   let(:auth_tokens) { sign_in user}
-  let(:json) { JSON.parse(response.body)}
+  let(:json) { JSON.parse(response.body)["data"]}
+  let(:json_errors) { JSON.parse(response.body) }
 
   describe "GET #index" do
-    let(:surveys_json) { json["surveys"] }
-    let(:commanders) { surveys_json.map { |j| j["commander"] } }
+    let(:commanders) { json.map { |j| j["attributes"]["commander"] } }
 
     context "drinking from the firehouse" do
       before { get :index, {basecamp_id: basecamps[0].id} }
       it { expect(response).to have_http_status(200) }
-      it { expect(surveys_json[1]["commander"]).to be == "Mwerle" }
-      it { expect(surveys_json.size).to be >= 2 }
+      it { expect(json[1]["attributes"]["commander"]).to be == "Mwerle" }
+      it { expect(json.size).to be >= 2 }
     end
 
     describe "filtering" do
       context "on world_id" do
         before { get :index, {world_id: worlds[1].id} }
-        it { expect(surveys_json[0]["commander"]).to be == "Michael Darkmoor" }
-        it { expect(surveys_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["commander"]).to be == "Michael Darkmoor" }
+        it { expect(json.size).to be == 1 }
       end
       
       context "on basecamp_id" do
         before { get :index, {basecamp_id: basecamps[2].id} }
-        it { expect(surveys_json[0]["commander"]).to be == "Michael Darkmoor" }
-        it { expect(surveys_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["commander"]).to be == "Michael Darkmoor" }
+        it { expect(json.size).to be == 1 }
       end
       
       context "on commander" do
         before { get :index, {basecamp_id: basecamps[0].id, 
                               commander: "  Eoran "} }
-        it { expect(surveys_json[0]["resource"]).to be == "Bronzite Chondrite" }
-        it { expect(surveys_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["resource"]).to be == "Bronzite Chondrite" }
+        it { expect(json.size).to be == 1 }
       end
       
       context "resource" do
         before { get :index, {basecamp_id: basecamps[2].id, 
                               resource: "AGGREGATED"} }
-        it { expect(surveys_json[0]["commander"]).to be == "Michael Darkmoor" }
-        it { expect(surveys_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["commander"]).to be == "Michael Darkmoor" }
+        it { expect(json.size).to be == 1 }
       end
 
       context "on updated_before" do
         before { get :index, updated_before: Time.now - 3.days}
         it { expect(commanders).to include "Eoran" }
         it { expect(commanders).to include "Mwerle" }
-        it { expect(surveys_json.size).to be == 2 }
+        it { expect(json.size).to be == 2 }
       end
 
       context "on updated_after" do
         before { get :index, updated_after: Time.now - 3.days}
         it { expect(commanders).to include "Michael Darkmoor" }
-        it { expect(surveys_json.size).to be == 1 }
+        it { expect(json.size).to be == 1 }
       end
     end
   end
 
   describe "GET #show" do
-    let(:survey) { json["survey"] }
+    let(:survey) { json["attributes"] }
     context "nested" do
       before { get :show, {id: surveys[2].id,
                            basecamp_id: basecamps[1].id} }
@@ -90,7 +90,7 @@ describe Api::V3::SurveysController, type: :controller do
   end
 
   describe "POST #create" do
-    let(:survey_json) { json["survey"] }
+    let(:survey_json) { json["attributes"] }
     let(:new_survey) { {
       resource: "Outcrop 1", 
       commander: "Marvin", 
@@ -110,7 +110,7 @@ describe Api::V3::SurveysController, type: :controller do
       before { post :create, { basecamp_id: basecamps[1].id, 
                                survey: new_survey } }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -207,7 +207,7 @@ describe Api::V3::SurveysController, type: :controller do
     context "unauthenticated" do
       before { put :update, updated_survey }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -264,7 +264,7 @@ describe Api::V3::SurveysController, type: :controller do
       before { delete :destroy, {basecamp_id: basecamps[0].id,
                                  id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
 
     context "unauthorized banned user" do
@@ -272,7 +272,7 @@ describe Api::V3::SurveysController, type: :controller do
       before { delete :destroy, {basecamp_id: basecamps[0].id,
                                  id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 end

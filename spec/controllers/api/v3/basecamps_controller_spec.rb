@@ -16,58 +16,58 @@ describe Api::V3::BasecampsController, type: :controller do
   let!(:users) { spawn_users }
   let(:user) { users[:edd] }
   let(:auth_tokens) { sign_in user}
-  let(:json) { JSON.parse(response.body)}
+  let(:json) { JSON.parse(response.body)["data"]}
+  let(:json_errors) { JSON.parse(response.body) }
 
   describe "GET #index" do
-    let(:basecamps_json) { json["basecamps"] }
-    let(:updaters) { basecamps_json.map { |j| j["updater"] } }
+    let(:updaters) { json.map { |j| j["attributes"]["updater"] } }
 
     context "drinking from the firehouse" do
       before { get :index, {world_id: worlds[0].id} }
       it { expect(response).to have_http_status(200) }
-      it { expect(basecamps_json[1]["name"]).to be == "FGE BC2" }
-      it { expect(basecamps_json.size).to be >= 2 }
+      it { expect(json[1]["attributes"]["name"]).to be == "FGE BC2" }
+      it { expect(json.size).to be >= 2 }
     end
 
     describe "filtering" do
       context "on world_id" do
         before { get :index, {world_id: worlds[1].id} }
-        it { expect(basecamps_json[0]["updater"]).to be == "Majkl578" }
-        it { expect(basecamps_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["updater"]).to be == "Majkl578" }
+        it { expect(json.size).to be == 1 }
       end
       
       context "on name" do
         before { get :index, {world_id: worlds[0].id, 
                               name: " fge BC2"} }
-        it { expect(basecamps_json[0]["name"]).to be == "FGE BC2" }
-        it { expect(basecamps_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["name"]).to be == "FGE BC2" }
+        it { expect(json.size).to be == 1 }
       end
 
       context "on updater" do
         before { get :index, {world_id: worlds[0].id, 
                               updater: "  nexOlek "} }
-        it { expect(basecamps_json[0]["name"]).to be == "FGE BC1" }
-        it { expect(basecamps_json.size).to be == 1 }
+        it { expect(json[0]["attributes"]["name"]).to be == "FGE BC1" }
+        it { expect(json.size).to be == 1 }
       end
 
       context "on updated_before" do
         before { get :index, {world_id: worlds[0].id, 
                               updated_before: Time.now - 8.days} }
         it { expect(updaters).to include "Nexolek" }
-        it { expect(basecamps_json.size).to be == 1 }
+        it { expect(json.size).to be == 1 }
       end
 
       context "on updated_after" do
         before { get :index, {world_id: worlds[0].id, 
                               updated_after: Time.now - 8.days} }
         it { expect(updaters).to include "Anthor" }
-        it { expect(basecamps_json.size).to be == 1 }
+        it { expect(json.size).to be == 1 }
       end
     end
   end
 
   describe "GET #show" do
-    let(:basecamp) { json["basecamp"] }
+    let(:basecamp) { json["attributes"] }
 
     context "nested" do
       before { get :show, {id: basecamps[2].id, 
@@ -84,7 +84,7 @@ describe Api::V3::BasecampsController, type: :controller do
   end
 
   describe "POST #create" do
-    let(:basecamp_json) { json["basecamp"] }
+    let(:basecamp_json) { json["attributes"] }
     let(:new_basecamp) { {
       name: "Mouse House", 
       updater: "Trillion Maximillion", 
@@ -107,7 +107,7 @@ describe Api::V3::BasecampsController, type: :controller do
       before { get :create, { world_id: worlds[1].id, 
                               basecamp: new_basecamp }, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["basecamp"][0]).to match(/has already been taken/) }
+      it { expect(json_errors["basecamp"][0]).to match(/has already been taken/) }
     end
     
     context "expects a world id" do
@@ -120,8 +120,8 @@ describe Api::V3::BasecampsController, type: :controller do
       before { get :create, { world_id: worlds[1].id, 
                               basecamp: {terrain_hue_1: 128} }, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["name"]).to include "can't be blank" }
-      it { expect(json["updater"]).to include "can't be blank" }
+      it { expect(json_errors["name"]).to include "can't be blank" }
+      it { expect(json_errors["updater"]).to include "can't be blank" }
     end
 
     context "when checking for clashing names, take into account casing" do
@@ -133,14 +133,14 @@ describe Api::V3::BasecampsController, type: :controller do
       before { post :create, { world_id: worlds[1].id, 
                               basecamp: clashing_basecamp }, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json["basecamp"][0]).to match(/has already been taken/) }
+      it { expect(json_errors["basecamp"][0]).to match(/has already been taken/) }
     end
 
     context "unauthorized" do
       before { post :create, { world_id: worlds[1].id, 
                                basecamp: new_basecamp } }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -182,7 +182,7 @@ describe Api::V3::BasecampsController, type: :controller do
     context "unauthenticated" do
       before { put :update, updated_basecamp }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 
@@ -236,7 +236,7 @@ describe Api::V3::BasecampsController, type: :controller do
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
 
     context "unauthorized banned user" do
@@ -244,7 +244,7 @@ describe Api::V3::BasecampsController, type: :controller do
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
-      it { expect(json["errors"]).to include "Authorized users only." }
+      it { expect(json_errors["errors"]).to include "Authorized users only." }
     end
   end
 end
