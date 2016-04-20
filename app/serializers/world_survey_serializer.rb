@@ -31,4 +31,6 @@ class WorldSurveySerializer < ActiveModel::Serializer
              :creator,
              :updated_at,
              :created_at
+  belongs_to :world
+  belongs_to :system
 end

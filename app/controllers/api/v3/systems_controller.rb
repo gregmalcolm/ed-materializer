@@ -1,5 +1,5 @@
 module Api
-  module V2
+  module V3
     class SystemsController < ApplicationController
       include DataDumpActions
 
@@ -14,12 +14,12 @@ module Api
         @systems = filtered.page(page)
                            .per(per_page)
                            .order(ordering)
-        render json: @systems, serializer: PaginatedSerializer,
-                               each_serializer: SystemTreeSerializer
+        render json: @systems, serializer: PaginatedSerializer 
+                               #include: ['worlds', 'stars']
       end
 
       def show
-        render json: @system
+        render json: @system #, include: ['worlds', 'stars']
       end
 
       def create

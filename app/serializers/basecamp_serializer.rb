@@ -16,4 +16,7 @@ class BasecampSerializer < ActiveModel::Serializer
              :creator,
              :updated_at,
              :created_at
+  has_many :surveys
+  belongs_to :world
+  belongs_to :system
 end

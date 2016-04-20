@@ -13,4 +13,9 @@ class SystemSerializer < ActiveModel::Serializer
              :creator,
              :updated_at,
              :created_at
+  has_many :worlds
+  has_many :stars
+  has_many :basecamps
+  has_many :surveys
+  has_many :world_surveys
 end

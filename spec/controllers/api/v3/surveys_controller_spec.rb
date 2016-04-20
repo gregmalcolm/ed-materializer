@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/helpers/auth_helper.rb'
 
-describe Api::V2::SurveysController, type: :controller do
+describe Api::V3::SurveysController, type: :controller do
   include AuthHelper
   include WorldsHelper
   include BasecampsHelper

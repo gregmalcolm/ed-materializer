@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'support/helpers/auth_helper.rb'
 require 'support/helpers/stars_helper.rb'
 
-describe Api::V2::StarsController, type: :controller do
+describe Api::V3::StarsController, type: :controller do
   include AuthHelper
   include StarsHelper
   include Devise::TestHelpers

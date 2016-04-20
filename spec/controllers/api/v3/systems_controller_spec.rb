@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'support/helpers/auth_helper.rb'
 require 'support/helpers/systems_helper.rb'
 
-describe Api::V2::SystemsController, type: :controller do
+describe Api::V3::SystemsController, type: :controller do
   include AuthHelper
   include SystemsHelper
   include Devise::TestHelpers

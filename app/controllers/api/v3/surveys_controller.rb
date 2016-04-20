@@ -1,5 +1,5 @@
 module Api
-  module V2
+  module V3
     class SurveysController < ApplicationController
       include DataDumpActions
       before_action :authorize_user!, except: [:index, :show, :download, :md5]

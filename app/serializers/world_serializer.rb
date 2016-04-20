@@ -1,8 +1,7 @@
 class WorldSerializer < ActiveModel::Serializer
-  attribute  :id
-  attribute  :system_name, key: :system
-  attributes :system_id,
-             :world_survey_id,
+  attributes :id, 
+             :system_name,
+             :system_id,
              :updater,
              :world,
              :world_type,
@@ -29,8 +28,7 @@ class WorldSerializer < ActiveModel::Serializer
              :creator,
              :updated_at,
              :created_at
-
-  def world_survey_id
-    object.world_survey.try(:id)
-  end
+  belongs_to :system
+  has_one :world_survey
+  has_many :surveys
 end

@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   mount_devise_token_auth_for 'User', at: 'auth'
   scope :api, module: :api do
-    scope :v2, module: :v2 do
+    scope :v3, module: :v3 do
       resources :systems, except: [:new, :edit] do
         collection do
           get :download

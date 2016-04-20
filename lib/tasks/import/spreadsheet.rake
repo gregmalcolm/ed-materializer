@@ -392,7 +392,7 @@ namespace :import do
     end
 
     task :update => :prepare do
-      log "Updating Database V2 with DW Spreadsheet data..."
+      log "Updating with DW Spreadsheet data..."
       # Taking advantage of the CSVs being small. This will of course not to
       # be refined if the sitation changes
       Rake::Task["import:dw_spreadsheet:update:systems"].invoke
