@@ -15,7 +15,7 @@ module Api
                            .per(per_page)
                            .order(ordering)
         render json: @systems, serializer: PaginatedSerializer,
-                               each_serializer: SystemSerializer
+                               each_serializer: SystemTreeSerializer
       end
 
       def show
