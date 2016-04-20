@@ -1,4 +1,4 @@
-class PaginatedSerializer < ActiveModel::Serializer::ArraySerializer
+class PaginatedSerializer < ActiveModel::Serializer::CollectionSerializer
   def initialize(object, options={})
     meta_key = options[:meta_key] || :meta
     options[meta_key] ||= {}
