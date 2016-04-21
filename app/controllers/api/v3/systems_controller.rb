@@ -14,12 +14,12 @@ module Api
         @systems = filtered.page(page)
                            .per(per_page)
                            .order(ordering)
-        render json: @systems, serializer: PaginatedSerializer 
-                               #include: ['worlds', 'stars']
+        render json: @systems, serializer: PaginatedSerializer,
+                               include: params[:include]
       end
 
       def show
-        render json: @system #, include: ['worlds', 'stars']
+        render json: @system, include: params[:include]
       end
 
       def create

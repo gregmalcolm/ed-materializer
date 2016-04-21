@@ -12,11 +12,11 @@ module Api
                                  .per(per_page)
                                  .order(ordering)
         render json: @world_surveys, serializer: PaginatedSerializer,
-                                     each_serializer: WorldSurveySerializer
+                                     include: params[:include]
       end
 
       def show
-        render json: @world_survey
+        render json: @world_survey, include: params[:include]
       end
 
       private

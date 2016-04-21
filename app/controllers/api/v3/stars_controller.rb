@@ -15,11 +15,11 @@ module Api
                          .per(per_page)
                          .order(ordering)
         render json: @stars, serializer: PaginatedSerializer,
-                             each_serializer: StarSerializer
+                             include: params[:include]
       end
 
       def show
-        render json: @star
+        render json: @star, include: params[:include]
       end
 
       def create

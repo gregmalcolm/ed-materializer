@@ -37,7 +37,7 @@ Rails.application.routes.draw do
             get :md5
           end
         end
-        resources :world_surveys, only: [:index, :show] do
+        resources :world_surveys, path: 'world-surveys', only: [:index, :show] do
           collection do
             get :download
             get :md5
@@ -62,7 +62,7 @@ Rails.application.routes.draw do
           get :md5
         end
       end
-      resources :world_surveys, only: [:index, :show] do
+      resources :world_surveys, path: 'world-surveys', only: [:index, :show] do
         collection do
           get :download
           get :md5

@@ -14,11 +14,11 @@ module Api
                           .per(per_page)
                           .order(ordering)
         render json: @worlds, serializer: PaginatedSerializer,
-                              each_serializer: WorldSerializer
+                              include: params[:include]
       end
 
       def show
-        render json: @world
+        render json: @world, include: params[:include]
       end
 
       def create

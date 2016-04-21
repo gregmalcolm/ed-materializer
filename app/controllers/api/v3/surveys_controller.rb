@@ -23,11 +23,11 @@ module Api
                                  per(per_page).
                                  order(ordering)
         render json: @surveys, serializer: PaginatedSerializer,
-                                    each_serializer: SurveySerializer
+                               include: params[:include]
       end
 
       def show
-        render json: @survey
+        render json: @survey, include: params[:include]
       end
 
       def create

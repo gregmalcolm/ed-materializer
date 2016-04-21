@@ -16,11 +16,11 @@ module Api
                              .per(per_page)
                              .order(ordering)
         render json: @basecamps, serializer: PaginatedSerializer,
-                                 each_serializer: BasecampSerializer
+                                 include: params[:include]
       end
 
       def show
-        render json: @basecamp
+        render json: @basecamp, include: params[:include]
       end
 
       def create
