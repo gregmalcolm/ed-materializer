@@ -41,7 +41,6 @@ class ApplicationController < ActionController::API
     end
 
     # Workarounds
-    debugger
     devise_parameter_sanitizer.instance_values['permitted'][:sign_up] = sign_up_permits
     
   end
