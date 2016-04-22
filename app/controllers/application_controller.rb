@@ -33,7 +33,7 @@ class ApplicationController < ActionController::API
   private
 
   def configure_permitted_parameters
-    sign_up_permits = [ :name, :email, :password, :password_confirmation, :confirm_success_url ]
+    sign_up_permits = [ :name, :email, :password, :password_confirmation]
     
     # The right way
     devise_parameter_sanitizer.for(:sign_up) do |user_params|
@@ -41,7 +41,8 @@ class ApplicationController < ActionController::API
     end
 
     # Workarounds
-    devise_parameter_sanitizer.instance_evals['permitted']['sign_up'] = sign_up_permits
+    debugger
+    devise_parameter_sanitizer.instance_values['permitted'][:sign_up] = sign_up_permits
     
   end
 end
