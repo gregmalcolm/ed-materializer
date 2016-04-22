@@ -1,6 +1,8 @@
 class ApplicationController < ActionController::API
   include DeviseTokenAuth::Concerns::SetUserByToken
   include Authorization
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
   def model
     controller_name.classify.constantize rescue nil
   end
@@ -26,5 +28,20 @@ class ApplicationController < ActionController::API
   def sort_direction
     (params[:direction] == "desc") ? "desc" : "asc"
   end
+  
+  
+  private
 
+  def configure_permitted_parameters
+    sign_up_permits = [ :name, :email, :password, :password_confirmation, :confirm_success_url ]
+    
+    # The right way
+    devise_parameter_sanitizer.for(:sign_up) do |user_params|
+      user_params.permit(sign_up_permits)
+    end
+
+    # Workarounds
+    devise_parameter_sanitizer.instance_evals['permitted']['sign_up'] = sign_up_permits
+    
+  end
 end
