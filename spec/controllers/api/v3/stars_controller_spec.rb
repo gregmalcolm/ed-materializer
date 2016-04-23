@@ -203,7 +203,7 @@ describe Api::V3::StarsController, type: :controller do
     
     context "as a normal user" do
       context "deleting own record" do
-        let(:user) { create(:user, name: "Cruento Mucrone") }
+        let(:user) { User.where(name: "Cruento Mucrone").first }
         before { delete :destroy, {id: id}, auth_tokens }
         it { expect(response).to have_http_status(204) }
         it { expect(Star.where(id: id).any?).to be false }
