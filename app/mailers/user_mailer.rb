@@ -1,5 +1,5 @@
 class UserMailer < ApplicationMailer
- default :from => "gregmalcolm@gmail.com"
+ default :from => "noreply@edmaterializer.com"
 
   def test_email
     Rails.logger.debug 'test_email'
