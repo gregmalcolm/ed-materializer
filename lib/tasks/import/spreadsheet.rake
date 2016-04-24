@@ -368,6 +368,7 @@ namespace :import do
       log "Downloading Distant Worlds Spreadsheet..."
       clean_up
       begin
+        require 'open-uri'
         sheets.each do |sheet|
           open("#{imports_dir}/dw_materials_#{sheet[:name]}.csv", 'wb') do |file|
             url = spreadsheet_url(sheet[:gid])
