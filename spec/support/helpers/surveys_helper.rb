@@ -24,7 +24,7 @@ module SurveysHelper
       create(:survey,
              basecamp: basecamp1,
              world: basecamp1.world,
-             commander: "Mwerle",
+             commander: "Lyneria",
              resource: "Metallic Meteorite",
              carbon: 2,
              nickel: 33,

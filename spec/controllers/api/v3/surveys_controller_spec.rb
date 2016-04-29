@@ -27,7 +27,7 @@ describe Api::V3::SurveysController, type: :controller do
     context "drinking from the firehouse" do
       before { get :index, {basecamp_id: basecamps[0].id} }
       it { expect(response).to have_http_status(200) }
-      it { expect(json[1]["attributes"]["commander"]).to be == "Mwerle" }
+      it { expect(json[1]["attributes"]["commander"]).to be == "Lyneria" }
       it { expect(json.size).to be >= 2 }
     end
 
@@ -61,7 +61,7 @@ describe Api::V3::SurveysController, type: :controller do
       context "on updated_before" do
         before { get :index, updated_before: Time.now - 3.days}
         it { expect(commanders).to include "Eoran" }
-        it { expect(commanders).to include "Mwerle" }
+        it { expect(commanders).to include "Lyneria" }
         it { expect(json.size).to be == 2 }
       end
 
@@ -115,7 +115,7 @@ describe Api::V3::SurveysController, type: :controller do
   end
 
   describe "PATCH/PUT #update" do
-    let(:commander) { "Mwerle" }
+    let(:commander) { "Lyneria" }
     let(:updated_survey) { { basecamp_id: basecamps[0].id,
                                   id: surveys[1].id,
                                   survey: {mercury: 51,
@@ -125,7 +125,7 @@ describe Api::V3::SurveysController, type: :controller do
         before { put :update, updated_survey, auth_tokens }
         let(:survey) { Survey.find(surveys[1].id)}
         it { expect(response).to have_http_status(204) }
-        it { expect(survey.commander).to be == "Mwerle" }
+        it { expect(survey.commander).to be == "Lyneria" }
         it { expect(survey.mercury).to be 51 }
       end
       context "updating as a normal user" do
@@ -160,14 +160,14 @@ describe Api::V3::SurveysController, type: :controller do
     end
     
     context "as a normal user" do
-      let(:user) { create(:user, name: "Mwerle") }
+      let(:user) { create(:user, name: "Lyneria") }
       
       context "changing own record" do
         before { put :update, updated_survey, auth_tokens }
         let(:survey) { Survey.find(surveys[1].id)}
         
         it { expect(response).to have_http_status(204) }
-        it { expect(survey.commander).to be == "Mwerle" }
+        it { expect(survey.commander).to be == "Lyneria" }
       end
       
       context "changing someone elses record" do
@@ -197,7 +197,7 @@ describe Api::V3::SurveysController, type: :controller do
       let(:updated_survey) { { id: surveys[1].id,
                                     survey: { basecamp_id: basecamps[0].id, 
                                                    polonium: 5,
-                                                   commander: "Mwerle" } } }
+                                                   commander: "Lyneria" } } }
       before { put :update, updated_survey, auth_tokens }
       let(:survey) { Survey.find(surveys[1].id)}
       it { expect(response).to have_http_status(204) }

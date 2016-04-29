@@ -1,7 +1,9 @@
 module AuthHelper
-  def sign_in(user)
+  def set_json_api_headers
     request.headers["Accept"] = "application/vnd.api+json"
     request.headers["Content-Type"] = "application/vnd.api+json"
+  end
+  def sign_in(user)
     token = user.create_new_auth_token
     user.create_new_auth_token.each_pair do |k,v| 
       request.headers[k]=v
