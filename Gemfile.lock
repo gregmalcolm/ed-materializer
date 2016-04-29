@@ -71,6 +71,8 @@ GEM
     hashie (3.4.3)
     i18n (0.7.0)
     json (1.8.3)
+    jsonapi-resources (0.7.0)
+      rails (>= 4.0)
     kaminari (0.16.3)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
@@ -182,6 +184,7 @@ DEPENDENCIES
   devise_token_auth (= 0.1.37)
   factory_girl_rails
   figaro
+  jsonapi-resources
   kaminari
   omniauth
   paper_trail (~> 4.0.0)

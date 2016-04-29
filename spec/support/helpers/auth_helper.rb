@@ -1,7 +1,13 @@
 module AuthHelper
-  #def sign_in(user)
-  #  user.create_new_auth_token
-  #end
+  def sign_in(user)
+    request.headers["Accept"] = "application/vnd.api+json"
+    request.headers["Content-Type"] = "application/vnd.api+json"
+    token = user.create_new_auth_token
+    user.create_new_auth_token.each_pair do |k,v| 
+      request.headers[k]=v
+    end
+    token
+  end
 
   def spawn_users
     { 
