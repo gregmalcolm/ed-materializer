@@ -3,6 +3,7 @@ module Api
     class WorldsController < ApplicationController
       include JSONAPI::ActsAsResourceController
       include DataDumpActions
+      include ErrorReformatter
 
       before_action :authorize_user!, except: [:index, :show, :download, :md5]
       before_action :set_world, only: [:show, :update, :destroy]
@@ -28,7 +29,7 @@ module Api
         if @world.save
           render json: @world, status: :created, location: @world
         else
-          render json: @world.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@world.errors), status: :unprocessable_entity
         end
       end
 
