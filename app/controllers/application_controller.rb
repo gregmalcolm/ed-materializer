@@ -2,6 +2,7 @@ class ApplicationController < ActionController::API
   include DeviseTokenAuth::Concerns::SetUserByToken
   include Authorization
   include JsonApiCustomizations
+  include ErrorReformatter
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   def model

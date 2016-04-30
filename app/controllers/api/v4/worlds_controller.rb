@@ -3,7 +3,6 @@ module Api
     class WorldsController < ApplicationController
       include JSONAPI::ActsAsResourceController
       include DataDumpActions
-      include ErrorReformatter
 
       before_action :authorize_user!, except: [:index, :show, :download, :md5]
       before_action :set_world, only: [:show, :update, :destroy]
@@ -40,7 +39,7 @@ module Api
         if @world.errors.blank? && @world.update(world_params)
           head :no_content
         else
-          render json: @world.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@world.errors), status: :unprocessable_entity
         end
       end
 
@@ -49,7 +48,7 @@ module Api
           @world.destroy
           head :no_content
         else
-          render json: {errors: ["Forbidden because of dependencies."]}, status: 403
+          render json: {errors: [details: "Forbidden because of dependencies."]}, status: 403
         end
       end
 

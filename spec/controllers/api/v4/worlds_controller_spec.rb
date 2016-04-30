@@ -13,7 +13,8 @@ describe Api::V4::WorldsController, type: :controller do
   before { set_json_api_headers }
   let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)["data"]}
-  let(:json_errors) { JSON.parse(response.body) }
+  let(:json_errors) { JSON.parse(response.body)["errors"] }
+  let(:validation_errors) { json_errors.map { |e| e["detail"] } }
 
   describe "GET #index" do
     let(:updaters) { json.map { |j| j["attributes"]["updater"] } }
@@ -93,7 +94,7 @@ describe Api::V4::WorldsController, type: :controller do
       before { create :world, new_world }
       before { post :create, new_world_json, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["world"]).to include "has already been taken for this system" }
+      it { expect(validation_errors).to include "World has already been taken for this system" }
     end
 
     context "rejects blanks in key fields" do
@@ -106,9 +107,9 @@ describe Api::V4::WorldsController, type: :controller do
                            }
       before { post :create, new_world_json, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["updater"]).to include "can't be blank" }
-      it { expect(json_errors["system_name"]).to include "can't be blank" }
-      it { expect(json_errors["world"]).to include "can't be blank" }
+      it { expect(validation_errors).to include "Updater can't be blank" }
+      it { expect(validation_errors).to include "System name can't be blank" }
+      it { expect(validation_errors).to include "World can't be blank" }
     end
 
     context "when checking for clashing systems, take into account casing" do
@@ -127,13 +128,13 @@ describe Api::V4::WorldsController, type: :controller do
       before { create :world, new_world }
       before { post :create, clashing_world, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["world"]).to include "has already been taken for this system" }
+      it { expect(validation_errors).to include "World has already been taken for this system" }
     end
 
     context "unauthorized" do
       before { post :create, new_world_json}
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -174,13 +175,13 @@ describe Api::V4::WorldsController, type: :controller do
       before { patch :update, updated_world, auth_tokens }
       
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["system_name"]).to include "cannot be renamed this way" }
+      it { expect(validation_errors).to include "System name cannot be renamed this way" }
     end
 
     context "unauthenticated" do
       before { patch :update, updated_world }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -244,7 +245,7 @@ describe Api::V4::WorldsController, type: :controller do
       let(:id) { worlds[0].id }
       before { delete :destroy, {id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
 
     context "unauthorized banned user" do
@@ -252,7 +253,7 @@ describe Api::V4::WorldsController, type: :controller do
       let(:auth_tokens) { sign_in users[:banned]}
       before { delete :destroy, {id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
 
   end

@@ -13,7 +13,8 @@ describe Api::V4::StarsController, type: :controller do
   before { set_json_api_headers }
   let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)["data"]}
-  let(:json_errors) { JSON.parse(response.body) }
+  let(:json_errors) { JSON.parse(response.body)["errors"] }
+  let(:validation_errors) { json_errors.map { |e| e["detail"] } }
 
   describe "GET #index" do
     let(:updaters) { json.map { |j| j["attributes"]["updater"] } }
@@ -95,7 +96,7 @@ describe Api::V4::StarsController, type: :controller do
       before { create :star, new_star }
       before { post :create, new_star_json, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["star"]).to include "has already been taken for this system" }
+      it { expect(validation_errors).to include "Star has already been taken for this system" }
     end
 
     context "rejects blanks in key fields" do
@@ -108,9 +109,9 @@ describe Api::V4::StarsController, type: :controller do
                            }
       before { post :create, new_star_json, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["updater"]).to include "can't be blank" }
-      it { expect(json_errors["system_name"]).to include "can't be blank" }
-      it { expect(json_errors["star"]).to_not include "can't be blank" }
+      it { expect(validation_errors).to include "Updater can't be blank" }
+      it { expect(validation_errors).to include "System name can't be blank" }
+      it { expect(validation_errors).to_not include "Star can't be blank" }
     end
 
     context "when checking for clashing systems, take into account casing" do
@@ -129,7 +130,7 @@ describe Api::V4::StarsController, type: :controller do
       before { create :star, new_star }
       before { post :create, clashing_star, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["star"]).to include "has already been taken for this system" }
+      it { expect(validation_errors).to include "Star has already been taken for this system" }
     end
 
     context "as a normal user" do
@@ -144,7 +145,7 @@ describe Api::V4::StarsController, type: :controller do
     context "unauthorized" do
       before { post :create, new_star_json }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -186,13 +187,13 @@ describe Api::V4::StarsController, type: :controller do
       before { put :update, updated_star, auth_tokens }
       
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["system_name"]).to include "cannot be renamed this way" }
+      it { expect(validation_errors).to include "System name cannot be renamed this way" }
     end
 
     context "unauthenticated" do
       before { put :update, updated_star }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
     
     context "as a banned user" do
@@ -200,7 +201,7 @@ describe Api::V4::StarsController, type: :controller do
       before { put :update, updated_star, auth_tokens }
       
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -244,7 +245,7 @@ describe Api::V4::StarsController, type: :controller do
     context "unauthenticated" do
       before { delete :destroy, {id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
     
     context "as an admin" do

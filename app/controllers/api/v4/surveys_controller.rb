@@ -38,7 +38,7 @@ module Api
           render json: @survey, status: :created, 
                                 location: @survey
         else
-          render json: @survey.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@survey.errors), status: :unprocessable_entity
         end
       end
 
@@ -48,7 +48,7 @@ module Api
         if @survey.update(edit_survey_params)
           head :no_content
         else
-          render json: @survey.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@survey.errors), status: :unprocessable_entity
         end
       end
 

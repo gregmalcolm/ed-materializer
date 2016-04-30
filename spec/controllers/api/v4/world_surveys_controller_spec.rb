@@ -9,7 +9,6 @@ describe Api::V4::WorldSurveysController, type: :controller do
   let!(:worlds) { spawn_worlds }
   let!(:world_surveys) { spawn_world_surveys(world1: worlds[0], world2: worlds[1], world3: worlds[2]) }
   let(:json) { JSON.parse(response.body)["data"]}
-  let(:json_errors) { JSON.parse(response.body) }
 
   describe "GET #index" do
     let(:updaters) { json.map { |j| j["attributes"]["updater"] } }

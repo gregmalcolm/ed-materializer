@@ -18,7 +18,8 @@ describe Api::V4::BasecampsController, type: :controller do
   before { set_json_api_headers }
   let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)["data"]}
-  let(:json_errors) { JSON.parse(response.body) }
+  let(:json_errors) { JSON.parse(response.body)["errors"] }
+  let(:validation_errors) { json_errors.map { |e| e["detail"] } }
 
   describe "GET #index" do
     let(:updaters) { json.map { |j| j["attributes"]["updater"] } }
@@ -113,7 +114,7 @@ describe Api::V4::BasecampsController, type: :controller do
       before { post :create, { world_id: worlds[1].id, 
                               data: new_basecamp_json[:data] }, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["basecamp"][0]).to match(/has already been taken/) }
+      it { expect(validation_errors[0]).to match(/has already been taken/) }
     end
     
     context "expects a world id" do
@@ -133,8 +134,8 @@ describe Api::V4::BasecampsController, type: :controller do
                               }
       before { post :create, new_basecamp_json, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["name"]).to include "can't be blank" }
-      it { expect(json_errors["updater"]).to include "can't be blank" }
+      it { expect(validation_errors).to include "Name can't be blank" }
+      it { expect(validation_errors).to include "Updater can't be blank" }
     end
 
     context "when checking for clashing names, take into account casing" do
@@ -152,13 +153,13 @@ describe Api::V4::BasecampsController, type: :controller do
       let!(:existing_basecamp) { create :basecamp, combined_attrs(new_basecamp, worlds[1].id) }
       before { post :create, clashing_basecamp, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["basecamp"][0]).to match(/has already been taken/) }
+      it { expect(validation_errors[0]).to match(/has already been taken/) }
     end
 
     context "unauthorized" do
       before { post :create, new_basecamp_json  }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -214,7 +215,7 @@ describe Api::V4::BasecampsController, type: :controller do
     context "unauthenticated" do
       before { patch :update, updated_basecamp }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -268,7 +269,7 @@ describe Api::V4::BasecampsController, type: :controller do
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
 
     context "unauthorized banned user" do
@@ -276,7 +277,7 @@ describe Api::V4::BasecampsController, type: :controller do
       before { delete :destroy, {world_id: worlds[0].id,
                                  id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 end

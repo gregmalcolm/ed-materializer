@@ -20,7 +20,8 @@ describe Api::V4::SurveysController, type: :controller do
   before { set_json_api_headers }
   let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)["data"]}
-  let(:json_errors) { JSON.parse(response.body) }
+  let(:json_errors) { JSON.parse(response.body)["errors"] }
+  let(:validation_errors) { json_errors.map { |e| e["detail"] } }
 
   describe "GET #index" do
     let(:commanders) { json.map { |j| j["attributes"]["commander"] } }
@@ -120,7 +121,7 @@ describe Api::V4::SurveysController, type: :controller do
       before { post :create, { basecamp_id: basecamps[1].id, 
                                survey: new_survey } }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -245,7 +246,7 @@ describe Api::V4::SurveysController, type: :controller do
     context "unauthenticated" do
       before { patch :update, updated_survey }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -302,7 +303,7 @@ describe Api::V4::SurveysController, type: :controller do
       before { delete :destroy, {basecamp_id: basecamps[0].id,
                                  id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
 
     context "unauthorized banned user" do
@@ -310,7 +311,7 @@ describe Api::V4::SurveysController, type: :controller do
       before { delete :destroy, {basecamp_id: basecamps[0].id,
                                  id: id}, auth_tokens }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 end

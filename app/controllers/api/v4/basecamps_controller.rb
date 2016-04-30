@@ -31,7 +31,7 @@ module Api
           render json: @basecamp, status: :created, 
                                   location: @world
         else
-          render json: @basecamp.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@basecamp.errors), status: :unprocessable_entity
         end
       end
 
@@ -41,7 +41,7 @@ module Api
         if @basecamp.update(basecamp_params)
           head :no_content
         else
-          render json: @basecamp.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@basecamp.errors), status: :unprocessable_entity
         end
       end
       

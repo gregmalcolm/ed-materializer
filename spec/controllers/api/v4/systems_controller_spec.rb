@@ -13,7 +13,8 @@ describe Api::V4::SystemsController, type: :controller do
   before { set_json_api_headers }
   let(:auth_tokens) { sign_in user}
   let(:json) { JSON.parse(response.body)["data"]}
-  let(:json_errors) { JSON.parse(response.body) }
+  let(:json_errors) { JSON.parse(response.body)["errors"] }
+  let(:validation_errors) { json_errors.map { |e| e["detail"] } }
 
   describe "GET #index" do
     let(:updaters) { json.map { |j| j["attributes"]["updater"] } }
@@ -71,7 +72,7 @@ describe Api::V4::SystemsController, type: :controller do
       before { create :system, new_system }
       before { post :create, new_system_json, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["system"]).to include "name has already been taken for this system" }
+      it { expect(validation_errors).to include "System name has already been taken for this system" }
     end
 
     context "when checking for clashing systems, take into account casing" do
@@ -86,7 +87,7 @@ describe Api::V4::SystemsController, type: :controller do
       before { create :system, new_system }
       before { post :create, clashing_system, auth_tokens }
       it { expect(response).to have_http_status(422) }
-      it { expect(json_errors["system"]).to include "name has already been taken for this system" }
+      it { expect(validation_errors).to include "System name has already been taken for this system" }
     end
 
     context "as a normal user" do
@@ -101,7 +102,7 @@ describe Api::V4::SystemsController, type: :controller do
     context "unauthorized" do
       before { post :create, new_system_json }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -128,7 +129,7 @@ describe Api::V4::SystemsController, type: :controller do
     context "unauthenticated" do
       before { patch :update, updated_system }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
     
     context "as a banned user" do
@@ -136,7 +137,7 @@ describe Api::V4::SystemsController, type: :controller do
       before { patch :update, updated_system, auth_tokens }
       
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
   end
 
@@ -168,7 +169,7 @@ describe Api::V4::SystemsController, type: :controller do
     context "unauthenticated" do
       before { delete :destroy, {id: id} }
       it { expect(response).to have_http_status(401) }
-      it { expect(json_errors["errors"]).to include "Authorized users only." }
+      it { expect(json_errors).to include "Authorized users only." }
     end
     
     context "as an admin" do

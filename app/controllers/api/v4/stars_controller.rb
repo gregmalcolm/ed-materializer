@@ -29,7 +29,7 @@ module Api
         if @star.save
           render json: @star, status: :created, location: @star
         else
-          render json: @star.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@star.errors), status: :unprocessable_entity
         end
       end
 
@@ -40,7 +40,7 @@ module Api
         if @star.errors.blank? && @star.update(star_params)
           head :no_content
         else
-          render json: @star.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@star.errors), status: :unprocessable_entity
         end
       end
 

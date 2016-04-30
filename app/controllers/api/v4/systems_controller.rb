@@ -29,7 +29,7 @@ module Api
         if @system.save
           render json: @system, status: :created, location: @system
         else
-          render json: @system.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@system.errors), status: :unprocessable_entity
         end
       end
 
@@ -39,7 +39,7 @@ module Api
         if @system.update(system_params)
           head :no_content
         else
-          render json: @system.errors, status: :unprocessable_entity
+          render json: errors_as_jsonapi(@system.errors), status: :unprocessable_entity
         end
       end
 
