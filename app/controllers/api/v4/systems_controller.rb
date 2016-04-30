@@ -73,7 +73,7 @@ module Api
                       :poi_name,
                       :notes,
                       :image_url,
-                      :tags)
+                      tags: [])
       end
 
       def filtered

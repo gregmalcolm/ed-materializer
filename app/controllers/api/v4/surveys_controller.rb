@@ -77,6 +77,7 @@ module Api
                    .require(:attributes)
                    .permit(:commander,
                            :resource, 
+                           :surveyed_at,
                            :notes,
                            :image_url,
                            :error_flag,
@@ -106,7 +107,10 @@ module Api
                            :ruthenium,
                            :technetium,
                            :tellurium,
-                           :yttrium)
+                           :yttrium,
+                           surveyed_by: []
+                          )
+        sp[:surveyed_at] ||= Date.today
         sp = add_relationship_id(sp, :world)
         sp = add_relationship_id(sp, :basecamp)
         sp = add_relationship_id(sp, :system)

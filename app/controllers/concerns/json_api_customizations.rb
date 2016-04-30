@@ -15,7 +15,8 @@ module JsonApiCustomizations
 
   def add_relationship_id(new_params, key)
     id = params[:data][:relationships]
-    id = id[:key] if id
+    id = id[key] if id
+    id = id[:data] if id
     id = id[:id] if id
     new_params["#{key.to_s}_id".to_sym] = id if id
     new_params
