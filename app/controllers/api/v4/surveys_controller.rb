@@ -33,6 +33,7 @@ module Api
 
       def create
         @survey = Survey.new(new_survey_params)
+        @survey[:surveyed_at] ||= Date.today
 
         if @survey.save
           render json: @survey, status: :created, 
@@ -110,7 +111,6 @@ module Api
                            :yttrium,
                            surveyed_by: []
                           )
-        sp[:surveyed_at] ||= Date.today
         sp = add_relationship_id(sp, :world)
         sp = add_relationship_id(sp, :basecamp)
         sp = add_relationship_id(sp, :system)
