@@ -40,7 +40,7 @@ describe Star do
       subject! { create :star, system_name: "Dagabah" }
       let(:system) { System.where(system: "Dagabah").first }
       it { expect(system.system).to be == "Dagabah" }
-      it { expect(system.updater).to be == "Jameson"  }
+      it { expect(system.updater).to be == "Corbain Moran"  }
       it { expect(subject.system).to be == system  }
     end
   end

@@ -8,7 +8,7 @@ class System < ActiveRecord::Base
   has_many :world_surveys, through: :worlds
   has_many :surveys, through: :basecamps
 
-  before_save :update_children_system_names
+  after_save :update_children_system_names
 
   scope :by_system, ->(system) { where("UPPER(TRIM(system))=?", system.to_s.upcase.strip ) if system }
   scope :by_query, ->(query) { where("UPPER(TRIM(system)) like ?", "%#{query.to_s.upcase.strip}%" ) if query }
@@ -45,8 +45,12 @@ class System < ActiveRecord::Base
   
   def update_children_system_names
     if self.id
-      Star.where(system_id: self.id).update_all(system_name: self.system)
-      World.where(system_id: self.id).update_all(system_name: self.system)
+      Star.where(system_id: self.id)
+          .where.not(system_name: self.system)
+          .update_all(system_name: self.system)
+      World.where(system_id: self.id)
+           .where.not(system_name: self.system)
+           .update_all(system_name: self.system)
     end
   end
 end

@@ -2,7 +2,7 @@ class World < ActiveRecord::Base
   include Updater
   has_paper_trail
 
-  before_save :update_system
+  after_save :update_system
 
   belongs_to :system
   has_many :basecamps, dependent: :destroy
@@ -43,14 +43,20 @@ class World < ActiveRecord::Base
   end
 
   def update_system
-    parent = parent_system
-    attributes = { system: self.system_name, updater: self.updater }
-    if parent
-      parent.update(attributes)
-    else
-      parent = System.create(attributes)
+    parent = system
+    if parent.blank?
+      parent = parent_system
+      if parent.blank?
+        attributes = { system: self.system_name, updater: self.updater }
+        parent = System.create(attributes)
+      end
     end
-    self.system_id = parent.id
+    if parent.system != self.system_name
+      parent.update(system: self.system_name, updater: self.updater)
+    end
+    if parent.id && self.system_id != parent.id
+      self.update(system_id: parent.id)
+    end
   end
 end
 
