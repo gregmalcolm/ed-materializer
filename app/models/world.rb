@@ -14,6 +14,10 @@ class World < ActiveRecord::Base
                                                 system_name.to_s.upcase.strip ) if system_name }
   scope :by_world,      ->(world)       { where("UPPER(TRIM(world))=?", 
                                                 world.to_s.upcase.strip ) if world }
+  scope :by_system_like, ->(system_name) { where("UPPER(TRIM(system_name)) like ?", 
+                                                "#{system_name.to_s.upcase.strip}%" ) if system_name }
+  scope :by_world_like,  ->(world)       { where("UPPER(TRIM(world)) like ?", 
+                                                "#{world.to_s.upcase.strip}%" ) if world }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
 
