@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160422135701) do
+ActiveRecord::Schema.define(version: 20160523163132) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,9 +29,11 @@ ActiveRecord::Schema.define(version: 20160422135701) do
     t.float    "landing_zone_lon"
     t.text     "notes"
     t.string   "image_url"
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
-    t.string   "updaters",                                     array: true
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
+    t.string   "updaters",                                                     array: true
+    t.string   "ed_version"
+    t.boolean  "numeric",                         default: false, null: false
   end
 
   add_index "basecamps", ["updated_at"], name: "index_basecamps_on_updated_at", using: :btree
@@ -109,6 +111,8 @@ ActiveRecord::Schema.define(version: 20160422135701) do
     t.boolean  "error_flag",                   default: false, null: false
     t.text     "error_description"
     t.string   "error_updater"
+    t.string   "ed_version"
+    t.boolean  "numeric",                      default: false, null: false
   end
 
   add_index "surveys", ["basecamp_id", "commander", "resource", "updated_at"], name: "index_ssurveys_on_bc_com_res_upd", using: :btree

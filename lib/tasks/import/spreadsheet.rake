@@ -285,6 +285,8 @@ namespace :import do
                          terrain_hue_3: color_lookup(data["Terrain Hue 3"]),
                          landing_zone_lat: number(data["Landing Zone Latitude"]),
                          landing_zone_lon: number(data["Landing Zone Longitude"]),
+                         ed_version: data["Version"],
+                         numeric: (data["Resource"] != "BINARY"),
                          notes: data["Notes"]
                        }
           if item.blank?
@@ -330,6 +332,8 @@ namespace :import do
                                    resource: resource,
                                    surveyed_by: [commander],
                                    surveyed_at: survey_data["Date"],
+                                   ed_version: survey_data["Version"],
+                                   numeric: (resource != "BINARY"),
                                    carbon: data["C"],
                                    iron: data["Fe"],
                                    nickel: data["Ni"],
