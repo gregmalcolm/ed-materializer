@@ -12,12 +12,14 @@ class World < ActiveRecord::Base
   scope :by_system_id,  ->(system_id) { where(system_id: system_id) if system_id }
   scope :by_system,     ->(system_name) { where("UPPER(TRIM(system_name))=?", 
                                                 system_name.to_s.upcase.strip ) if system_name }
-  scope :by_world,      ->(world)       { where("UPPER(TRIM(world))=?", 
+  scope :by_world,      ->(world) { where("UPPER(TRIM(world))=?", 
                                                 world.to_s.upcase.strip ) if world }
   scope :by_system_like, ->(system_name) { where("UPPER(TRIM(system_name)) like ?", 
-                                                "#{system_name.to_s.upcase.strip}%" ) if system_name }
-  scope :by_world_like,  ->(world)       { where("UPPER(TRIM(world)) like ?", 
-                                                "#{world.to_s.upcase.strip}%" ) if world }
+                                                 "#{system_name.to_s.upcase.strip}%" ) if system_name }
+  scope :by_world_like,  ->(world) { where("UPPER(TRIM(world)) like ?", 
+                                           "#{world.to_s.upcase.strip}%" ) if world }
+  scope :by_full_world_like, ->(full_world) { where("UPPER(TRIM(system_name)) || ' ' || UPPER(TRIM(world)) like ?", 
+                                                    "#{full_world.to_s.upcase.strip}%" ) if full_world }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
 

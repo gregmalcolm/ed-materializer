@@ -100,6 +100,7 @@ module Api
              .by_world(params[:world])
              .by_system_like(params[:system_like])
              .by_world_like(params[:world_like])
+             .by_full_world_like(params[:full_world_like])
              .updated_before(params[:updated_before])
              .updated_after(params[:updated_after])
       end

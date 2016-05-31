@@ -87,6 +87,7 @@ module Api
             .by_system(params[:system])
             .by_updater(params[:updater])
             .by_star(params[:star])
+            .by_full_star_like(params[:full_star_like])
             .updated_before(params[:updated_before])
             .updated_after(params[:updated_after])
       end

@@ -10,6 +10,8 @@ class Star < ActiveRecord::Base
   scope :by_system,     ->(system_name){ where("UPPER(TRIM(system_name))=?", 
                                                system_name.to_s.upcase.strip ) if system_name }
   scope :by_star,       ->(star)    { where("COALESCE(UPPER(TRIM(star)),'')=?", star.to_s.upcase.strip ) if star }
+  scope :by_full_star_like, ->(full_star) { where("UPPER(TRIM(system_name)) || ' ' || UPPER(TRIM(star)) like ?", 
+                                                  "#{full_star.to_s.upcase.strip}%" ) if full_star }
 
   scope :not_me, ->(id) { where.not(id: id) if id }
 
