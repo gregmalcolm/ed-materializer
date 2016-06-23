@@ -80,6 +80,7 @@ module Api
         System.by_query(params[:q])
               .by_system(params[:system])
               .by_updater(params[:updater])
+              .by_creator(params[:creator])
               .updated_before(params[:updated_before])
               .updated_after(params[:updated_after])
       end

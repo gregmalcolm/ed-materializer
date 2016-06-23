@@ -97,6 +97,7 @@ module Api
         World.by_system_id(params[:system_id])
              .by_system(params[:system])
              .by_updater(params[:updater])
+             .by_creator(params[:creator])
              .by_world(params[:world])
              .by_system_like(params[:system_like])
              .by_world_like(params[:world_like])

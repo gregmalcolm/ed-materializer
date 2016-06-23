@@ -92,6 +92,7 @@ module Api
         Basecamp.by_world_id(params[:world_id])
                 .by_name(params[:name])
                 .by_updater(params[:updater])
+                .by_creator(params[:creator])
                 .updated_before(params[:updated_before])
                 .updated_after(params[:updated_after])
       end

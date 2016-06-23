@@ -5,6 +5,7 @@ module Updater
     before_validation :update_updaters
     
     scope :by_updater, ->(updater) { where("UPPER(TRIM(updater))=?", updater.to_s.upcase.strip ) if updater }
+    scope :by_creator, ->(creator) { where("UPPER(TRIM(updaters[1]))=?", creator.to_s.upcase.strip ) if creator }
   end
   
   def creator
